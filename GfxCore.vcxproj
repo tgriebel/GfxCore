@@ -160,6 +160,7 @@
     <ClCompile Include="meshIO.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="aabb.h" />
     <ClInclude Include="bitmap.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="common.h" />
