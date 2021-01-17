@@ -229,6 +229,7 @@ inline bool RayToTriangleIntersection( const Ray& r, const Triangle& tri, bool& 
 }
 
 
+void LoadMaterialObj( const std::string& path, ResourceManager& rm, material_t& material );
 uint32_t LoadModelOff( const std::string& path, ResourceManager& rm );
 uint32_t LoadModelObj( const std::string& path, ResourceManager& rm );
 void StoreModelObj( const std::string& path, ResourceManager& rm, const uint32_t modelIx );

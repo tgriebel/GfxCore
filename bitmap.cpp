@@ -117,9 +117,14 @@ uint32_t Bitmap::ReadInt()
 }
 
 
-void Bitmap::Load( const std::string& filename )
+bool Bitmap::Load( const std::string& filename )
 {
 	instream.open( filename.c_str(), std::ios::in | std::ios::binary );
+
+	if( instream.fail() )
+	{
+		return false;
+	}
 
 	instream.read( reinterpret_cast<char*>( h.magicNum ), 2 );
 
@@ -189,6 +194,8 @@ void Bitmap::Load( const std::string& filename )
 	buffer = nullptr;
 
 	instream.close();
+
+	return true;
 }
 
 

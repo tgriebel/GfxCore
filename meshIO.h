@@ -186,6 +186,15 @@ namespace MeshIO
 		std::string	map_Kd;
 		std::string	map_Disp;
 		std::string	name;
+
+		objMaterial_t()
+		{
+			Ns = 0.0;
+			Ni = 0.0;
+			d = 0.0;
+			Tr = 0.0;
+			illum = 0;
+		}
 	};
 
 	class Tetgen

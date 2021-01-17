@@ -11,14 +11,54 @@
 
 struct mdlHeader_t
 {
-	uint32_t vertexOffset;
-	uint32_t indexOffset;
-	uint32_t imageOffset;
+	uint32_t	info;
 
-	uint32_t numVertices;
-	uint32_t numIndices;
-	uint32_t numImages;
+	uint32_t	vertexOffset;
+	uint32_t	indexOffset;
+	uint32_t	imageOffset;
+
+	uint32_t	numVertices;
+	uint32_t	numIndices;
+	uint32_t	numImages;
+
+	char		materialName[ 256 ];
 };
+
+
+void LoadMaterialObj( const std::string& path, ResourceManager& rm, material_t& material )
+{
+	if( path.size() <= 0 )
+	{
+		return;
+	}
+
+	MeshIO::objMaterial_t objMaterial;
+	MeshIO::ReadMtl( path, objMaterial );
+
+	material.Ni = objMaterial.Ni;
+	material.Ns = objMaterial.Ns;
+	material.Ka = objMaterial.Ka.x;
+	material.Ke = objMaterial.Ke.x;
+	material.Kd = objMaterial.Kd.x;
+	material.Ks = objMaterial.Ks.x;
+	material.Tf = objMaterial.Tf.x;
+	material.Tr = objMaterial.Tr;
+	material.illum = objMaterial.illum;
+	material.textured = false;
+
+	material.name = path.substr( path.find_last_of( '/' ) + 1, path.size() );
+
+	if ( objMaterial.map_Kd.size() > 0 )
+	{
+		Bitmap texture = Bitmap( std::string( "textures/" + objMaterial.map_Kd ) );
+
+		Image<Color> image = Image<Color>( texture.GetWidth(), texture.GetHeight(), Color( 0.0f ), objMaterial.map_Kd.c_str() );
+		BitmapToImage( texture, image );
+		material.colorMapId = rm.StoreImageCopy( image );
+		material.textured = true;
+	}
+}
+
 
 uint32_t LoadModelOff( const std::string& path, ResourceManager& rm )
 {
@@ -209,36 +249,9 @@ uint32_t LoadModelObj( const std::string& path, ResourceManager& rm )
 		model->ibEnd = rm.GetIbOffset();
 	}
 
-	// Set material
-	assert( objMesh.materialLibs.size() <= 1 ); // Just assume 1 material for now
-	if( objMesh.materialLibs.size() > 0 )
-	{
-		std::string& matLib = objMesh.materialLibs[ 0 ];
+	std::string basePath = path.substr( 0, path.find_last_of( '/' ) );
 
-		MeshIO::objMaterial_t material;
-		MeshIO::ReadMtl( std::string( "models/" + matLib ), material );
-
-		model->material.Ni = material.Ni;
-		model->material.Ns = material.Ns;
-		model->material.Ka = material.Ka.x;	
-		model->material.Ke = material.Ke.x;
-		model->material.Kd = material.Kd.x;
-		model->material.Ks = material.Ks.x;
-		model->material.Tf = material.Tf.x;
-		model->material.Tr = material.Tr;
-		model->material.illum = material.illum;
-		model->material.textured = false;
-
-		if( material.map_Kd.size() > 0 )
-		{
-			Bitmap texture = Bitmap( std::string( "textures/" + material.map_Kd ) );
-
-			Image<Color> image = Image<Color>( texture.GetWidth(), texture.GetHeight(), Color( 0.0f ), material.map_Kd.c_str() );
-			BitmapToImage( texture, image );
-			model->material.colorMapId = rm.StoreImageCopy( image );
-			model->material.textured = true;
-		}
-	}
+	LoadMaterialObj( basePath + "/" + objMesh.materialLibs[ 0 ], rm, model->material );
 
 	// MeshIO::WriteObj( std::string( "outtest.obj" ), objMesh );
 	return modelIx;
@@ -360,6 +373,10 @@ uint32_t LoadModelBin( const std::string& path, ResourceManager& rm )
 	rm.PopVB();
 	rm.PopIB();
 
+	// Change this so the material is fully initialized
+	std::string basePath = path.substr( 0, path.find_last_of( '/' ) );
+	LoadMaterialObj( "models/" + std::string( inHeader.materialName ), rm, model->material );
+
 	return modelIx;
 }
 
@@ -378,12 +395,14 @@ void StoreModelBin( const std::string& path, ResourceManager& rm, const uint32_t
 	uint32_t imageBytes = 0;
 
 	mdlHeader_t header;
+	header.info = 0; // version, etc
 	header.vertexOffset = sizeof( mdlHeader_t );
 	header.indexOffset = vertexBytes + header.vertexOffset;
 	header.imageOffset = indexBytes + header.indexOffset;
 	header.numVertices = vertexCnt;
 	header.numIndices = indexCnt;
 	header.numImages = 0;
+	strcpy_s( header.materialName, 256, model->material.name.c_str() );
 
 	uint32_t fileSize = sizeof( mdlHeader_t ) + header.imageOffset + imageBytes;
 

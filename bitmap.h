@@ -36,7 +36,7 @@ public:
 	Bitmap& operator=( const Bitmap& bitmap );
 	static void CopyToPixel( const RGBA& rgba, Pixel& pixel, BitmapFormat format );
 
-	void Load( const std::string& filename );
+	bool Load( const std::string& filename );
 	void Write( const std::string& filename );
 
 	uint32_t GetSize() const;

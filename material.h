@@ -12,6 +12,8 @@ struct lightInput_t
 
 struct material_t
 {
+	std::string	name;
+
 	double		Ka;
 	double		Ke;
 	double		Kd;

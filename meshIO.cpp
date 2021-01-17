@@ -652,9 +652,9 @@ namespace MeshIO
 			{
 				ss >> mtl.map_Kd;
 			}
-			else if ( semanticToken.compare( "map_kd" ) == 0 )
+			else if ( semanticToken.compare( "map_disp" ) == 0 )
 			{
-				ss >> mtl.map_Kd;
+				ss >> mtl.map_Disp;
 			}
 		}
 
