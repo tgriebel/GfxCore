@@ -11,6 +11,8 @@
 #include "common.h"
 #include "material.h"
 
+class ResourceManager;
+
 struct plane_t
 {
 	vec4d halfWidth;
@@ -55,17 +57,6 @@ struct box_t
 	double	height;
 	double	depth;
 	AABB	aabb;
-};
-
-struct vertexBuffer_t
-{
-	std::vector<vertex_t> buffer;
-};
-
-
-struct indexBuffer_t
-{
-	std::vector<uint32_t> buffer;
 };
 
 using imageHandle_t = uint32_t;
@@ -238,8 +229,10 @@ inline bool RayToTriangleIntersection( const Ray& r, const Triangle& tri, bool& 
 }
 
 
-uint32_t LoadModel( const std::string& path, const uint32_t vb, const uint32_t ib );
-uint32_t LoadModelObj( const std::string& path, const uint32_t vb, const uint32_t ib );
-void StoreModelObj( const std::string& path, const uint32_t modelIx );
-void CreateModelInstance( const uint32_t modelIx, const mat4x4d& modelMatrix, const bool smoothNormals, const Color& tint, ModelInstance* outInstance, const material_t* material = nullptr );
-uint32_t CreatePlaneModel( const uint32_t vb, const uint32_t ib, const vec2d& size, const vec2i& cellCnt );
+uint32_t LoadModelOff( const std::string& path, ResourceManager& rm );
+uint32_t LoadModelObj( const std::string& path, ResourceManager& rm );
+void StoreModelObj( const std::string& path, ResourceManager& rm, const uint32_t modelIx );
+uint32_t LoadModelBin( const std::string& path, ResourceManager& rm );
+void StoreModelBin( const std::string& path, ResourceManager& rm, const uint32_t modelIx );
+void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat4x4d& modelMatrix, const bool smoothNormals, const Color& tint, ModelInstance* outInstance, const material_t* material = nullptr );
+uint32_t CreatePlaneModel( ResourceManager& rm, const vec2d& size, const vec2i& cellCnt );

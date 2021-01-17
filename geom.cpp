@@ -4,14 +4,23 @@
 #include <sstream>
 
 #include "geom.h"
+#include "bitmap.h"
+#include "image.h"
+#include "util.h"
 #include "resourceManager.h"
-#include "..\GfxCore\bitmap.h"
-#include "..\GfxCore\image.h"
-#include "..\GfxCore\util.h"
 
-extern ResourceManager rm;
+struct mdlHeader_t
+{
+	uint32_t vertexOffset;
+	uint32_t indexOffset;
+	uint32_t imageOffset;
 
-uint32_t LoadModel( const std::string& path, const uint32_t vb, const uint32_t ib )
+	uint32_t numVertices;
+	uint32_t numIndices;
+	uint32_t numImages;
+};
+
+uint32_t LoadModelOff( const std::string& path, ResourceManager& rm )
 {
 	MeshIO::Off offMesh;
 	MeshIO::ReadOFF( path, offMesh );
@@ -20,10 +29,10 @@ uint32_t LoadModel( const std::string& path, const uint32_t vb, const uint32_t i
 	Model* model = rm.GetModel( modelIx );
 
 	model->name = path;
-	model->vb = vb;
-	model->ib = ib;
-	model->vbOffset = rm.GetVbOffset( vb );
-	model->ibOffset = rm.GetIbOffset( ib );
+	model->vb = rm.GetVB();
+	model->ib = rm.GetIB();;
+	model->vbOffset = rm.GetVbOffset();
+	model->ibOffset = rm.GetIbOffset();
 
 	for ( int32_t i = 0; i < offMesh.verticesCnt; ++i )
 	{
@@ -33,20 +42,20 @@ uint32_t LoadModel( const std::string& path, const uint32_t vb, const uint32_t i
 		Color c( (float)offMesh.vertices[ i ].r, (float)offMesh.vertices[ i ].b, (float)offMesh.vertices[ i ].g, (float)offMesh.vertices[ i ].a );
 		v.color = c.AsR8G8B8A8();
 
-		rm.AddVertex( vb, v );
+		rm.AddVertex( v );
 	}
-	model->vbEnd = rm.GetVbOffset( vb );
+	model->vbEnd = rm.GetVbOffset();
 
 	const size_t triCnt = offMesh.facesCnt;
 	for ( size_t i = 0; i < triCnt; ++i )
 	{
 		const MeshIO::Polytope& face = offMesh.faces[ i ];
 
-		rm.AddIndex( ib, model->vbOffset + face.points[ 0 ] );
-		rm.AddIndex( ib, model->vbOffset + face.points[ 1 ] );
-		rm.AddIndex( ib, model->vbOffset + face.points[ 2 ] );
+		rm.AddIndex( model->vbOffset + face.points[ 0 ] );
+		rm.AddIndex( model->vbOffset + face.points[ 1 ] );
+		rm.AddIndex( model->vbOffset + face.points[ 2 ] );
 	}
-	model->ibEnd = rm.GetIbOffset( ib );
+	model->ibEnd = rm.GetIbOffset();
 
 	model->material.Ka = 1.0;
 	model->material.Tf = 0.5;
@@ -58,7 +67,7 @@ uint32_t LoadModel( const std::string& path, const uint32_t vb, const uint32_t i
 }
 
 
-uint32_t LoadModelObj( const std::string& path, const uint32_t vb, const uint32_t ib )
+uint32_t LoadModelObj( const std::string& path, ResourceManager& rm )
 {
 	/////////////////////////////////////////////
 	//                                         //
@@ -179,25 +188,25 @@ uint32_t LoadModelObj( const std::string& path, const uint32_t vb, const uint32_
 	// Build VB and IB
 	{
 		model->name = path;
-		model->vb = vb;
-		model->ib = ib;
-		model->vbOffset = rm.GetVbOffset( vb );
-		model->ibOffset = rm.GetIbOffset( ib );
+		model->vb = rm.GetVB();
+		model->ib = rm.GetIB();
+		model->vbOffset = rm.GetVbOffset();
+		model->ibOffset = rm.GetIbOffset();
 
 		const uint32_t vertexCnt = uniqueVertices.size();
 		for ( int32_t i = 0; i < vertexCnt; ++i )
 		{
-			rm.AddVertex( vb, uniqueVertices[ i ] );
+			rm.AddVertex( uniqueVertices[ i ] );
 		}
-		model->vbEnd = rm.GetVbOffset( vb );
+		model->vbEnd = rm.GetVbOffset();
 
 		const size_t indexCnt = indices.size();
 		assert( ( indexCnt % 3 ) == 0 );
 		for ( size_t i = 0; i < indexCnt; i++ )
 		{
-			rm.AddIndex( ib, model->vbOffset + indices[ i ] );
+			rm.AddIndex( model->vbOffset + indices[ i ] );
 		}
-		model->ibEnd = rm.GetIbOffset( ib );
+		model->ibEnd = rm.GetIbOffset();
 	}
 
 	// Set material
@@ -236,14 +245,17 @@ uint32_t LoadModelObj( const std::string& path, const uint32_t vb, const uint32_
 }
 
 
-void StoreModelObj( const std::string& path, const uint32_t modelIx )
+void StoreModelObj( const std::string& path, ResourceManager& rm, const uint32_t modelIx )
 {
 	const Model* model = rm.GetModel( modelIx );
+
+	rm.PushVB( model->vb );
+	rm.PushIB( model->ib );
 
 	MeshIO::Obj meshObj;
 	for ( uint32_t i = model->vbOffset; i < model->vbEnd; ++i )
 	{
-		const vertex_t* v = rm.GetVertex( model->vb, i );
+		const vertex_t* v = rm.GetVertex( i );
 
 		MeshIO::vector_t vert;
 		vert.x = v->pos[ 0 ];
@@ -275,15 +287,15 @@ void StoreModelObj( const std::string& path, const uint32_t modelIx )
 	for ( uint32_t i = model->ibOffset; i < model->ibEnd; i += 3 )
 	{
 		MeshIO::objFace_t face;
-		for( uint32_t j = 0; j < 3; ++ j )
+		for ( uint32_t j = 0; j < 3; ++j )
 		{
-			const uint32_t index = rm.GetIndex( model->vb, i + j ) - model->vbOffset;
+			const uint32_t index = rm.GetIndex( i + j ) - model->vbOffset;
 
 			MeshIO::objIndex_t indexTuple;
 			indexTuple.vertexIx = index;
 			indexTuple.uvIx = index;
 			indexTuple.normalIx = index;
-		
+
 			// TODO: deduplicate
 			face.vertices.push_back( indexTuple );
 		}
@@ -295,10 +307,110 @@ void StoreModelObj( const std::string& path, const uint32_t modelIx )
 	meshObj.groups[ model->name ] = group;
 
 	MeshIO::WriteObj( path, meshObj );
+
+	rm.PopVB();
+	rm.PopIB();
 }
 
 
-void CreateModelInstance( const uint32_t modelIx, const mat4x4d& modelMatrix, const bool smoothNormals, const Color& tint, ModelInstance* outInstance, const material_t* material )
+uint32_t LoadModelBin( const std::string& path, ResourceManager& rm )
+{
+	mdlHeader_t inHeader;
+	uint32_t byteChkSize = 0;
+	uint32_t inFileSize = 0;
+
+	std::fstream file;
+
+	file.open( path, std::fstream::in | std::ios::binary );
+	file.read( (char*)&inHeader, sizeof( mdlHeader_t ) );
+
+	inFileSize = inHeader.imageOffset;
+
+	auto inVert = std::unique_ptr<vertex_t[]>( new vertex_t[ inHeader.numVertices ] );
+	auto inIndices = std::unique_ptr<uint32_t[]>( new uint32_t[ inHeader.numIndices ] );
+
+	file.read( (char*)inVert.get(), sizeof( vertex_t ) * inHeader.numVertices );
+	file.read( (char*)inIndices.get(), sizeof( uint32_t ) * inHeader.numIndices );
+
+	file.close();
+
+	uint32_t modelIx = rm.AllocModel();
+	Model* model = rm.GetModel( modelIx );
+	model->vb = rm.AllocVB( inHeader.numVertices );
+	model->ib = rm.AllocIB( inHeader.numIndices );
+
+	rm.PushVB( model->vb );
+	rm.PushIB( model->ib );
+
+	model->vbOffset = rm.GetIbOffset();
+	for ( uint32_t i = 0; i < inHeader.numVertices; ++i )
+	{
+		rm.AddVertex( inVert[ i ] );
+	}
+	model->vbEnd = rm.GetVbOffset();
+
+	model->ibOffset = 0;
+	for ( uint32_t i = 0; i < inHeader.numIndices; ++i )
+	{
+		rm.AddIndex( inIndices[ i ] );
+	}
+	model->ibEnd = rm.GetIbOffset();
+	model->name = path;
+
+	rm.PopVB();
+	rm.PopIB();
+
+	return modelIx;
+}
+
+
+void StoreModelBin( const std::string& path, ResourceManager& rm, const uint32_t modelIx )
+{
+	Model* model = rm.GetModel( modelIx );
+
+	rm.PushVB( model->vb );
+	rm.PushIB( model->ib );
+
+	uint32_t vertexCnt = rm.GetVbOffset();
+	uint32_t indexCnt = rm.GetIbOffset();
+	uint32_t vertexBytes = sizeof( vertex_t ) * vertexCnt;
+	uint32_t indexBytes = sizeof( uint32_t ) * indexCnt;
+	uint32_t imageBytes = 0;
+
+	mdlHeader_t header;
+	header.vertexOffset = sizeof( mdlHeader_t );
+	header.indexOffset = vertexBytes + header.vertexOffset;
+	header.imageOffset = indexBytes + header.indexOffset;
+	header.numVertices = vertexCnt;
+	header.numIndices = indexCnt;
+	header.numImages = 0;
+
+	uint32_t fileSize = sizeof( mdlHeader_t ) + header.imageOffset + imageBytes;
+
+	auto binBucket = std::unique_ptr<uint8_t[]>( new uint8_t[ fileSize ] );
+
+	memcpy( binBucket.get(), &header, sizeof( mdlHeader_t ) );
+
+	vertex_t* vertAry = rm.GetVertex( 0 );
+	memcpy( binBucket.get() + header.vertexOffset, vertAry, vertexBytes );
+
+	for ( int32_t i = 0; i < indexCnt; ++i )
+	{
+		uint32_t index = rm.GetIndex( i );
+		memcpy( binBucket.get() + header.indexOffset + sizeof( uint32_t ) * i, &index, sizeof( uint32_t ) );
+	}
+
+	std::fstream file;
+	file.open( path, std::fstream::out | std::ios::binary );
+	file.write( (const char*)binBucket.get(), fileSize );
+	file.close();
+
+	rm.PopVB();
+	rm.PopIB();
+}
+
+
+void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat4x4d& modelMatrix, const bool smoothNormals, const Color& tint, ModelInstance* outInstance, const material_t* material )
 {
 	const Model* model = rm.GetModel( modelIx );
 
@@ -306,6 +418,9 @@ void CreateModelInstance( const uint32_t modelIx, const mat4x4d& modelMatrix, co
 	const uint32_t vb = rm.AllocVB();
 	outInstance->modelIx = modelIx;
 	outInstance->triCache.reserve( ( model->ibEnd - model->ibOffset ) / 3 );
+
+	rm.PushVB( model->vb );
+	rm.PushIB( model->ib );
 
 	const uint32_t vbOffset = 0;
 
@@ -315,16 +430,19 @@ void CreateModelInstance( const uint32_t modelIx, const mat4x4d& modelMatrix, co
 	vec3d centroid = vec3d( 0.0, 0.0, 0.0 );
 	for ( uint32_t i = model->vbOffset; i < model->vbEnd; ++i )
 	{
-		vertex_t vertex = *rm.GetVertex( model->vb, i );
+		vertex_t vertex = *rm.GetVertex( i );
 
 		vertex.pos = outInstance->transform * vec4d( Trunc<4,1>( vertex.pos ), 1.0 );
 		vertex.color *= tint;
-		rm.AddVertex( vb, vertex );
+
+		rm.PushVB( vb );
+		rm.AddVertex( vertex );
+		rm.PopVB();
 
 		centroid += Trunc<4, 1>( vertex.pos );
 	}
 
-	const uint32_t vbEnd = rm.GetVbOffset( vb );
+	const uint32_t vbEnd = rm.GetVbOffset();
 	outInstance->centroid = centroid / (double)( vbEnd - vbOffset );
 
 	for ( uint32_t i = model->ibOffset; i < model->ibEnd; i += 3 )
@@ -332,7 +450,7 @@ void CreateModelInstance( const uint32_t modelIx, const mat4x4d& modelMatrix, co
 		uint32_t indices[ 3 ];
 		for ( uint32_t t = 0; t < 3; ++t )
 		{
-			indices[ t ] = rm.GetIndex( model->ib, i + t ) - model->vbOffset;
+			indices[ t ] = rm.GetIndex( i + t ) - model->vbOffset;
 		}
 
 		triIndices tIndices = std::make_tuple( indices[ 0 ], indices[ 1 ], indices[ 2 ] );
@@ -341,6 +459,12 @@ void CreateModelInstance( const uint32_t modelIx, const mat4x4d& modelMatrix, co
 		vertToPolyMap[ indices[ 1 ] ].push_back( tIndices );
 		vertToPolyMap[ indices[ 2 ] ].push_back( tIndices );
 	}
+
+	rm.PopVB();
+	rm.PopIB();
+
+	rm.PushVB( vb );
+	rm.PushIB( model->ib );
 
 	if ( smoothNormals )
 	{
@@ -352,7 +476,7 @@ void CreateModelInstance( const uint32_t modelIx, const mat4x4d& modelMatrix, co
 			vec3d interpretedTangent = vec3d( 0.0, 0.0, 0.0 );
 			vec3d interpretedBitangent = vec3d( 0.0, 0.0, 0.0 );
 
-			vertex_t* vertex = rm.GetVertex( vb, iter->first );
+			vertex_t* vertex = rm.GetVertex( iter->first );
 
 			for ( std::deque<triIndices>::iterator polyListIter = iter->second.begin(); polyListIter != iter->second.end(); ++polyListIter )
 			{
@@ -361,9 +485,9 @@ void CreateModelInstance( const uint32_t modelIx, const mat4x4d& modelMatrix, co
 				const uint32_t i2 = std::get<2>( *polyListIter );
 
 				// These are transformed positions; this is critical for proper normals
-				const vec3d pt0 = Trunc<4, 1>( rm.GetVertex( vb, i0 )->pos );
-				const vec3d pt1 = Trunc<4, 1>( rm.GetVertex( vb, i1 )->pos );
-				const vec3d pt2 = Trunc<4, 1>( rm.GetVertex( vb, i2 )->pos );
+				const vec3d pt0 = Trunc<4, 1>( rm.GetVertex( i0 )->pos );
+				const vec3d pt1 = Trunc<4, 1>( rm.GetVertex( i1 )->pos );
+				const vec3d pt2 = Trunc<4, 1>( rm.GetVertex( i2 )->pos );
 
 				const vec3d tangent = ( pt1 - pt0 ).Normalize();
 				const vec3d bitangent = ( pt2 - pt0 ).Normalize();
@@ -393,12 +517,12 @@ void CreateModelInstance( const uint32_t modelIx, const mat4x4d& modelMatrix, co
 		uint32_t indices[ 3 ];
 		for ( uint32_t t = 0; t < 3; ++t )
 		{
-			indices[ t ] = rm.GetIndex( model->ib, i + t ) - model->vbOffset;
+			indices[ t ] = rm.GetIndex( i + t ) - model->vbOffset;
 		}
 
-		vertex_t& v0 = *rm.GetVertex( vb, indices[ 0 ] );
-		vertex_t& v1 = *rm.GetVertex( vb, indices[ 1 ] );
-		vertex_t& v2 = *rm.GetVertex( vb, indices[ 2 ] );
+		vertex_t& v0 = *rm.GetVertex( indices[ 0 ] );
+		vertex_t& v1 = *rm.GetVertex( indices[ 1 ] );
+		vertex_t& v2 = *rm.GetVertex( indices[ 2 ] );
 		/*
 		v0.normal = vec3d( 1.0, 0.0, 0.0 );
 		v1.normal = vec3d( 0.0, 1.0, 0.0 );
@@ -416,11 +540,14 @@ void CreateModelInstance( const uint32_t modelIx, const mat4x4d& modelMatrix, co
 		outInstance->material = *material;
 	}
 
+	rm.PopVB();
+	rm.PopIB();
+
 	outInstance->BuildAS();
 }
 
 
-uint32_t CreatePlaneModel( const uint32_t vb, const uint32_t ib, const vec2d& size, const vec2i& cellCnt )
+uint32_t CreatePlaneModel( ResourceManager& rm, const vec2d& size, const vec2i& cellCnt )
 {
 	uint32_t modelIx = rm.AllocModel();
 	Model* model = rm.GetModel( modelIx );
@@ -429,10 +556,10 @@ uint32_t CreatePlaneModel( const uint32_t vb, const uint32_t ib, const vec2d& si
 	name << "_plane" << modelIx;
 
 	model->name = name.str();
-	model->vb = vb;
-	model->ib = ib;
-	model->vbOffset = rm.GetVbOffset( vb );
-	model->ibOffset = rm.GetIbOffset( ib );
+	model->vb = rm.GetVB();
+	model->ib = rm.GetIB();
+	model->vbOffset = rm.GetVbOffset();
+	model->ibOffset = rm.GetIbOffset();
 
 	vec2d gridSize = Divide( size, vec2d( cellCnt[ 0 ], cellCnt[ 1 ] ) );
 
@@ -452,10 +579,10 @@ uint32_t CreatePlaneModel( const uint32_t vb, const uint32_t ib, const vec2d& si
 			v.color = Color::White;
 			v.normal = vec3d( 0.0, 0.0, 1.0 );
 
-			rm.AddVertex( vb, v );
+			rm.AddVertex( v );
 		}
 	}
-	model->vbEnd = rm.GetVbOffset( vb );
+	model->vbEnd = rm.GetVbOffset();
 
 	for ( int32_t j = 0; j < cellCnt[ 1 ]; ++j )
 	{
@@ -468,16 +595,16 @@ uint32_t CreatePlaneModel( const uint32_t vb, const uint32_t ib, const vec2d& si
 			vIx[ 3 ] = static_cast<uint32_t>( firstIndex + ( i + 1 ) + ( j + 1 ) * ( cellCnt[ 1 ] + 1 ) );
 
 			// Clockwise-winding
-			rm.AddIndex( ib, vIx[ 0 ] );
-			rm.AddIndex( ib, vIx[ 1 ] );
-			rm.AddIndex( ib, vIx[ 2 ] );
+			rm.AddIndex( vIx[ 0 ] );
+			rm.AddIndex( vIx[ 1 ] );
+			rm.AddIndex( vIx[ 2 ] );
 
-			rm.AddIndex( ib, vIx[ 2 ] );
-			rm.AddIndex( ib, vIx[ 1 ] );
-			rm.AddIndex( ib, vIx[ 3 ] );
+			rm.AddIndex( vIx[ 2 ] );
+			rm.AddIndex( vIx[ 1 ] );
+			rm.AddIndex( vIx[ 3 ] );
 		}
 	}
-	model->ibEnd = rm.GetIbOffset( ib );
+	model->ibEnd = rm.GetIbOffset();
 
 	// Set material
 	{
