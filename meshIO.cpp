@@ -301,6 +301,12 @@ namespace MeshIO
 	{
 		std::fstream inputStream = std::fstream( fileName.c_str(), std::fstream::in );
 
+		if ( inputStream.fail() )
+		{
+			inputStream.close();
+			return;
+		}
+
 		struct state_t
 		{
 			std::string	object;
@@ -472,6 +478,12 @@ namespace MeshIO
 		std::fstream file;
 		file.open( fileName, std::fstream::out );
 
+		if ( file.fail() )
+		{
+			file.close();
+			return;
+		}
+
 		file << std::fixed << std::showpoint << std::setprecision( 4 );
 
 		file << "# MeshIO Export\n\n\n";
@@ -547,6 +559,12 @@ namespace MeshIO
 	void ReadMtl( const std::string& fileName, objMaterial_t& mtl )
 	{
 		std::fstream inputStream = std::fstream( fileName.c_str(), std::fstream::in );
+
+		if ( inputStream.fail() )
+		{
+			inputStream.close();
+			return;
+		}
 
 		while ( !inputStream.eof() )
 		{
@@ -647,6 +665,13 @@ namespace MeshIO
 	void WriteMtl( const std::string& fileName, objMaterial_t& mtl )
 	{
 		std::fstream output = std::fstream( fileName.c_str(), std::fstream::out );
+
+		if ( output.fail() )
+		{
+			output.close();
+			return;
+		}
+
 		output << "Obj Material" << "\n\n";
 
 		output << "newmtl " << mtl.name << " " << "\n";
