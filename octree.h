@@ -23,6 +23,8 @@ class Octree
 {
 public:
 
+	static const uint32_t MaxHeight = 1000;
+
 	Octree()
 	{
 		height = 0;
@@ -39,9 +41,9 @@ public:
 		aabb.Expand( _max );
 	}
 
-	bool Insert( const AABB& bounds, const T& item )
+	bool Insert( const AABB& bounds, const T& item, uint32_t depth = 0 )
 	{
-		if( aabb.Inside( bounds ) )
+		if( aabb.Inside( bounds ) && ( depth < MaxHeight ) )
 		{
 			bool inChildNode = false;
 
@@ -53,7 +55,7 @@ public:
 			const uint32_t childCnt = children.size();
 			for( uint32_t i = 0; i < childCnt; ++i )
 			{
-				if( children[ i ].Insert( bounds, item ) )
+				if( children[ i ].Insert( bounds, item, depth + 1 ) )
 				{
 					inChildNode = true;
 					break;

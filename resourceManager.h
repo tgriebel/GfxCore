@@ -60,7 +60,6 @@ public:
 	uint32_t AllocModel()
 	{
 		modelBuffer.push_back( Model() );
-		modelBuffer.back().materialCount = 0;
 		return static_cast<uint32_t>( modelBuffer.size() - 1 );
 	}
 

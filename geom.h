@@ -124,8 +124,6 @@ public:
 
 	std::string				name;
 	std::vector<surface_t>	surfs;
-	material_t				materials[ MaxMaterials ];
-	uint32_t				materialCount;
 };
 
 

@@ -342,57 +342,58 @@ uint32_t LoadModelBin( const std::string& path, ResourceManager& rm )
 
 	uint32_t modelIx = rm.AllocModel();
 	Model* model = rm.GetModel( modelIx );
-	model->surfs.push_back( surface_t() );
-
-	surface_t& surf = model->surfs.back();
-
-	surf.vb = rm.AllocVB( inHeader.numVertices );
-	surf.ib = rm.AllocIB( inHeader.numIndices );
-
-	rm.PushVB( surf.vb );
-	rm.PushIB( surf.ib );
-
+	
 	// Vertex buffers
-	surf.vbOffset = rm.GetVbOffset();
+	const uint32_t vbOffset = rm.GetVbOffset();
 	for ( uint32_t i = 0; i < inHeader.numVertices; ++i )
 	{
 		rm.AddVertex( inVert[ i ] );
 	}
-	surf.vbEnd = rm.GetVbOffset();
+	const uint32_t vbEnd = rm.GetVbOffset();
 
 	// Index buffers
-	surf.ibOffset = rm.GetIbOffset();
+	const uint32_t ibOffset = rm.GetIbOffset();
 	for ( uint32_t i = 0; i < inHeader.numIndices; ++i )
 	{
-		rm.AddIndex( inIndices[ i ] );
+		rm.AddIndex( inIndices[ i ] + vbOffset );
 	}
-	surf.ibEnd = rm.GetIbOffset();
+	const uint32_t ibEnd = rm.GetIbOffset();
+
+	// Surfaces
+	const uint32_t surfaceCount = inHeader.numSurfaces;
+	model->surfs.resize( surfaceCount );
+	for ( uint32_t i = 0; i < surfaceCount; ++i )
+	{
+		model->surfs[ i ].vb		= rm.GetVB();
+		model->surfs[ i ].ib		= rm.GetIB();
+		model->surfs[ i ].vbOffset	= inSurfaces[ i ].vbOffset	+ vbOffset;
+		model->surfs[ i ].vbEnd		= inSurfaces[ i ].vbEnd		+ vbOffset;
+		model->surfs[ i ].ibOffset	= inSurfaces[ i ].ibOffset	+ ibOffset;
+		model->surfs[ i ].ibEnd		= inSurfaces[ i ].ibEnd		+ ibOffset;
+		model->surfs[ i ].materialId = inSurfaces[ i ].materialId;
+	}
 
 	// Materials
-	model->materialCount = inHeader.numMaterials;
-	assert( model->materialCount <= Model::MaxMaterials );
-
-	// Relative-to-Absolute IDs
 	const uint32_t baseMaterialId = rm.GetMaterialCount();
-	for ( uint32_t i = 0; i < model->materialCount; ++i )
+	for ( uint32_t i = 0; i < inHeader.numMaterials; ++i )
 	{
 		material_t material = inMaterials[ i ];
 
+		// Relative-to-Absolute IDs
 		material.colorMapId += baseImageId;
 		material.normalMapId += baseImageId;
 
 		rm.StoreMaterialCopy( material );
 	}
 
-	for ( uint32_t i = 0; i < model->surfs.size(); ++i )
+	for ( uint32_t i = 0; i < surfaceCount; ++i )
 	{
+		// Relative-to-Absolute IDs
 		model->surfs[ i ].materialId += baseMaterialId;
+		assert( model->surfs[ i ].materialId <= rm.GetMaterialCount() );
 	}
 
 	model->name = path;
-
-	rm.PopVB();
-	rm.PopIB();
 
 	return modelIx;
 }
@@ -411,7 +412,7 @@ void StoreModelBin( const std::string& path, ResourceManager& rm, const uint32_t
 	const uint32_t indexCount = rm.GetIbOffset();
 	const uint32_t imageCount = rm.GetImageCount();
 	const uint32_t surfCount = model->surfs.size();
-	const uint32_t materialCount = model->materialCount;
+	const uint32_t materialCount = rm.GetMaterialCount();
 	const uint32_t vertexBytes = sizeof( vertex_t ) * vertexCount;
 	const uint32_t indexBytes = sizeof( uint32_t ) * indexCount;
 	const uint32_t surfBytes = sizeof( surface_t ) * surfCount;
@@ -469,7 +470,7 @@ void StoreModelBin( const std::string& path, ResourceManager& rm, const uint32_t
 
 	// Materials
 	{
-		memcpy( binBucket.get() + header.materialOffset, model->materials, materialBytes );
+		memcpy( binBucket.get() + header.materialOffset, rm.GetMaterialRef( 0 ), materialBytes );
 	}
 
 	// Images
@@ -524,10 +525,10 @@ void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat
 	uint32_t modelVB = baseSurf.vb;
 	uint32_t modelIB = baseSurf.ib;
 
-	uint32_t vbOffset = baseSurf.vbOffset;
-	uint32_t vbEnd = baseSurf.vbEnd;
-	uint32_t ibOffset = baseSurf.ibOffset;
-	uint32_t ibEnd = baseSurf.ibEnd;
+	uint32_t vbOffset	= baseSurf.vbOffset;
+	uint32_t vbEnd		= baseSurf.vbEnd;
+	uint32_t ibOffset	= baseSurf.ibOffset;
+	uint32_t ibEnd		= baseSurf.ibEnd;
 
 	for ( uint32_t surfIx = 1; surfIx < surfCount; ++surfIx )
 	{
