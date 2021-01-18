@@ -9,6 +9,7 @@
 #include "util.h"
 #include "resourceManager.h"
 
+
 struct mdlHeader_t
 {
 	uint32_t	info;
@@ -16,12 +17,12 @@ struct mdlHeader_t
 	uint32_t	vertexOffset;
 	uint32_t	indexOffset;
 	uint32_t	imageOffset;
+	uint32_t	materialOffset;
 
 	uint32_t	numVertices;
 	uint32_t	numIndices;
 	uint32_t	numImages;
-
-	char		materialName[ 256 ];
+	uint32_t	numMaterials;
 };
 
 
@@ -46,7 +47,10 @@ void LoadMaterialObj( const std::string& path, ResourceManager& rm, material_t& 
 	material.illum = objMaterial.illum;
 	material.textured = false;
 
-	material.name = path.substr( path.find_last_of( '/' ) + 1, path.size() );
+	std::string name = path.substr( path.find_last_of( '/' ) + 1, path.size() );
+
+	memset( material.name, 0, material_t::BufferSize );
+	strcpy_s( material.name, material_t::BufferSize, name.c_str() );
 
 	if ( objMaterial.map_Kd.size() > 0 )
 	{
@@ -67,12 +71,13 @@ uint32_t LoadModelOff( const std::string& path, ResourceManager& rm )
 
 	uint32_t modelIx = rm.AllocModel();
 	Model* model = rm.GetModel( modelIx );
+	model->surfs.push_back( surface_t() );
 
 	model->name = path;
-	model->vb = rm.GetVB();
-	model->ib = rm.GetIB();;
-	model->vbOffset = rm.GetVbOffset();
-	model->ibOffset = rm.GetIbOffset();
+	model->surfs[ 0 ].vb = rm.GetVB();
+	model->surfs[ 0 ].ib = rm.GetIB();;
+	model->surfs[ 0 ].vbOffset = rm.GetVbOffset();
+	model->surfs[ 0 ].ibOffset = rm.GetIbOffset();
 
 	for ( int32_t i = 0; i < offMesh.verticesCnt; ++i )
 	{
@@ -84,24 +89,24 @@ uint32_t LoadModelOff( const std::string& path, ResourceManager& rm )
 
 		rm.AddVertex( v );
 	}
-	model->vbEnd = rm.GetVbOffset();
+	model->surfs[ 0 ].vbEnd = rm.GetVbOffset();
 
 	const size_t triCnt = offMesh.facesCnt;
 	for ( size_t i = 0; i < triCnt; ++i )
 	{
 		const MeshIO::Polytope& face = offMesh.faces[ i ];
 
-		rm.AddIndex( model->vbOffset + face.points[ 0 ] );
-		rm.AddIndex( model->vbOffset + face.points[ 1 ] );
-		rm.AddIndex( model->vbOffset + face.points[ 2 ] );
+		rm.AddIndex( model->surfs[ 0 ].vbOffset + face.points[ 0 ] );
+		rm.AddIndex( model->surfs[ 0 ].vbOffset + face.points[ 1 ] );
+		rm.AddIndex( model->surfs[ 0 ].vbOffset + face.points[ 2 ] );
 	}
-	model->ibEnd = rm.GetIbOffset();
+	model->surfs[ 0 ].ibEnd = rm.GetIbOffset();
 
-	model->material.Ka = 1.0;
-	model->material.Tf = 0.5;
-	model->material.Kd = 0.5;
-	model->material.Ks = 1.0;
-	model->material.Tr = 0.4;
+	model->materials[ 0 ].Ka = 1.0;
+	model->materials[ 0 ].Tf = 0.5;
+	model->materials[ 0 ].Kd = 0.5;
+	model->materials[ 0 ].Ks = 1.0;
+	model->materials[ 0 ].Tr = 0.4;
 
 	return modelIx;
 }
@@ -150,6 +155,7 @@ uint32_t LoadModelObj( const std::string& path, ResourceManager& rm )
 					vert.pos = vec4d( srcVertex.x, srcVertex.y, srcVertex.z, srcVertex.w );
 					vert.color = Color::White;
 
+					// TODO: default in MeshIO
 					if( uvIx != -1 )
 					{
 						MeshIO::vector_t srcUv = objMesh.uvs[ uvIx ];
@@ -224,34 +230,38 @@ uint32_t LoadModelObj( const std::string& path, ResourceManager& rm )
 
 	const uint32_t modelIx = rm.AllocModel();
 	Model* model = rm.GetModel( modelIx );
+	model->surfs.push_back( surface_t() );
 
 	// Build VB and IB
 	{
 		model->name = path;
-		model->vb = rm.GetVB();
-		model->ib = rm.GetIB();
-		model->vbOffset = rm.GetVbOffset();
-		model->ibOffset = rm.GetIbOffset();
+		model->surfs[ 0 ].vb = rm.GetVB();
+		model->surfs[ 0 ].ib = rm.GetIB();
+		model->surfs[ 0 ].vbOffset = rm.GetVbOffset();
+		model->surfs[ 0 ].ibOffset = rm.GetIbOffset();
 
 		const uint32_t vertexCnt = uniqueVertices.size();
 		for ( int32_t i = 0; i < vertexCnt; ++i )
 		{
 			rm.AddVertex( uniqueVertices[ i ] );
 		}
-		model->vbEnd = rm.GetVbOffset();
+		model->surfs[ 0 ].vbEnd = rm.GetVbOffset();
 
 		const size_t indexCnt = indices.size();
 		assert( ( indexCnt % 3 ) == 0 );
 		for ( size_t i = 0; i < indexCnt; i++ )
 		{
-			rm.AddIndex( model->vbOffset + indices[ i ] );
+			rm.AddIndex( model->surfs[ 0 ].vbOffset + indices[ i ] );
 		}
-		model->ibEnd = rm.GetIbOffset();
+		model->surfs[ 0 ].ibEnd = rm.GetIbOffset();
 	}
 
-	std::string basePath = path.substr( 0, path.find_last_of( '/' ) );
-
-	LoadMaterialObj( basePath + "/" + objMesh.materialLibs[ 0 ], rm, model->material );
+	if ( objMesh.materialLibs.size() > 0 )
+	{
+		std::string basePath = path.substr( 0, path.find_last_of( '/' ) );
+		LoadMaterialObj( basePath + "/" + objMesh.materialLibs[ 0 ], rm, model->materials[ 0 ] );
+		model->materialCount += 1;
+	}
 
 	// MeshIO::WriteObj( std::string( "outtest.obj" ), objMesh );
 	return modelIx;
@@ -262,11 +272,11 @@ void StoreModelObj( const std::string& path, ResourceManager& rm, const uint32_t
 {
 	const Model* model = rm.GetModel( modelIx );
 
-	rm.PushVB( model->vb );
-	rm.PushIB( model->ib );
+	rm.PushVB( model->surfs[ 0 ].vb );
+	rm.PushIB( model->surfs[ 0 ].ib );
 
 	MeshIO::Obj meshObj;
-	for ( uint32_t i = model->vbOffset; i < model->vbEnd; ++i )
+	for ( uint32_t i = model->surfs[ 0 ].vbOffset; i < model->surfs[ 0 ].vbEnd; ++i )
 	{
 		const vertex_t* v = rm.GetVertex( i );
 
@@ -297,12 +307,12 @@ void StoreModelObj( const std::string& path, ResourceManager& rm, const uint32_t
 
 	group.material = "default";
 
-	for ( uint32_t i = model->ibOffset; i < model->ibEnd; i += 3 )
+	for ( uint32_t i = model->surfs[ 0 ].ibOffset; i < model->surfs[ 0 ].ibEnd; i += 3 )
 	{
 		MeshIO::objFace_t face;
 		for ( uint32_t j = 0; j < 3; ++j )
 		{
-			const uint32_t index = rm.GetIndex( i + j ) - model->vbOffset;
+			const uint32_t index = rm.GetIndex( i + j ) - model->surfs[ 0 ].vbOffset;
 
 			MeshIO::objIndex_t indexTuple;
 			indexTuple.vertexIx = index;
@@ -341,41 +351,80 @@ uint32_t LoadModelBin( const std::string& path, ResourceManager& rm )
 
 	auto inVert = std::unique_ptr<vertex_t[]>( new vertex_t[ inHeader.numVertices ] );
 	auto inIndices = std::unique_ptr<uint32_t[]>( new uint32_t[ inHeader.numIndices ] );
+	auto inMaterials = std::unique_ptr<material_t[]>( new material_t[ inHeader.numMaterials ] );
 
 	file.read( (char*)inVert.get(), sizeof( vertex_t ) * inHeader.numVertices );
 	file.read( (char*)inIndices.get(), sizeof( uint32_t ) * inHeader.numIndices );
+	file.read( (char*)inMaterials.get(), sizeof( material_t ) * inHeader.numMaterials );
+
+	const uint32_t baseImageId = rm.GetImageCount();
+
+	for ( uint32_t i = 0; i < inHeader.numImages; ++i )
+	{
+		uint32_t width;
+		uint32_t height;
+
+		file.read( (char*)&width, sizeof( uint32_t ) );
+		file.read( (char*)&height, sizeof( uint32_t ) );
+
+		Image<Color> image = Image<Color>( width, height );
+		for ( uint32_t y = 0; y < height; ++y )
+		{
+			for ( uint32_t x = 0; x < width; ++x )
+			{
+				uint32_t pixel;
+				file.read( (char*)&pixel, sizeof( uint32_t ) );
+				image.SetPixel( x, y, Color( pixel ) );
+			}
+		}
+
+		rm.StoreImageCopy( image );
+
+		//Bitmap bitmap = Bitmap( width, height );
+		//ImageToBitmap( image, bitmap );
+		//bitmap.Write( "test.bmp" );
+	}
 
 	file.close();
 
 	uint32_t modelIx = rm.AllocModel();
 	Model* model = rm.GetModel( modelIx );
-	model->vb = rm.AllocVB( inHeader.numVertices );
-	model->ib = rm.AllocIB( inHeader.numIndices );
+	model->surfs.push_back( surface_t() );
 
-	rm.PushVB( model->vb );
-	rm.PushIB( model->ib );
+	model->surfs[ 0 ].vb = rm.AllocVB( inHeader.numVertices );
+	model->surfs[ 0 ].ib = rm.AllocIB( inHeader.numIndices );
 
-	model->vbOffset = rm.GetIbOffset();
+	rm.PushVB( model->surfs[ 0 ].vb );
+	rm.PushIB( model->surfs[ 0 ].ib );
+
+	model->surfs[ 0 ].vbOffset = rm.GetIbOffset();
 	for ( uint32_t i = 0; i < inHeader.numVertices; ++i )
 	{
 		rm.AddVertex( inVert[ i ] );
 	}
-	model->vbEnd = rm.GetVbOffset();
+	model->surfs[ 0 ].vbEnd = rm.GetVbOffset();
 
-	model->ibOffset = 0;
+	model->surfs[ 0 ].ibOffset = 0;
 	for ( uint32_t i = 0; i < inHeader.numIndices; ++i )
 	{
 		rm.AddIndex( inIndices[ i ] );
 	}
-	model->ibEnd = rm.GetIbOffset();
+	model->surfs[ 0 ].ibEnd = rm.GetIbOffset();
+
+	memcpy( model->materials, inMaterials.get(), inHeader.numMaterials * sizeof( material_t ) );
+	model->materialCount = inHeader.numMaterials;
+	assert( model->materialCount <= Model::MaxMaterials );
+
+	for( uint32_t i = 0; i < model->materialCount; ++i )
+	{
+		model->materials[ i ].colorMapId += baseImageId;
+		model->materials[ i ].normalMapId += baseImageId;
+	}
+
 	model->name = path;
 
 	rm.PopVB();
 	rm.PopIB();
-
-	// Change this so the material is fully initialized
-	std::string basePath = path.substr( 0, path.find_last_of( '/' ) );
-	LoadMaterialObj( "models/" + std::string( inHeader.materialName ), rm, model->material );
 
 	return modelIx;
 }
@@ -385,24 +434,37 @@ void StoreModelBin( const std::string& path, ResourceManager& rm, const uint32_t
 {
 	Model* model = rm.GetModel( modelIx );
 
-	rm.PushVB( model->vb );
-	rm.PushIB( model->ib );
+	rm.PushVB( model->surfs[ 0 ].vb );
+	rm.PushIB( model->surfs[ 0 ].ib );
 
-	uint32_t vertexCnt = rm.GetVbOffset();
-	uint32_t indexCnt = rm.GetIbOffset();
-	uint32_t vertexBytes = sizeof( vertex_t ) * vertexCnt;
-	uint32_t indexBytes = sizeof( uint32_t ) * indexCnt;
+	const uint32_t vertexCount = rm.GetVbOffset();
+	const uint32_t indexCount = rm.GetIbOffset();
+	const uint32_t imageCount = rm.GetImageCount();
+	const uint32_t materialCount = model->materialCount;
+	const uint32_t vertexBytes = sizeof( vertex_t ) * vertexCount;
+	const uint32_t indexBytes = sizeof( uint32_t ) * indexCount;
+	const uint32_t materialBytes = sizeof( material_t ) * materialCount;
 	uint32_t imageBytes = 0;
 
+	for( uint32_t i = 0; i < imageCount; ++i )
+	{
+		const Image<Color>* imageRef = rm.GetImageRef( i );
+		const uint32_t size = imageRef->GetWidth() * imageRef->GetHeight();
+		
+		imageBytes += 2 * sizeof( uint32_t ); // Header: width, height
+		imageBytes += sizeof( uint32_t ) * size;		
+	}
+
 	mdlHeader_t header;
-	header.info = 0; // version, etc
-	header.vertexOffset = sizeof( mdlHeader_t );
-	header.indexOffset = vertexBytes + header.vertexOffset;
-	header.imageOffset = indexBytes + header.indexOffset;
-	header.numVertices = vertexCnt;
-	header.numIndices = indexCnt;
-	header.numImages = 0;
-	strcpy_s( header.materialName, 256, model->material.name.c_str() );
+	header.info				= 0; // version, etc
+	header.vertexOffset		= sizeof( mdlHeader_t );
+	header.indexOffset		= vertexBytes + header.vertexOffset;
+	header.materialOffset	= indexBytes + header.indexOffset;
+	header.imageOffset		= materialBytes + header.materialOffset;
+	header.numVertices		= vertexCount;
+	header.numIndices		= indexCount;
+	header.numImages		= imageCount;
+	header.numMaterials		= materialCount;
 
 	uint32_t fileSize = sizeof( mdlHeader_t ) + header.imageOffset + imageBytes;
 
@@ -410,13 +472,56 @@ void StoreModelBin( const std::string& path, ResourceManager& rm, const uint32_t
 
 	memcpy( binBucket.get(), &header, sizeof( mdlHeader_t ) );
 
-	vertex_t* vertAry = rm.GetVertex( 0 );
-	memcpy( binBucket.get() + header.vertexOffset, vertAry, vertexBytes );
-
-	for ( int32_t i = 0; i < indexCnt; ++i )
+	// Vertices
 	{
-		uint32_t index = rm.GetIndex( i );
-		memcpy( binBucket.get() + header.indexOffset + sizeof( uint32_t ) * i, &index, sizeof( uint32_t ) );
+		vertex_t* vertAry = rm.GetVertex( 0 );
+		memcpy( binBucket.get() + header.vertexOffset, vertAry, vertexBytes );
+	}
+
+	// Indices
+	{
+		for ( int32_t i = 0; i < indexCount; ++i )
+		{
+			// TODO: can replace with ptr version now
+			uint32_t index = rm.GetIndex( i );
+			memcpy( binBucket.get() + header.indexOffset + sizeof( uint32_t ) * i, &index, sizeof( uint32_t ) );
+		}
+	}
+
+	// Materials
+	{
+		memcpy( binBucket.get() + header.materialOffset, model->materials, materialBytes );
+	}
+
+	// Images
+	{
+		uint8_t* filePtr = binBucket.get() + header.imageOffset;
+
+		for ( uint32_t i = 0; i < imageCount; ++i )
+		{
+			const Image<Color>* imageRef = rm.GetImageRef( i );
+			const uint32_t size = imageRef->GetWidth() * imageRef->GetHeight();
+
+			const uint32_t width = imageRef->GetWidth();
+			const uint32_t height = imageRef->GetHeight();
+
+			memcpy( filePtr,						&width, sizeof( uint32_t ) );
+			memcpy( filePtr + sizeof( uint32_t ),	&height, sizeof( uint32_t ) );
+
+			filePtr += 2 * sizeof( uint32_t );
+
+			for ( int32_t y = 0; y < height; ++y )
+			{
+				for ( int32_t x = 0; x < width; ++x )
+				{
+					Color color = imageRef->GetPixel( x, y );
+					const uint32_t pixel = color.AsR8G8B8A8();
+					
+					memcpy( filePtr, &pixel, sizeof( uint32_t ) );
+					filePtr += sizeof( uint32_t );
+				}
+			}
+		}
 	}
 
 	std::fstream file;
@@ -436,10 +541,10 @@ void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat
 	outInstance->transform = modelMatrix;
 	const uint32_t vb = rm.AllocVB();
 	outInstance->modelIx = modelIx;
-	outInstance->triCache.reserve( ( model->ibEnd - model->ibOffset ) / 3 );
+	outInstance->triCache.reserve( ( model->surfs[ 0 ].ibEnd - model->surfs[ 0 ].ibOffset ) / 3 );
 
-	rm.PushVB( model->vb );
-	rm.PushIB( model->ib );
+	rm.PushVB( model->surfs[ 0 ].vb );
+	rm.PushIB( model->surfs[ 0 ].ib );
 
 	const uint32_t vbOffset = 0;
 
@@ -447,7 +552,7 @@ void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat
 	std::map< uint32_t, std::deque<triIndices> > vertToPolyMap;
 
 	vec3d centroid = vec3d( 0.0, 0.0, 0.0 );
-	for ( uint32_t i = model->vbOffset; i < model->vbEnd; ++i )
+	for ( uint32_t i = model->surfs[ 0 ].vbOffset; i < model->surfs[ 0 ].vbEnd; ++i )
 	{
 		vertex_t vertex = *rm.GetVertex( i );
 
@@ -464,12 +569,12 @@ void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat
 	const uint32_t vbEnd = rm.GetVbOffset();
 	outInstance->centroid = centroid / (double)( vbEnd - vbOffset );
 
-	for ( uint32_t i = model->ibOffset; i < model->ibEnd; i += 3 )
+	for ( uint32_t i = model->surfs[ 0 ].ibOffset; i < model->surfs[ 0 ].ibEnd; i += 3 )
 	{
 		uint32_t indices[ 3 ];
 		for ( uint32_t t = 0; t < 3; ++t )
 		{
-			indices[ t ] = rm.GetIndex( i + t ) - model->vbOffset;
+			indices[ t ] = rm.GetIndex( i + t ) - model->surfs[ 0 ].vbOffset;
 		}
 
 		triIndices tIndices = std::make_tuple( indices[ 0 ], indices[ 1 ], indices[ 2 ] );
@@ -483,7 +588,7 @@ void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat
 	rm.PopIB();
 
 	rm.PushVB( vb );
-	rm.PushIB( model->ib );
+	rm.PushIB( model->surfs[ 0 ].ib );
 
 	if ( smoothNormals )
 	{
@@ -531,12 +636,12 @@ void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat
 		// TODO: fix normals on this path
 	}
 
-	for ( uint32_t i = model->ibOffset; i < model->ibEnd; i += 3 )
+	for ( uint32_t i = model->surfs[ 0 ].ibOffset; i < model->surfs[ 0 ].ibEnd; i += 3 )
 	{
 		uint32_t indices[ 3 ];
 		for ( uint32_t t = 0; t < 3; ++t )
 		{
-			indices[ t ] = rm.GetIndex( i + t ) - model->vbOffset;
+			indices[ t ] = rm.GetIndex( i + t ) - model->surfs[ 0 ].vbOffset;
 		}
 
 		vertex_t& v0 = *rm.GetVertex( indices[ 0 ] );
@@ -552,7 +657,7 @@ void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat
 
 	if( material == nullptr )
 	{
-		outInstance->material = model->material;
+		outInstance->material = model->materials[ 0 ];
 	}
 	else
 	{
@@ -570,23 +675,24 @@ uint32_t CreatePlaneModel( ResourceManager& rm, const vec2d& size, const vec2i& 
 {
 	uint32_t modelIx = rm.AllocModel();
 	Model* model = rm.GetModel( modelIx );
+	model->surfs.push_back( surface_t() );
 
 	std::stringstream name;
 	name << "_plane" << modelIx;
 
 	model->name = name.str();
-	model->vb = rm.GetVB();
-	model->ib = rm.GetIB();
-	model->vbOffset = rm.GetVbOffset();
-	model->ibOffset = rm.GetIbOffset();
+	model->surfs[ 0 ].vb = rm.GetVB();
+	model->surfs[ 0 ].ib = rm.GetIB();
+	model->surfs[ 0 ].vbOffset = rm.GetVbOffset();
+	model->surfs[ 0 ].ibOffset = rm.GetIbOffset();
 
 	vec2d gridSize = Divide( size, vec2d( cellCnt[ 0 ], cellCnt[ 1 ] ) );
 
 	const uint32_t verticesPerQuad = 6;
 
-	const uint32_t firstIndex = model->vbOffset;
-	uint32_t indicesCnt = model->ibOffset;
-	uint32_t vbIx = model->vbOffset;
+	const uint32_t firstIndex = model->surfs[ 0 ].vbOffset;
+	uint32_t indicesCnt = model->surfs[ 0 ].ibOffset;
+	uint32_t vbIx = model->surfs[ 0 ].vbOffset;
 
 	for ( int32_t j = 0; j <= cellCnt[ 1 ]; ++j )
 	{
@@ -601,7 +707,7 @@ uint32_t CreatePlaneModel( ResourceManager& rm, const vec2d& size, const vec2i& 
 			rm.AddVertex( v );
 		}
 	}
-	model->vbEnd = rm.GetVbOffset();
+	model->surfs[ 0 ].vbEnd = rm.GetVbOffset();
 
 	for ( int32_t j = 0; j < cellCnt[ 1 ]; ++j )
 	{
@@ -623,16 +729,16 @@ uint32_t CreatePlaneModel( ResourceManager& rm, const vec2d& size, const vec2i& 
 			rm.AddIndex( vIx[ 3 ] );
 		}
 	}
-	model->ibEnd = rm.GetIbOffset();
+	model->surfs[ 0 ].ibEnd = rm.GetIbOffset();
 
 	// Set material
 	{
-		model->material.Ka = 1.0;
-		model->material.Tf = 1.0;
-		model->material.Kd = 1.0;
-		model->material.Ks = 1.0;
-		model->material.Tr = 1.0;
-		model->material.textured = false;
+		model->materials[ 0 ].Ka = 1.0;
+		model->materials[ 0 ].Tf = 1.0;
+		model->materials[ 0 ].Kd = 1.0;
+		model->materials[ 0 ].Ks = 1.0;
+		model->materials[ 0 ].Tr = 1.0;
+		model->materials[ 0 ].textured = false;
 	}
 
 	return modelIx;

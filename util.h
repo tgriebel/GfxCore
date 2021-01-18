@@ -80,3 +80,57 @@ static inline void BitmapToImage( const Bitmap& bitmap, Image<Color>& image )
 		}
 	}
 }
+
+
+static inline void ImageToBitmap( const Image<Color>& image, Bitmap& bitmap )
+{
+	bitmap.ClearImage( Color::Black );
+
+	const uint32_t width = std::min( image.GetWidth(), bitmap.GetWidth() );
+	const uint32_t height = std::min( image.GetHeight(), bitmap.GetHeight() );
+
+	for ( int32_t y = 0; y < height; ++y )
+	{
+		for ( int32_t x = 0; x < width; ++x )
+		{
+			Color color = image.GetPixel( x, y );
+			bitmap.SetPixel( x, y, color.AsR8G8B8A8() );
+		}
+	}
+}
+
+
+static inline void ImageToBitmap( const Image<float>& image, Bitmap& bitmap )
+{
+	bitmap.ClearImage( Color::Black );
+
+	const uint32_t srcWidth = image.GetWidth();
+	const uint32_t srcHeight = image.GetHeight();
+
+	const uint32_t width = std::min( srcWidth, bitmap.GetWidth() );
+	const uint32_t height = std::min( srcHeight, bitmap.GetHeight() );
+
+	float minZ = FLT_MAX;
+	float maxZ = -FLT_MAX;
+	for ( int32_t y = 0; y < srcHeight; ++y )
+	{
+		for ( int32_t x = 0; x < srcWidth; ++x )
+		{
+			const float zValue = image.GetPixel( x, y );
+			minZ = std::min( minZ, zValue );
+			maxZ = std::max( maxZ, zValue );
+		}
+	}
+
+	for ( int32_t y = 0; y < height; ++y )
+	{
+		for ( int32_t x = 0; x < width; ++x )
+		{
+			const float value = image.GetPixel( x, y );
+			const float packed = ( value - minZ ) / ( maxZ - minZ );
+
+			const Color c = Color( packed );
+			bitmap.SetPixel( x, y, c.AsR8G8B8A8() );
+		}
+	}
+}

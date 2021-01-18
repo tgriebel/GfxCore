@@ -59,6 +59,7 @@ public:
 	uint32_t AllocModel()
 	{
 		modelBuffer.push_back( Model() );
+		modelBuffer.end()->materialCount = 0;
 		return static_cast<uint32_t>( modelBuffer.size() - 1 );
 	}
 
@@ -182,6 +183,11 @@ public:
 		return &modelBuffer[ modelIx ];
 	}
 
+	uint32_t GetModelCount()
+	{
+		return modelBuffer.size();
+	}
+
 	const Image<Color>* GetImageRef( const uint32_t imageIx ) const
 	{
 		if ( imageIx >= imageBuffer.size() )
@@ -191,5 +197,10 @@ public:
 		}
 
 		return &imageBuffer[ imageIx ];
+	}
+
+	uint32_t GetImageCount()
+	{
+		return imageBuffer.size();
 	}
 };

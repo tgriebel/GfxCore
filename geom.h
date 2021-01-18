@@ -102,17 +102,27 @@ struct Triangle
 };
 
 
-class Model
+struct surface_t
 {
-public:
-	std::string		name;
 	uint32_t		vb;
 	uint32_t		ib;
 	uint32_t		vbOffset;
 	uint32_t		ibOffset;
 	uint32_t		vbEnd;
 	uint32_t		ibEnd;
-	material_t		material;
+	uint32_t		materialId;
+};
+
+
+class Model
+{
+public:
+	static const uint32_t MaxMaterials = 3;
+
+	std::string				name;
+	std::vector<surface_t>	surfs;
+	material_t				materials[ MaxMaterials ];
+	uint32_t				materialCount;
 };
 
 

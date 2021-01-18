@@ -17,7 +17,7 @@ public:
 		buffer = nullptr;
 	}
 
-	Image( const uint32_t _width, const uint32_t _height, const T _default = static_cast<T>( 0.0 ), const char* _name = "" )
+	Image( const uint32_t _width, const uint32_t _height, const T _default = static_cast<T>( 0.0f ), const char* _name = "" )
 	{
 		name = _name;
 
@@ -28,7 +28,6 @@ public:
 
 		Clear( _default );
 	}
-
 
 	Image( const Image& _image )
 	{
@@ -98,7 +97,7 @@ public:
 		return buffer[ index ];
 	}
 
-	bool SetPixelUV( float u, float v, const T& pixel ) const
+	bool SetPixelUV( float u, float v, const T& pixel )
 	{
 		WrapUV( u, v );
 

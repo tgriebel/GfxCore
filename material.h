@@ -12,7 +12,8 @@ struct lightInput_t
 
 struct material_t
 {
-	std::string	name;
+	static const uint32_t BufferSize = 256;
+	char		name[ BufferSize ];
 
 	double		Ka;
 	double		Ke;
