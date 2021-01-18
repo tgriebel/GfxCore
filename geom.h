@@ -75,8 +75,9 @@ struct Triangle
 	vec3d		t;
 	vec3d		b;
 	AABB		aabb;
+	uint32_t	materialId;
 
-	Triangle( const vertex_t& _v0, const vertex_t& _v1, const vertex_t& _v2 )
+	Triangle( const vertex_t& _v0, const vertex_t& _v1, const vertex_t& _v2, const uint32_t _materialId = 0 )
 	{
 		v0 = _v0;
 		v1 = _v1;
@@ -98,6 +99,8 @@ struct Triangle
 		aabb.Expand( pt0 );
 		aabb.Expand( pt1 );
 		aabb.Expand( pt2 );
+
+		materialId = _materialId;
 	}
 };
 
@@ -131,11 +134,9 @@ class ModelInstance
 public:
 	std::vector<Triangle>	triCache;
 	Octree<uint32_t>		octree;
-	uint32_t				vb;
 	uint32_t				modelIx;
 	mat4x4d					transform;
 	vec3d					centroid;
-	material_t				material;
 
 	void BuildAS()
 	{

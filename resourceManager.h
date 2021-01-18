@@ -24,6 +24,7 @@ private:
 	std::vector<vertexBuffer_t>	vertexBuffers;
 	std::vector<indexBuffer_t>	indexBuffers;
 	std::vector<Model>			modelBuffer;
+	std::vector<material_t>		materialBuffer;
 	std::vector< Image<Color> >	imageBuffer;
 	std::stack<int32_t>			currentVB;
 	std::stack<int32_t>			currentIB;
@@ -59,7 +60,7 @@ public:
 	uint32_t AllocModel()
 	{
 		modelBuffer.push_back( Model() );
-		modelBuffer.end()->materialCount = 0;
+		modelBuffer.back().materialCount = 0;
 		return static_cast<uint32_t>( modelBuffer.size() - 1 );
 	}
 
@@ -67,6 +68,12 @@ public:
 	{
 		imageBuffer.push_back( image );
 		return static_cast<uint32_t>( imageBuffer.size() - 1 );
+	}
+
+	uint32_t StoreMaterialCopy( const material_t& material )
+	{
+		materialBuffer.push_back( material );
+		return static_cast<uint32_t>( materialBuffer.size() - 1 );
 	}
 
 	bool PushVB( const uint32_t vbIx )
@@ -202,5 +209,21 @@ public:
 	uint32_t GetImageCount()
 	{
 		return imageBuffer.size();
+	}
+
+	const material_t* GetMaterialRef( const uint32_t index ) const
+	{
+		if ( index >= materialBuffer.size() )
+		{
+			assert( false );
+			return nullptr;
+		}
+
+		return &materialBuffer[ index ];
+	}
+
+	uint32_t GetMaterialCount()
+	{
+		return materialBuffer.size();
 	}
 };
