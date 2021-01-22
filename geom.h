@@ -75,9 +75,9 @@ struct Triangle
 	vec3d		t;
 	vec3d		b;
 	AABB		aabb;
-	uint32_t	materialId;
+	int32_t		materialId;
 
-	Triangle( const vertex_t& _v0, const vertex_t& _v1, const vertex_t& _v2, const uint32_t _materialId = 0 )
+	Triangle( const vertex_t& _v0, const vertex_t& _v1, const vertex_t& _v2, const int32_t _materialId = 0 )
 	{
 		v0 = _v0;
 		v1 = _v1;
@@ -113,7 +113,7 @@ struct surface_t
 	uint32_t		ibOffset;
 	uint32_t		vbEnd;
 	uint32_t		ibEnd;
-	uint32_t		materialId;
+	int32_t			materialId;
 };
 
 
@@ -239,10 +239,9 @@ inline bool RayToTriangleIntersection( const Ray& r, const Triangle& tri, bool& 
 
 
 void LoadMaterialObj( const std::string& path, ResourceManager& rm, material_t& material );
-uint32_t LoadModelOff( const std::string& path, ResourceManager& rm );
 uint32_t LoadModelObj( const std::string& path, ResourceManager& rm );
 void StoreModelObj( const std::string& path, ResourceManager& rm, const uint32_t modelIx );
 uint32_t LoadModelBin( const std::string& path, ResourceManager& rm );
 void StoreModelBin( const std::string& path, ResourceManager& rm, const uint32_t modelIx );
-void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat4x4d& modelMatrix, const bool smoothNormals, const Color& tint, ModelInstance* outInstance, const material_t* material = nullptr );
-uint32_t CreatePlaneModel( ResourceManager& rm, const vec2d& size, const vec2i& cellCnt );
+void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat4x4d& modelMatrix, const bool smoothNormals, const Color& tint, ModelInstance* outInstance, const int32_t materialId = -1 );
+uint32_t CreatePlaneModel( ResourceManager& rm, const vec2d& size, const vec2i& cellCnt, const int32_t materialId );

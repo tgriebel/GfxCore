@@ -7,29 +7,31 @@
 #include "common.h"
 
 template<typename T>
-struct RgbaTuple
+struct rgbaTuple_t
 {
 	T	a;
 	T	b;
 	T	g;
 	T	r;
 };
-using RGBA = RgbaTuple<uint8_t>;
-
+using RGBA = rgbaTuple_t<uint8_t>;
 
 template<typename T>
-struct RgbTuple
+struct rgbTuple_t
 {
 	T	b;
 	T	g;
 	T	r;
 };
+using RGB = rgbaTuple_t<uint8_t>;
 
+using rgbTuplef_t = rgbTuple_t<float>;
+using rgbTupled_t = rgbTuple_t<double>;
 
 union Pixel
 {
 private:
-	uint8_t		vec[ 5 ];
+	uint8_t		vec[ 4 ];
 public:
 	uint32_t	r8g8b8a8;
 	RGBA		rgba;
@@ -43,7 +45,7 @@ public:
 		if ( i >= 4 )
 		{
 			assert( false );
-			return vec[ 4 ];
+			return vec[ 0 ];
 		}
 
 		return vec[ 3 - i ];
@@ -134,7 +136,7 @@ public:
 		}
 	}
 
-	Color( const RgbTuple<float> rgb, float a = 1.0f )
+	Color( const rgbTuple_t<float> rgb, float a = 1.0f )
 	{
 		u.rgba.r = rgb.r;
 		u.rgba.g = rgb.g;
@@ -223,7 +225,7 @@ public:
 		return u.rgba.a;
 	}
 
-	inline RgbaTuple<float>& rgba()
+	inline rgbaTuple_t<float>& rgba()
 	{
 		return u.rgba;
 	}
@@ -248,18 +250,9 @@ public:
 		return u.rgba.a;
 	}
 
-	inline RgbaTuple<float> rgba() const
+	inline rgbaTuple_t<float> rgba() const
 	{
 		return u.rgba;
-	}
-
-	inline RgbTuple<float> rgb() const
-	{
-		RgbTuple<float> rgb;
-		rgb.r = u.rgba.r;
-		rgb.g = u.rgba.g;
-		rgb.b = u.rgba.b;
-		return rgb;
 	}
 
 	inline Color Inverse() const
@@ -280,6 +273,24 @@ public:
 		rgba.b = static_cast<uint8_t>( 255.0f * u.rgba.b );
 		rgba.a = static_cast<uint8_t>( 255.0f * u.rgba.a );
 		return rgba;
+	}
+
+	inline RGB AsRGB() const
+	{
+		RGB rgb;
+		rgb.r = static_cast<uint8_t>( 255.0f * u.rgba.r );
+		rgb.g = static_cast<uint8_t>( 255.0f * u.rgba.g );
+		rgb.b = static_cast<uint8_t>( 255.0f * u.rgba.b );
+		return rgb;
+	}
+
+	inline rgbTuple_t<float> AsRGBf() const
+	{
+		rgbTuple_t<float> rgb;
+		rgb.r = u.rgba.r;
+		rgb.g = u.rgba.g;
+		rgb.b = u.rgba.b;
+		return rgb;
 	}
 
 	inline uint32_t AsR8G8B8A8() const
@@ -303,7 +314,7 @@ private:
 	union color_t
 	{
 		float				vec[ 5 ];
-		RgbaTuple<float>	rgba;
+		rgbaTuple_t<float>	rgba;
 	} u;
 };
 

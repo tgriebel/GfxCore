@@ -17,6 +17,13 @@ struct indexBuffer_t
 	std::vector<uint32_t> buffer;
 };
 
+using matHdl_t = int32_t;
+using imgHdl_t = int32_t;
+using vertHdl_t = int32_t;
+using idxHdl_t = int32_t;
+using mdlHdl_t = int32_t;
+
+static const int32_t InvalidHdl = -1;
 
 class ResourceManager
 {
@@ -194,7 +201,7 @@ public:
 		return modelBuffer.size();
 	}
 
-	const Image<Color>* GetImageRef( const uint32_t imageIx ) const
+	const Image<Color>* GetImageRef( const int32_t imageIx ) const
 	{
 		if ( imageIx >= imageBuffer.size() )
 		{
@@ -210,12 +217,13 @@ public:
 		return imageBuffer.size();
 	}
 
-	const material_t* GetMaterialRef( const uint32_t index ) const
+	const material_t* GetMaterialRef( const int32_t index ) const
 	{
 		if ( index >= materialBuffer.size() )
 		{
 			assert( false );
-			return nullptr;
+			assert( materialBuffer.size() > 0 );
+			return &materialBuffer[ 0 ];
 		}
 
 		return &materialBuffer[ index ];

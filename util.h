@@ -134,3 +134,77 @@ static inline void ImageToBitmap( const Image<float>& image, Bitmap& bitmap )
 		}
 	}
 }
+
+
+static inline Color Vec3dToColor( const vec3d& v )
+{
+	return Color( static_cast<float>( v[ 0 ] ), static_cast<float>( v[ 1 ] ), static_cast<float>( v[ 2 ] ), 1.0f );
+}
+
+
+static inline Color Vec4dToColor( const vec4d& v )
+{
+	return Color( static_cast<float>( v[ 0 ] ), static_cast<float>( v[ 1 ] ), static_cast<float>( v[ 2 ] ), static_cast<float>( v[ 3 ] ) );
+}
+
+
+static inline vec4d ColorToVector( const Color& c )
+{
+	return vec4d( c[ 0 ], c[ 1 ], c[ 2 ], c[ 3 ] );
+}
+
+
+static inline float Random()
+{
+	return ( rand() / static_cast<float>( RAND_MAX ) );
+}
+
+
+static inline void RandomPointOnCircle( float& u, float& v )
+{
+	const float r = Random();
+	const float alpha = r * 2.0f * 3.14159f;
+	u = cos( alpha );
+	v = sin( alpha );
+}
+
+
+static inline void RandomPointOnSphere( float& theta, float& phi )
+{
+	float u = Random();
+	float v = Random();
+
+	theta = 2.0f * 3.14159f;
+	phi = acos( 2.0f * v - 1.0f );
+}
+
+
+static inline vec3d RandomVec3d( float r = 1.0f )
+{
+	float theta;
+	float phi;
+	RandomPointOnSphere( theta, phi );
+
+	vec3d v;
+	v[ 0 ] = r * sin( phi ) * cos( theta );
+	v[ 1 ] = r * sin( phi ) * sin( theta );
+	v[ 2 ] = r * cos( phi );
+	return v;
+}
+
+
+static inline vec3d ReflectVec3d( const vec3d& n, const vec3d& v )
+{
+	return ( 2.0 * Dot( v, n ) * n - v );
+}
+
+
+static inline vec3d RefractVec3d( const vec3d& uv, const vec3d& n, double refractionRatio = 1.0 )
+{
+	const double dot = std::min( Dot( uv.Reverse(), n ), 1.0 );
+
+	vec3d r0 = refractionRatio * ( uv + dot * n );
+	vec3d r1 = -sqrt( fabs( 1.0 - Dot( r0, r0 ) ) ) * n;
+
+	return ( r0 + r1 );
+}

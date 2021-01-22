@@ -38,8 +38,8 @@ public:
 	void FlushDenorms();
 
 	T Length() const;
-	Vector< D, T> Normalize() const;
-	Vector< D, T> Reverse() const;
+	Vector<D, T> Normalize() const;
+	Vector<D, T> Reverse() const;
 	void Zero();
 
 	const T& operator []( const size_t i ) const;

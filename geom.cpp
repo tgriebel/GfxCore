@@ -40,11 +40,13 @@ void LoadMaterialObj( const std::string& path, ResourceManager& rm, material_t& 
 
 	material.Ni = objMaterial.Ni;
 	material.Ns = objMaterial.Ns;
-	material.Ka = objMaterial.Ka.x;
-	material.Ke = objMaterial.Ke.x;
-	material.Kd = objMaterial.Kd.x;
-	material.Ks = objMaterial.Ks.x;
-	material.Tf = objMaterial.Tf.x;
+	material.Ka = Color( (float)objMaterial.Ka.x ).AsRGBf();
+	material.Ke = Color( (float)objMaterial.Ke.x ).AsRGBf();
+	material.Kd = Color( (float)objMaterial.Kd.x ).AsRGBf();
+	material.Ks = Color( (float)objMaterial.Ks.x ).AsRGBf();
+	material.Tf = Color( (float)objMaterial.Tf.x ).AsRGBf();
+
+
 	material.Tr = objMaterial.Tr;
 	material.illum = objMaterial.illum;
 	material.textured = false;
@@ -380,8 +382,15 @@ uint32_t LoadModelBin( const std::string& path, ResourceManager& rm )
 		material_t material = inMaterials[ i ];
 
 		// Relative-to-Absolute IDs
-		material.colorMapId += baseImageId;
-		material.normalMapId += baseImageId;
+		if( material.colorMapId != InvalidHdl )
+		{
+			material.colorMapId += baseImageId;
+		}
+
+		if ( material.normalMapId != InvalidHdl )
+		{
+			material.normalMapId += baseImageId;
+		}
 
 		rm.StoreMaterialCopy( material );
 	}
@@ -389,7 +398,10 @@ uint32_t LoadModelBin( const std::string& path, ResourceManager& rm )
 	for ( uint32_t i = 0; i < surfaceCount; ++i )
 	{
 		// Relative-to-Absolute IDs
-		model->surfs[ i ].materialId += baseMaterialId;
+		if( model->surfs[ i ].materialId != InvalidHdl )
+		{
+			model->surfs[ i ].materialId += baseMaterialId;
+		}
 		assert( model->surfs[ i ].materialId <= rm.GetMaterialCount() );
 	}
 
@@ -514,7 +526,7 @@ void StoreModelBin( const std::string& path, ResourceManager& rm, const uint32_t
 }
 
 
-void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat4x4d& modelMatrix, const bool smoothNormals, const Color& tint, ModelInstance* outInstance, const material_t* material )
+void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat4x4d& modelMatrix, const bool smoothNormals, const Color& tint, ModelInstance* outInstance, const matHdl_t materialId )
 {
 	const Model* model = rm.GetModel( modelIx );
 
@@ -639,15 +651,7 @@ void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat
 	{
 		const surface_t& surf = model->surfs[ surfIx ];
 
-		uint32_t triMaterialId;
-		if ( material == nullptr )
-		{
-			triMaterialId = surf.materialId;
-		}
-		else
-		{
-			triMaterialId = 0;
-		}
+		const uint32_t triMaterialId = ( materialId == InvalidHdl ) ? surf.materialId : materialId;
 
 		for ( uint32_t i = surf.ibOffset; i < surf.ibEnd; i += 3 )
 		{
@@ -672,7 +676,7 @@ void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat
 }
 
 
-uint32_t CreatePlaneModel( ResourceManager& rm, const vec2d& size, const vec2i& cellCnt )
+uint32_t CreatePlaneModel( ResourceManager& rm, const vec2d& size, const vec2i& cellCnt, const matHdl_t materialId )
 {
 	uint32_t modelIx = rm.AllocModel();
 	Model* model = rm.GetModel( modelIx );
@@ -734,7 +738,7 @@ uint32_t CreatePlaneModel( ResourceManager& rm, const vec2d& size, const vec2i& 
 	}
 	surf.ibEnd = rm.GetIbOffset();
 
-	surf.materialId = 0;
+	surf.materialId = materialId;
 
 	return modelIx;
 }
