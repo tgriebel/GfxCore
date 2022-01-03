@@ -19,6 +19,12 @@ using RGBA = rgbaTuple_t<uint8_t>;
 template<typename T>
 struct rgbTuple_t
 {
+	rgbTuple_t() : r( 0 ), g( 0 ), b( 0 ) {}
+	rgbTuple_t( const T& r, const T& g, const T& b ) {
+		this->r = r;
+		this->g = g;
+		this->b = b;
+	}
 	T	b;
 	T	g;
 	T	r;
