@@ -21,50 +21,72 @@ struct AABB
 		max[ 2 ] = -DBL_MAX;
 	}
 
+	AABB( const AABB& aabb )
+	{
+		min = aabb.min;
+		max = aabb.max;
+	}
+
+	AABB& operator=( const AABB& aabb ) {
+		min = aabb.min;
+		max = aabb.max;
+		return *this;
+	}
+
 	AABB( const vec3d& point )
 	{
 		min = point;
 		max = point;
 	}
 
-	AABB( const vec3d& _min, const vec3d& _max )
+	AABB( const vec3d& _min, const vec3d& _max ) : AABB()
 	{
 		Expand( _min );
 		Expand( _max );
 	}
 
 	// Adapts Christer Ericson's Kay-Kajiya slab based interection test from Real Time Collision Detection
-	bool Intersect( const Ray& r, double& tnear, double& tfar ) const
+	bool Intersect( const Ray& r, double& tMin, double& tMax ) const
 	{
-		double tmin = -DBL_MAX;
-		double tmax = DBL_MAX;
+		tMin = -DBL_MAX;
+		tMax = DBL_MAX;
+
+		if ( ( min[ 0 ] == -DBL_MAX ) || ( min[ 1 ] == -DBL_MAX ) || ( min[ 2 ] == -DBL_MAX ) ) {
+			return false;
+		}
+
+		if ( ( max[ 0 ] == DBL_MAX ) || ( max[ 1 ] == DBL_MAX ) || ( max[ 2 ] == DBL_MAX ) ) {
+			return false;
+		}
+
 		for ( uint32_t i = 0; i < 3; ++i )
 		{
 			if ( abs( r.d[ i ] ) < 0.000001 ) // Parallel to slab...
 			{
-				if ( ( r.o[ i ] < min[ i ] ) || ( r.o[ i ] > max[ i ] ) ) // ...and outside box
+				if ( ( r.o[ i ] < min[ i ] ) || ( r.o[ i ] > max[ i ] ) ) { // ...and outside box
 					return false;
+				}
 			}
 			else
 			{
-				double ood = 1.0 / r.d[ i ];
+				const double ood = 1.0 / r.d[ i ];
 				double t1 = ( min[ i ] - r.o[ i ] ) * ood;
 				double t2 = ( max[ i ] - r.o[ i ] ) * ood;
 
-				if ( t1 > t2 )
+				if ( t1 > t2 ) {
 					std::swap( t1, t2 );
-
-				if ( t1 > tmin )
-					tmin = t1;
-
-				if ( t2 < tmax )
-					tmax = t2;
-
-				if ( ( tmin > tmax ) || ( t2 < 0 ) )
+				}
+				if ( t1 > tMin ) {
+					tMin = t1;
+				}
+				if ( t2 < tMax ) {
+					tMax = t2;
+				}
+				if ( ( tMin > tMax ) || ( t2 < 0 ) ) {
 					return false;
+				}
 			}
 		}
-
 		return true;
 	}
 
@@ -101,5 +123,13 @@ struct AABB
 	vec3d GetMax() const
 	{
 		return max;
+	}
+
+	vec3d GetSize() const {
+		return vec3d( abs( max[ 0 ] - min[ 0 ] ), abs( max[ 1 ] - min[ 1 ] ), abs( max[ 2 ] - min[ 2 ] ) );
+	}
+
+	vec3d GetCenter() const {
+		return 0.5 * GetSize() + GetMin();
 	}
 };
