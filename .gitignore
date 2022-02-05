@@ -31,3 +31,16 @@ Release/GfxCore.tlog/Lib-link.read.1.tlog
 Release/GfxCore.tlog/Lib-link.write.1.tlog
 Release/GfxCore.tlog/Lib.command.1.tlog
 Release/meshIO.obj
+Release/GfxCore.tlog/GfxCore.lastbuildstate
+*.lastbuildstate
+*.lastbuildstate
+*.tlog
+*.db
+*.db-wal
+*.db-shm
+*.ipch
+.vs/GfxCore/v16/.suo
+*.recipe
+*.log
+*.obj
+*.obj
