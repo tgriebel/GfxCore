@@ -63,11 +63,10 @@ static inline double Lambert()
 }
 
 
-static inline vec3d BrdfGGX( vec3d& n, vec3d& v, vec3d& l, material_t& m )
+static inline vec3d BrdfGGX( const vec3d& n, const vec3d& v, const vec3d& l, const material_t& m )
 {
-	double perceptualRoughness = 1.0f;
-	double a = 1.0f;
-	double f0 = 1.0f;
+	double perceptualRoughness = 1.0;
+	double f0 = 0.1;
 
 	vec3d h = ( v + l ).Normalize();
 
@@ -79,7 +78,7 @@ static inline vec3d BrdfGGX( vec3d& n, vec3d& v, vec3d& l, material_t& m )
 	// perceptually linear roughness to roughness (see parameterization)
 	double roughness = perceptualRoughness * perceptualRoughness;
 
-	double D = GGX( NoH, a );
+	double D = GGX( NoH, roughness );
 	vec3d  F = Schlick( LoH, f0 );
 	double V = SmithGGXCorrelated( NoV, NoL, roughness );
 
@@ -87,7 +86,7 @@ static inline vec3d BrdfGGX( vec3d& n, vec3d& v, vec3d& l, material_t& m )
 	vec3d Fr = ( D * V ) * F;
 
 	// diffuse BRDF
-	vec3d Fd = vec3d( m.Kd.r, m.Kd.g, m.Kd.b ) * Lambert();
+	vec3d Fd = vec3d( 1.0f, 0.0f, 0.0f ) * Lambert();
 
-	return ( D * Fd ); // TODO:
+	return ( Fr + Fd ) * std::max( 0.0, Dot( n, l ) ); // TODO:
 }
