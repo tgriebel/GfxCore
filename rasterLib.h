@@ -145,7 +145,7 @@ inline void ApplyBlur( Bitmap& bitmap, Bitmap& output )
 	using matKern_t = Matrix<kernelWidth, kernelWidth, int32_t>;
 
 	matKern_t kernel( values );
-	double divisor = 1; // shouldn't blur more than # pixels in covolution
+	float divisor = 1; // shouldn't blur more than # pixels in covolution
 	uint8_t mask = 0xE;
 
 	for ( uint32_t i = ( kernelDim / 2 ); i < bitmap.GetWidth() - ( kernelDim / 2 ); ++i ) {
@@ -171,7 +171,7 @@ inline void ApplyBlur( Bitmap& bitmap, Bitmap& output )
 
 				Matrix<3, 3, int32_t> rSample( rChannel );
 				rSum = Convolution( rSample, kernel );
-				rSum = (int32_t) ( (double) rSum / divisor );
+				rSum = (int32_t) ( (float) rSum / divisor );
 			}
 
 			// GREEN CHANNEL
@@ -184,7 +184,7 @@ inline void ApplyBlur( Bitmap& bitmap, Bitmap& output )
 
 				matKern_t g_sample( gChannel );
 				gSum = Convolution( g_sample, kernel );
-				gSum = (int32_t) ( (double) gSum / divisor );
+				gSum = (int32_t) ( (float) gSum / divisor );
 			}
 
 			// BLUE CHANNEL
@@ -197,7 +197,7 @@ inline void ApplyBlur( Bitmap& bitmap, Bitmap& output )
 
 				matKern_t bSample( bChannel );
 				bSum = Convolution( bSample, kernel );
-				bSum = (int32_t) ( (double) bSum / divisor );
+				bSum = (int32_t) ( (float) bSum / divisor );
 			}
 
 			// ALPHA CHANNEL
@@ -210,7 +210,7 @@ inline void ApplyBlur( Bitmap& bitmap, Bitmap& output )
 
 				matKern_t aSample( aChannel );
 				aSum = Convolution( aSample, kernel );
-				aSum = (int32_t) ( (double) aSum / divisor );
+				aSum = (int32_t) ( (float) aSum / divisor );
 			}
 
 			//if(r_sum > 0xFF) cout << r_sum << endl;
@@ -260,11 +260,11 @@ enum clipRegion_t
 };
 
 
-inline uint32_t ComputeClipCode( const vec2d& pt )
+inline uint32_t ComputeClipCode( const vec2f& pt )
 {
 	uint32_t code;
 
-	const double clipSize = 2.0;
+	const float clipSize = 2.0;
 	code = CLIP_REGION_INSIDE;
 
 	if ( pt[ 0 ] < clipSize )
@@ -295,14 +295,14 @@ ProjectPoint
 - Projects point from world space into screen space
 ===================================
 */
-inline void ProjectPoint( const mat4x4d& mvp, const vec2i& screenSize, const vec4d& worldSpacePt, vec4d& outPoint )
+inline void ProjectPoint( const mat4x4f& mvp, const vec2i& screenSize, const vec4f& worldSpacePt, vec4f& outPoint )
 {
 	// Clip-Space
-	vec4d csPt = mvp * vec4d( worldSpacePt[ 0 ], worldSpacePt[ 1 ], worldSpacePt[ 2 ], 1.0 );
+	vec4f csPt = mvp * vec4f( worldSpacePt[ 0 ], worldSpacePt[ 1 ], worldSpacePt[ 2 ], 1.0 );
 
 	// Normalized-Device-Coordinates
-	const double w = csPt[ 3 ] + 1e-7;
-	vec4d ndsPt = vec4d( csPt[ 0 ] / w, csPt[ 1 ] / w, csPt[ 2 ] / w, w );
+	const float w = csPt[ 3 ] + 1e-7;
+	vec4f ndsPt = vec4f( csPt[ 0 ] / w, csPt[ 1 ] / w, csPt[ 2 ] / w, w );
 
 	// Screen-Space
 	outPoint[ 0 ] = 0.5 * screenSize[ 0 ] * ( ndsPt[ 0 ] + 1.0 );
@@ -313,7 +313,7 @@ inline void ProjectPoint( const mat4x4d& mvp, const vec2i& screenSize, const vec
 
 
 template<typename T>
-inline T Interpolate( const vec3d& baryCoord, const T attrib[3] )
+inline T Interpolate( const vec3f& baryCoord, const T attrib[3] )
 {
 	T value;
 

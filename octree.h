@@ -32,7 +32,7 @@ public:
 		parent = nullptr;
 	}
 
-	Octree( const vec3d& _min, const vec3d& _max )
+	Octree( const vec3f& _min, const vec3f& _max )
 	{
 		height = 0;
 		bitSet = 0;
@@ -75,8 +75,8 @@ public:
 	// TODO: move out of tree
 	bool Intersect( const Ray& ray, std::vector<T>& hitItems ) const
 	{
-		double tNear;
-		double tFar;
+		float tNear;
+		float tFar;
 
 		if ( aabb.Intersect( ray, tNear, tFar ) )
 		{
@@ -152,15 +152,15 @@ public:
 private:
 	void AddChild( const octreeRegion_t region )
 	{
-		const vec3d halfDist = 0.5 * ( aabb.max - aabb.min );
+		const vec3f halfDist = 0.5f * ( aabb.max - aabb.min );
 		
-		const vec3d mask = vec3d(	( region & 0x04 ) ? 1.0 : 0.0,
-									( region & 0x02 ) ? 1.0 : 0.0,
-									( region & 0x01 ) ? 1.0 : 0.0 );
+		const vec3f mask = vec3f(	( region & 0x04 ) ? 1.0f : 0.0f,
+									( region & 0x02 ) ? 1.0f : 0.0f,
+									( region & 0x01 ) ? 1.0f : 0.0f );
 
-		const vec3d offset = vec3d( mask[ 0 ] * halfDist[ 0 ], mask[ 1 ] * halfDist[ 1 ], mask[ 2 ] * halfDist[ 2 ] );
-		const vec3d nodeMin = aabb.min + offset;
-		const vec3d nodeMax = nodeMin + halfDist;
+		const vec3f offset = vec3f( mask[ 0 ] * halfDist[ 0 ], mask[ 1 ] * halfDist[ 1 ], mask[ 2 ] * halfDist[ 2 ] );
+		const vec3f nodeMin = aabb.min + offset;
+		const vec3f nodeMax = nodeMin + halfDist;
 		
 		children.push_back( Octree( nodeMin, nodeMax ) );
 		children.back().parent = this;

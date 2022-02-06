@@ -375,7 +375,7 @@ Vector<3, T> Cross( const Vector<3, T>& u, const Vector<3, T>& v )
 template< size_t D, typename T>
 T Angle( const Vector<D, T>& u, const Vector<D, T>& v )
 {
-	const double PI = 3.14159265358979323846;
+	const T PI = static_cast<T>( 3.14159265358979323846 );
 
 	T theta = static_cast<T>( 0.0 );
 	T mag = u.Length() * v.Length();

@@ -286,7 +286,7 @@ Matrix<M, N, T> operator*( T s, const Matrix<M, N, T>& m )
 template< size_t M, size_t N, typename T>
 Vector<N, T> operator*( const Vector<N, T>& u, const Matrix<M, N, T>& m )
 {
-	vec4d v;
+	Vector< N, T > v;
 	for ( size_t r = 0; r < M; ++r )
 	{
 		for ( size_t c = 0, rd = 0; c < N; ++c, ++rd )
@@ -294,7 +294,6 @@ Vector<N, T> operator*( const Vector<N, T>& u, const Matrix<M, N, T>& m )
 			v[ rd ] += u[ r ] * m[ c ][ r ];
 		}
 	}
-
 	return v;
 }
 
@@ -316,23 +315,23 @@ T Det( Matrix<2, 2, T> m )
 template< typename T>
 T Det( Matrix<3, 3, T> m )
 {
-	double cof00[] = { m[ 1 ][ 1 ], m[ 1 ][ 2 ], m[ 2 ][ 1 ], m[ 2 ][ 2 ] };
-	double cof01[] = { m[ 1 ][ 0 ], m[ 1 ][ 2 ], m[ 2 ][ 0 ], m[ 2 ][ 2 ] };
-	double cof02[] = { m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 2 ][ 0 ], m[ 2 ][ 1 ] };
+	T cof00[] = { m[ 1 ][ 1 ], m[ 1 ][ 2 ], m[ 2 ][ 1 ], m[ 2 ][ 2 ] };
+	T cof01[] = { m[ 1 ][ 0 ], m[ 1 ][ 2 ], m[ 2 ][ 0 ], m[ 2 ][ 2 ] };
+	T cof02[] = { m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 2 ][ 0 ], m[ 2 ][ 1 ] };
 
-	return m[ 0 ][ 0 ] * Det( mat2x2d( cof00 ) ) - m[ 0 ][ 1 ] * Det( mat2x2d( cof01 ) ) + m[ 0 ][ 2 ] * Det( mat2x2d( cof02 ) );
+	return m[ 0 ][ 0 ] * Det( Matrix< 2, 2, T >( cof00 ) ) - m[ 0 ][ 1 ] * Det( Matrix< 2, 2, T >( cof01 ) ) + m[ 0 ][ 2 ] * Det( Matrix< 2, 2, T >( cof02 ) );
 }
 
 
 template< typename T>
 T Det( Matrix<4, 4, T> m )
 {
-	double cof00[] = { m[ 1 ][ 1 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ],  m[ 2 ][ 1 ], m[ 2 ][ 2 ], m[ 2 ][ 3 ],  m[ 3 ][ 1 ], m[ 3 ][ 2 ], m[ 3 ][ 3 ] };
-	double cof01[] = { m[ 1 ][ 0 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ],  m[ 2 ][ 0 ], m[ 2 ][ 2 ], m[ 2 ][ 3 ],  m[ 3 ][ 0 ], m[ 3 ][ 2 ], m[ 3 ][ 3 ] };
-	double cof02[] = { m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 1 ][ 3 ],  m[ 2 ][ 0 ], m[ 2 ][ 1 ], m[ 2 ][ 3 ],  m[ 3 ][ 0 ], m[ 3 ][ 1 ], m[ 3 ][ 3 ] };
-	double cof03[] = { m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 1 ][ 2 ],  m[ 2 ][ 0 ], m[ 2 ][ 1 ], m[ 2 ][ 2 ],  m[ 3 ][ 0 ], m[ 3 ][ 1 ], m[ 3 ][ 2 ] };
+	T cof00[] = { m[ 1 ][ 1 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ],  m[ 2 ][ 1 ], m[ 2 ][ 2 ], m[ 2 ][ 3 ],  m[ 3 ][ 1 ], m[ 3 ][ 2 ], m[ 3 ][ 3 ] };
+	T cof01[] = { m[ 1 ][ 0 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ],  m[ 2 ][ 0 ], m[ 2 ][ 2 ], m[ 2 ][ 3 ],  m[ 3 ][ 0 ], m[ 3 ][ 2 ], m[ 3 ][ 3 ] };
+	T cof02[] = { m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 1 ][ 3 ],  m[ 2 ][ 0 ], m[ 2 ][ 1 ], m[ 2 ][ 3 ],  m[ 3 ][ 0 ], m[ 3 ][ 1 ], m[ 3 ][ 3 ] };
+	T cof03[] = { m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 1 ][ 2 ],  m[ 2 ][ 0 ], m[ 2 ][ 1 ], m[ 2 ][ 2 ],  m[ 3 ][ 0 ], m[ 3 ][ 1 ], m[ 3 ][ 2 ] };
 
-	return m[ 0 ][ 0 ] * Det( mat3x3d( cof00 ) ) - m[ 0 ][ 1 ] * Det( mat3x3d( cof01 ) ) + m[ 0 ][ 2 ] * Det( mat3x3d( cof02 ) ) - m[ 0 ][ 3 ] * Det( mat3x3d( cof03 ) );
+	return m[ 0 ][ 0 ] * Det( Matrix< 3, 3, T >( cof00 ) ) - m[ 0 ][ 1 ] * Det( Matrix< 3, 3, T >( cof01 ) ) + m[ 0 ][ 2 ] * Det( Matrix< 3, 3, T >( cof02 ) ) - m[ 0 ][ 3 ] * Det( Matrix< 3, 3, T >( cof03 ) );
 }
 
 
@@ -347,32 +346,32 @@ Matrix<4, 4, T> CofactorMatrix( Matrix<4, 4, T> m )
 
 	//TODO: use cramer's rule combine with determinant
 
-	double minor00[] = { m[ 1 ][ 1 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ],  m[ 2 ][ 1 ], m[ 2 ][ 2 ], m[ 2 ][ 3 ],  m[ 3 ][ 1 ], m[ 3 ][ 2 ], m[ 3 ][ 3 ] };
-	double minor01[] = { m[ 1 ][ 0 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ],  m[ 2 ][ 0 ], m[ 2 ][ 2 ], m[ 2 ][ 3 ],  m[ 3 ][ 0 ], m[ 3 ][ 2 ], m[ 3 ][ 3 ] };
-	double minor02[] = { m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 1 ][ 3 ],  m[ 2 ][ 0 ], m[ 2 ][ 1 ], m[ 2 ][ 3 ],  m[ 3 ][ 0 ], m[ 3 ][ 1 ], m[ 3 ][ 3 ] };
-	double minor03[] = { m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 1 ][ 2 ],  m[ 2 ][ 0 ], m[ 2 ][ 1 ], m[ 2 ][ 2 ],  m[ 3 ][ 0 ], m[ 3 ][ 1 ], m[ 3 ][ 2 ] };
+	T minor00[] = { m[ 1 ][ 1 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ],  m[ 2 ][ 1 ], m[ 2 ][ 2 ], m[ 2 ][ 3 ],  m[ 3 ][ 1 ], m[ 3 ][ 2 ], m[ 3 ][ 3 ] };
+	T minor01[] = { m[ 1 ][ 0 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ],  m[ 2 ][ 0 ], m[ 2 ][ 2 ], m[ 2 ][ 3 ],  m[ 3 ][ 0 ], m[ 3 ][ 2 ], m[ 3 ][ 3 ] };
+	T minor02[] = { m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 1 ][ 3 ],  m[ 2 ][ 0 ], m[ 2 ][ 1 ], m[ 2 ][ 3 ],  m[ 3 ][ 0 ], m[ 3 ][ 1 ], m[ 3 ][ 3 ] };
+	T minor03[] = { m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 1 ][ 2 ],  m[ 2 ][ 0 ], m[ 2 ][ 1 ], m[ 2 ][ 2 ],  m[ 3 ][ 0 ], m[ 3 ][ 1 ], m[ 3 ][ 2 ] };
 
-	double minor10[] = { m[ 0 ][ 1 ], m[ 0 ][ 2 ], m[ 0 ][ 3 ],  m[ 2 ][ 1 ], m[ 2 ][ 2 ], m[ 2 ][ 3 ],  m[ 3 ][ 1 ], m[ 3 ][ 2 ], m[ 3 ][ 3 ] };
-	double minor11[] = { m[ 0 ][ 0 ], m[ 0 ][ 2 ], m[ 0 ][ 3 ],  m[ 2 ][ 0 ], m[ 2 ][ 2 ], m[ 2 ][ 3 ],  m[ 3 ][ 0 ], m[ 3 ][ 2 ], m[ 3 ][ 3 ] };
-	double minor12[] = { m[ 0 ][ 0 ], m[ 0 ][ 1 ], m[ 0 ][ 3 ],  m[ 2 ][ 0 ], m[ 2 ][ 1 ], m[ 2 ][ 3 ],  m[ 3 ][ 0 ], m[ 3 ][ 1 ], m[ 3 ][ 3 ] };
-	double minor13[] = { m[ 0 ][ 0 ], m[ 0 ][ 1 ], m[ 0 ][ 2 ],  m[ 2 ][ 0 ], m[ 2 ][ 1 ], m[ 2 ][ 2 ],  m[ 3 ][ 0 ], m[ 3 ][ 1 ], m[ 3 ][ 2 ] };
+	T minor10[] = { m[ 0 ][ 1 ], m[ 0 ][ 2 ], m[ 0 ][ 3 ],  m[ 2 ][ 1 ], m[ 2 ][ 2 ], m[ 2 ][ 3 ],  m[ 3 ][ 1 ], m[ 3 ][ 2 ], m[ 3 ][ 3 ] };
+	T minor11[] = { m[ 0 ][ 0 ], m[ 0 ][ 2 ], m[ 0 ][ 3 ],  m[ 2 ][ 0 ], m[ 2 ][ 2 ], m[ 2 ][ 3 ],  m[ 3 ][ 0 ], m[ 3 ][ 2 ], m[ 3 ][ 3 ] };
+	T minor12[] = { m[ 0 ][ 0 ], m[ 0 ][ 1 ], m[ 0 ][ 3 ],  m[ 2 ][ 0 ], m[ 2 ][ 1 ], m[ 2 ][ 3 ],  m[ 3 ][ 0 ], m[ 3 ][ 1 ], m[ 3 ][ 3 ] };
+	T minor13[] = { m[ 0 ][ 0 ], m[ 0 ][ 1 ], m[ 0 ][ 2 ],  m[ 2 ][ 0 ], m[ 2 ][ 1 ], m[ 2 ][ 2 ],  m[ 3 ][ 0 ], m[ 3 ][ 1 ], m[ 3 ][ 2 ] };
 
-	double minor20[] = { m[ 0 ][ 1 ], m[ 0 ][ 2 ], m[ 0 ][ 3 ],  m[ 1 ][ 1 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ],  m[ 3 ][ 1 ], m[ 3 ][ 2 ], m[ 3 ][ 3 ] };
-	double minor21[] = { m[ 0 ][ 0 ], m[ 0 ][ 2 ], m[ 0 ][ 3 ],  m[ 1 ][ 0 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ],  m[ 3 ][ 0 ], m[ 3 ][ 2 ], m[ 3 ][ 3 ] };
-	double minor22[] = { m[ 0 ][ 0 ], m[ 0 ][ 1 ], m[ 0 ][ 3 ],  m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 1 ][ 3 ],  m[ 3 ][ 0 ], m[ 3 ][ 1 ], m[ 3 ][ 3 ] };
-	double minor23[] = { m[ 0 ][ 0 ], m[ 0 ][ 1 ], m[ 0 ][ 2 ],  m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 1 ][ 2 ],  m[ 3 ][ 0 ], m[ 3 ][ 1 ], m[ 3 ][ 2 ] };
+	T minor20[] = { m[ 0 ][ 1 ], m[ 0 ][ 2 ], m[ 0 ][ 3 ],  m[ 1 ][ 1 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ],  m[ 3 ][ 1 ], m[ 3 ][ 2 ], m[ 3 ][ 3 ] };
+	T minor21[] = { m[ 0 ][ 0 ], m[ 0 ][ 2 ], m[ 0 ][ 3 ],  m[ 1 ][ 0 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ],  m[ 3 ][ 0 ], m[ 3 ][ 2 ], m[ 3 ][ 3 ] };
+	T minor22[] = { m[ 0 ][ 0 ], m[ 0 ][ 1 ], m[ 0 ][ 3 ],  m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 1 ][ 3 ],  m[ 3 ][ 0 ], m[ 3 ][ 1 ], m[ 3 ][ 3 ] };
+	T minor23[] = { m[ 0 ][ 0 ], m[ 0 ][ 1 ], m[ 0 ][ 2 ],  m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 1 ][ 2 ],  m[ 3 ][ 0 ], m[ 3 ][ 1 ], m[ 3 ][ 2 ] };
 
-	double minor30[] = { m[ 0 ][ 1 ], m[ 0 ][ 2 ], m[ 0 ][ 3 ],  m[ 1 ][ 1 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ],  m[ 2 ][ 1 ], m[ 2 ][ 2 ], m[ 2 ][ 3 ] };
-	double minor31[] = { m[ 0 ][ 0 ], m[ 0 ][ 2 ], m[ 0 ][ 3 ],  m[ 1 ][ 0 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ],  m[ 2 ][ 0 ], m[ 2 ][ 2 ], m[ 2 ][ 3 ] };
-	double minor32[] = { m[ 0 ][ 0 ], m[ 0 ][ 1 ], m[ 0 ][ 3 ],  m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 1 ][ 3 ],  m[ 2 ][ 0 ], m[ 2 ][ 1 ], m[ 2 ][ 3 ] };
-	double minor33[] = { m[ 0 ][ 0 ], m[ 0 ][ 1 ], m[ 0 ][ 2 ],  m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 1 ][ 2 ],  m[ 2 ][ 0 ], m[ 2 ][ 1 ], m[ 2 ][ 2 ] };
+	T minor30[] = { m[ 0 ][ 1 ], m[ 0 ][ 2 ], m[ 0 ][ 3 ],  m[ 1 ][ 1 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ],  m[ 2 ][ 1 ], m[ 2 ][ 2 ], m[ 2 ][ 3 ] };
+	T minor31[] = { m[ 0 ][ 0 ], m[ 0 ][ 2 ], m[ 0 ][ 3 ],  m[ 1 ][ 0 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ],  m[ 2 ][ 0 ], m[ 2 ][ 2 ], m[ 2 ][ 3 ] };
+	T minor32[] = { m[ 0 ][ 0 ], m[ 0 ][ 1 ], m[ 0 ][ 3 ],  m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 1 ][ 3 ],  m[ 2 ][ 0 ], m[ 2 ][ 1 ], m[ 2 ][ 3 ] };
+	T minor33[] = { m[ 0 ][ 0 ], m[ 0 ][ 1 ], m[ 0 ][ 2 ],  m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 1 ][ 2 ],  m[ 2 ][ 0 ], m[ 2 ][ 1 ], m[ 2 ][ 2 ] };
 
-	double values[] = { Det( mat3x3d( minor00 ) ), -Det( mat3x3d( minor01 ) ), Det( mat3x3d( minor02 ) ), -Det( mat3x3d( minor03 ) ),
-						-Det( mat3x3d( minor10 ) ), Det( mat3x3d( minor11 ) ), -Det( mat3x3d( minor12 ) ), Det( mat3x3d( minor13 ) ),
-						Det( mat3x3d( minor20 ) ), -Det( mat3x3d( minor21 ) ), Det( mat3x3d( minor22 ) ), -Det( mat3x3d( minor23 ) ),
-						-Det( mat3x3d( minor30 ) ), Det( mat3x3d( minor31 ) ), -Det( mat3x3d( minor32 ) ), Det( mat3x3d( minor33 ) ) };
+	T values[] = { Det( Matrix< 3, 3, T >( minor00 ) ), -Det( Matrix< 3, 3, T >( minor01 ) ), Det( Matrix< 3, 3, T >( minor02 ) ), -Det( Matrix< 3, 3, T >( minor03 ) ),
+						-Det( Matrix< 3, 3, T >( minor10 ) ), Det( Matrix< 3, 3, T >( minor11 ) ), -Det( Matrix< 3, 3, T >( minor12 ) ), Det( Matrix< 3, 3, T >( minor13 ) ),
+						Det( Matrix< 3, 3, T >( minor20 ) ), -Det( Matrix< 3, 3, T >( minor21 ) ), Det( Matrix< 3, 3, T >( minor22 ) ), -Det( Matrix< 3, 3, T >( minor23 ) ),
+						-Det( Matrix< 3, 3, T >( minor30 ) ), Det( Matrix< 3, 3, T >( minor31 ) ), -Det( Matrix< 3, 3, T >( minor32 ) ), Det( Matrix< 3, 3, T >( minor33 ) ) };
 
-	return mat4x4d( values );
+	return mat4x4f( values );
 }
 
 template< typename T>

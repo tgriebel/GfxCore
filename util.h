@@ -5,43 +5,44 @@
 #include "matrix.h"
 #include "color.h"
 #include "bitmap.h"
+#include "image.h"
 
 // Put useful functions that use other core classes here
 // Core classes should be fairly independent from eachother
 // this file alongs for dependencies
 
 
-inline mat4x4d ComputeRotationX( const double degrees )
+inline mat4x4f ComputeRotationX( const float degrees )
 {
-	const double theta = Radians( degrees );
-	return CreateMatrix4x4( 1.0, 0.0, 0.0, 0.0,
-		0.0, cos( theta ), -sin( theta ), 0.0,
-		0.0, sin( theta ), cos( theta ), 0.0,
-		0.0, 0.0, 0.0, 1.0 );
+	const float theta = Radians( degrees );
+	return CreateMatrix4x4( 1.0f, 0.0f, 0.0f, 0.0f,
+							0.0f, cos( theta ), -sin( theta ), 0.0f,
+							0.0f, sin( theta ), cos( theta ), 0.0f,
+							0.0f, 0.0f, 0.0f, 0.0f );
 }
 
 
-inline mat4x4d ComputeRotationY( const double degrees )
+inline mat4x4f ComputeRotationY( const float degrees )
 {
-	const double theta = Radians( degrees );
-	return CreateMatrix4x4( cos( theta ), 0.0, sin( theta ), 0.0,
-		0.0, 1.0, 0.0, 0.0,
-		-sin( theta ), 0.0, cos( theta ), 0.0,
-		0.0, 0.0, 0.0, 1.0 );
+	const float theta = Radians( degrees );
+	return CreateMatrix4x4( cos( theta ), 0.0f, sin( theta ), 0.0f,
+							0.0f, 1.0f, 0.0f, 0.0f,
+							-sin( theta ), 0.0f, cos( theta ), 0.0f,
+							0.0f, 0.0f, 0.0f, 0.0f );
 }
 
 
-inline mat4x4d ComputeRotationZ( const double degrees )
+inline mat4x4f ComputeRotationZ( const float degrees )
 {
-	const double theta = Radians( degrees );
-	return CreateMatrix4x4( cos( theta ), -sin( theta ), 0.0, 0.0,
-		sin( theta ), cos( theta ), 0.0, 0.0,
-		0.0, 0.0, 1.0, 0.0,
-		0.0, 0.0, 0.0, 1.0 );
+	const float theta = Radians( degrees );
+	return CreateMatrix4x4( cos( theta ), -sin( theta ), 0.0f, 0.0f,
+							sin( theta ), cos( theta ), 0.0f, 0.0f,
+							0.0f, 0.0f, 1.0f, 0.0f,
+							0.0f, 0.0f, 0.0f, 0.0f );
 }
 
 
-inline void SetTranslation( mat4x4d& inoutMatrix, const vec3d& translation )
+inline void SetTranslation( mat4x4f& inoutMatrix, const vec3f& translation )
 {
 	inoutMatrix[ 0 ][ 3 ] = translation[ 0 ];
 	inoutMatrix[ 1 ][ 3 ] = translation[ 1 ];
@@ -50,9 +51,9 @@ inline void SetTranslation( mat4x4d& inoutMatrix, const vec3d& translation )
 }
 
 
-inline mat4x4d ComputeScale( const vec3d& scale )
+inline mat4x4f ComputeScale( const vec3f& scale )
 {
-	mat4x4d mat;
+	mat4x4f mat;
 	mat[ 0 ][ 0 ] = scale[ 0 ];
 	mat[ 1 ][ 1 ] = scale[ 1 ];
 	mat[ 2 ][ 2 ] = scale[ 2 ];
@@ -136,21 +137,21 @@ static inline void ImageToBitmap( const Image<float>& image, Bitmap& bitmap )
 }
 
 
-static inline Color Vec3dToColor( const vec3d& v )
+static inline Color Vec3ToColor( const vec3f& v )
 {
 	return Color( static_cast<float>( v[ 0 ] ), static_cast<float>( v[ 1 ] ), static_cast<float>( v[ 2 ] ), 1.0f );
 }
 
 
-static inline Color Vec4dToColor( const vec4d& v )
+static inline Color Vec4ToColor( const vec4f& v )
 {
 	return Color( static_cast<float>( v[ 0 ] ), static_cast<float>( v[ 1 ] ), static_cast<float>( v[ 2 ] ), static_cast<float>( v[ 3 ] ) );
 }
 
 
-static inline vec4d ColorToVector( const Color& c )
+static inline vec4f ColorToVector( const Color& c )
 {
-	return vec4d( c[ 0 ], c[ 1 ], c[ 2 ], c[ 3 ] );
+	return vec4f( c[ 0 ], c[ 1 ], c[ 2 ], c[ 3 ] );
 }
 
 
@@ -179,13 +180,13 @@ static inline void RandomPointOnSphere( float& theta, float& phi )
 }
 
 
-static inline vec3d RandomVec3d( float r = 1.0f )
+static inline vec3f Randomvec3f( float r = 1.0f )
 {
 	float theta;
 	float phi;
 	RandomPointOnSphere( theta, phi );
 
-	vec3d v;
+	vec3f v;
 	v[ 0 ] = r * sin( phi ) * cos( theta );
 	v[ 1 ] = r * sin( phi ) * sin( theta );
 	v[ 2 ] = r * cos( phi );
@@ -193,18 +194,18 @@ static inline vec3d RandomVec3d( float r = 1.0f )
 }
 
 
-static inline vec3d ReflectVec3d( const vec3d& n, const vec3d& v )
+static inline vec3f Reflectvec3f( const vec3f& n, const vec3f& v )
 {
-	return ( 2.0 * Dot( v, n ) * n - v );
+	return ( 2.0f * Dot( v, n ) * n - v );
 }
 
 
-static inline vec3d RefractVec3d( const vec3d& uv, const vec3d& n, double refractionRatio = 1.0 )
+static inline vec3f Refractvec3f( const vec3f& uv, const vec3f& n, float refractionRatio = 1.0f )
 {
-	const double dot = std::min( Dot( uv.Reverse(), n ), 1.0 );
+	const float dot = std::min( Dot( uv.Reverse(), n ), 1.0f );
 
-	vec3d r0 = refractionRatio * ( uv + dot * n );
-	vec3d r1 = -sqrt( fabs( 1.0 - Dot( r0, r0 ) ) ) * n;
+	vec3f r0 = refractionRatio * ( uv + dot * n );
+	vec3f r1 = -sqrt( fabs( 1.0f - Dot( r0, r0 ) ) ) * n;
 
 	return ( r0 + r1 );
 }

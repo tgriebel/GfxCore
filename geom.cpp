@@ -108,28 +108,28 @@ uint32_t LoadModelObj( const std::string& path, ResourceManager& rm )
 
 					MeshIO::vector_t srcVertex = objMesh.vertices[ vertIx ];
 					
-					vert.pos = vec4d( srcVertex.x, srcVertex.y, srcVertex.z, srcVertex.w );
+					vert.pos = vec4f( srcVertex.x, srcVertex.y, srcVertex.z, srcVertex.w );
 					vert.color = Color::White;
 
 					// TODO: default in MeshIO
 					if( uvIx != -1 )
 					{
 						MeshIO::vector_t srcUv = objMesh.uvs[ uvIx ];
-						vert.uv = vec2d( srcUv.x, srcUv.y );
+						vert.uv = vec2f( srcUv.x, srcUv.y );
 					}
 					else
 					{
-						vert.uv = vec2d( 0.0, 0.0 );
+						vert.uv = vec2f( 0.0f, 0.0f );
 					}
 
 					if ( normalIx != -1 )
 					{
 						MeshIO::vector_t srcNormal = objMesh.normals[ normalIx ];
-						vert.normal = vec3d( srcNormal.x, srcNormal.y, srcNormal.z ).Normalize();
+						vert.normal = vec3f( srcNormal.x, srcNormal.y, srcNormal.z ).Normalize();
 					}
 					else
 					{
-						vert.normal = vec3d( 1.0, 1.0, 1.0 ).Normalize();
+						vert.normal = vec3f( 1.0f, 1.0f, 1.0f ).Normalize();
 					}
 
 					auto it = std::find( uniqueVertices.begin(), uniqueVertices.end(), vert );
@@ -526,7 +526,7 @@ void StoreModelBin( const std::string& path, ResourceManager& rm, const uint32_t
 }
 
 
-void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat4x4d& modelMatrix, const bool smoothNormals, const Color& tint, ModelInstance* outInstance, const matHdl_t materialId )
+void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat4x4f& modelMatrix, const bool smoothNormals, const Color& tint, ModelInstance* outInstance, const matHdl_t materialId )
 {
 	const Model* model = rm.GetModel( modelIx );
 
@@ -563,12 +563,12 @@ void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat
 	using triIndices = std::tuple<uint32_t, uint32_t, uint32_t>;
 	std::map< uint32_t, std::deque<triIndices> > vertToPolyMap;
 
-	vec3d centroid = vec3d( 0.0, 0.0, 0.0 );
+	vec3f centroid = vec3f( 0.0f, 0.0f, 0.0f );
 	for ( uint32_t i = vbOffset; i < vbEnd; ++i )
 	{
 		vertex_t vertex = *rm.GetVertex( i );
 
-		vertex.pos = outInstance->transform * vec4d( Trunc<4,1>( vertex.pos ), 1.0 );
+		vertex.pos = outInstance->transform * vec4f( Trunc<4,1>( vertex.pos ), 1.0 );
 		vertex.color *= tint;
 
 		rm.PushVB( vb );
@@ -578,7 +578,7 @@ void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat
 		centroid += Trunc<4, 1>( vertex.pos );
 	}
 
-	outInstance->centroid = centroid / (double)( vbEnd - vbOffset );
+	outInstance->centroid = centroid / (float)( vbEnd - vbOffset );
 
 	for ( uint32_t i = ibOffset; i < ibEnd; i += 3 )
 	{
@@ -607,9 +607,9 @@ void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat
 
 		for ( vertMapIter iter = vertToPolyMap.begin(); iter != vertToPolyMap.end(); ++iter )
 		{
-			vec3d interpretedNormal = vec3d( 0.0, 0.0, 0.0 );
-			vec3d interpretedTangent = vec3d( 0.0, 0.0, 0.0 );
-			vec3d interpretedBitangent = vec3d( 0.0, 0.0, 0.0 );
+			vec3f interpretedNormal = vec3f( 0.0f, 0.0f, 0.0f );
+			vec3f interpretedTangent = vec3f( 0.0f, 0.0f, 0.0f );
+			vec3f interpretedBitangent = vec3f( 0.0f, 0.0f, 0.0f );
 
 			vertex_t* vertex = rm.GetVertex( iter->first );
 
@@ -620,13 +620,13 @@ void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat
 				const uint32_t i2 = std::get<2>( *polyListIter );
 
 				// These are transformed positions; this is critical for proper normals
-				const vec3d pt0 = Trunc<4, 1>( rm.GetVertex( i0 )->pos );
-				const vec3d pt1 = Trunc<4, 1>( rm.GetVertex( i1 )->pos );
-				const vec3d pt2 = Trunc<4, 1>( rm.GetVertex( i2 )->pos );
+				const vec3f pt0 = Trunc<4, 1>( rm.GetVertex( i0 )->pos );
+				const vec3f pt1 = Trunc<4, 1>( rm.GetVertex( i1 )->pos );
+				const vec3f pt2 = Trunc<4, 1>( rm.GetVertex( i2 )->pos );
 
-				const vec3d tangent = ( pt1 - pt0 ).Normalize();
-				const vec3d bitangent = ( pt2 - pt0 ).Normalize();
-				const vec3d normal = Cross( tangent, bitangent ).Normalize();
+				const vec3f tangent = ( pt1 - pt0 ).Normalize();
+				const vec3f bitangent = ( pt2 - pt0 ).Normalize();
+				const vec3f normal = Cross( tangent, bitangent ).Normalize();
 
 				interpretedNormal += normal;
 				interpretedTangent += tangent;
@@ -676,7 +676,7 @@ void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat
 }
 
 
-uint32_t CreatePlaneModel( ResourceManager& rm, const vec2d& size, const vec2i& cellCnt, const matHdl_t materialId )
+uint32_t CreatePlaneModel( ResourceManager& rm, const vec2f& size, const vec2i& cellCnt, const matHdl_t materialId )
 {
 	uint32_t modelIx = rm.AllocModel();
 	Model* model = rm.GetModel( modelIx );
@@ -693,7 +693,7 @@ uint32_t CreatePlaneModel( ResourceManager& rm, const vec2d& size, const vec2i& 
 	surf.vbOffset = rm.GetVbOffset();
 	surf.ibOffset = rm.GetIbOffset();
 
-	vec2d gridSize = Divide( size, vec2d( cellCnt[ 0 ], cellCnt[ 1 ] ) );
+	vec2f gridSize = Divide( size, vec2f( cellCnt[ 0 ], cellCnt[ 1 ] ) );
 
 	const uint32_t verticesPerQuad = 6;
 
@@ -707,9 +707,9 @@ uint32_t CreatePlaneModel( ResourceManager& rm, const vec2d& size, const vec2i& 
 		{
 			vertex_t v;
 
-			v.pos = vec4d( i * gridSize[ 0 ] - 0.5 * size[ 0 ], j * gridSize[ 1 ] - 0.5 * size[ 1 ], 0.0, 1.0 );
+			v.pos = vec4f( i * gridSize[ 0 ] - 0.5f * size[ 0 ], j * gridSize[ 1 ] - 0.5f * size[ 1 ], 0.0f, 1.0f );
 			v.color = Color::White;
-			v.normal = vec3d( 0.0, 0.0, 1.0 );
+			v.normal = vec3f( 0.0f, 0.0f, 1.0f );
 
 			rm.AddVertex( v );
 		}

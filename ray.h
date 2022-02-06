@@ -7,49 +7,49 @@
 
 struct Ray
 {
-	Ray() : mint( 1e7 ), maxt( DBL_MAX ) {}
+	Ray() : mint( 1e7 ), maxt( FLT_MAX ) {}
 
-	Ray( const vec3d& origin, const vec3d& target, const double _minT = 1e-7 )
+	Ray( const vec3f& origin, const vec3f& target, const float _minT = 1e-7 )
 	{
 		o = origin;
 		d = target - origin;
 		t = d.Length();
 		d = d.Normalize();
 
-		mint = std::max( 0.0, _minT );
-		maxt = std::max( 0.0, t - mint );
+		mint = std::max( 0.0f, _minT );
+		maxt = std::max( 0.0f, t - mint );
 	}
 
-	bool Inside( const double _t ) const
+	bool Inside( const float _t ) const
 	{
 		return ( _t >= mint ) && ( _t <= maxt );
 	}
 
-	vec3d GetPoint( const double _t ) const
+	vec3f GetPoint( const float _t ) const
 	{
-		double t = Clamp( _t, mint, maxt );
+		float t = Clamp( _t, mint, maxt );
 		return ( o + t * d );
 	}
 
-	vec3d GetOrigin() const
+	vec3f GetOrigin() const
 	{
 		return o;
 	}
 
-	vec3d GetEndPoint() const
+	vec3f GetEndPoint() const
 	{
 		return ( o + d );
 	}
 
-	vec3d GetVector() const
+	vec3f GetVector() const
 	{
 		return d.Normalize();
 	}
 
-	vec3d d;
-	vec3d o;
+	vec3f d;
+	vec3f o;
 	// private:
-	double t;
-	double mint;
-	double maxt;
+	float t;
+	float mint;
+	float maxt;
 };

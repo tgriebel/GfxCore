@@ -15,10 +15,10 @@ namespace MeshIO
 	{
 		vector_t() : x( 0.0 ), y( 0.0 ), z( 0.0 ), w( 0.0 ) {}
 
-		double	x;
-		double	y;
-		double	z;
-		double	w;
+		float	x;
+		float	y;
+		float	z;
+		float	w;
 	};
 
 	struct node_t
@@ -26,10 +26,10 @@ namespace MeshIO
 		node_t() : r( 0 ), g( 0 ), b( 0 ), a( 0 ) {}
 
 		vector_t pos;
-		double	r;
-		double	g;
-		double	b;
-		double	a;
+		float	r;
+		float	g;
+		float	b;
+		float	a;
 		bool	colored;
 	};
 
@@ -68,7 +68,7 @@ namespace MeshIO
 	public:
 		int32_t		npoints;
 		int32_t* points;
-		double		r, g, b, a;
+		float		r, g, b, a;
 		bool		planar;
 
 		Polytope() : npoints( 0 ), points( NULL ), r( 0 ), g( 0 ), b( 0 ), a( 0 ), planar( true ) {}
@@ -172,10 +172,10 @@ namespace MeshIO
 
 	struct objMaterial_t
 	{
-		double		Ns;
-		double		Ni;
-		double		d;
-		double		Tr;
+		float		Ns;
+		float		Ni;
+		float		d;
+		float		Tr;
 		vector_t	Tf;
 		int			illum;
 		vector_t	Ka;
