@@ -69,8 +69,8 @@ static inline void BitmapToImage( const Bitmap& bitmap, Image<Color>& image )
 	const uint32_t srcWidth = bitmap.GetWidth();
 	const uint32_t srcHeight = bitmap.GetHeight();
 
-	const uint32_t dstWidth = std::min( srcWidth, image.GetWidth() );
-	const uint32_t dstHeight = std::min( srcHeight, image.GetHeight() );
+	const int32_t dstWidth = static_cast<int32_t>( std::min( srcWidth, image.GetWidth() ) );
+	const int32_t dstHeight = static_cast<int32_t>( std::min( srcHeight, image.GetHeight() ) );
 
 	for ( int32_t y = 0; y < dstHeight; ++y )
 	{
@@ -87,8 +87,8 @@ static inline void ImageToBitmap( const Image<Color>& image, Bitmap& bitmap )
 {
 	bitmap.ClearImage( Color::Black );
 
-	const uint32_t width = std::min( image.GetWidth(), bitmap.GetWidth() );
-	const uint32_t height = std::min( image.GetHeight(), bitmap.GetHeight() );
+	const int32_t width = static_cast<int32_t>( std::min( image.GetWidth(), bitmap.GetWidth() ) );
+	const int32_t height = static_cast<int32_t>( std::min( image.GetHeight(), bitmap.GetHeight() ) );
 
 	for ( int32_t y = 0; y < height; ++y )
 	{
@@ -105,11 +105,11 @@ static inline void ImageToBitmap( const Image<float>& image, Bitmap& bitmap )
 {
 	bitmap.ClearImage( Color::Black );
 
-	const uint32_t srcWidth = image.GetWidth();
-	const uint32_t srcHeight = image.GetHeight();
+	const int32_t srcWidth = static_cast< int32_t >( image.GetWidth() );
+	const int32_t srcHeight = static_cast< int32_t >( image.GetHeight() );
 
-	const uint32_t width = std::min( srcWidth, bitmap.GetWidth() );
-	const uint32_t height = std::min( srcHeight, bitmap.GetHeight() );
+	const int32_t width = std::min( srcWidth, static_cast<int32_t>( bitmap.GetWidth() ) );
+	const int32_t height = std::min( srcHeight, static_cast<int32_t>( bitmap.GetHeight() ) );
 
 	float minZ = FLT_MAX;
 	float maxZ = -FLT_MAX;

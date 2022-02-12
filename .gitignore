@@ -44,3 +44,5 @@ Release/GfxCore.tlog/GfxCore.lastbuildstate
 *.log
 *.obj
 *.obj
+Release/bitmap.obj
+*.obj
