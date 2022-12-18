@@ -65,7 +65,7 @@ public:
 	Matrix<N, M, T>	Transpose( void );
 	Matrix<N, M, T>	Transpose( void ) const;
 	bool IsInvertible() const;
-	bool IsOrthonormal() const;
+	bool IsOrthonormal( const float epsilon ) const;
 	// Matrix<M, N, T>	Inverse(bool&);
 
 	MatrixRow<N, T>& operator[]( const size_t i );
@@ -162,9 +162,8 @@ bool Matrix<M, N, T>::IsInvertible() const
 
 
 template< size_t M, size_t N, typename T>
-bool Matrix<M, N, T>::IsOrthonormal() const
+bool Matrix<M, N, T>::IsOrthonormal( const float epsilon ) const
 {
-	assert( false ); // Untested
 	Matrix<M, N, T> m = (*this) * this->Transpose();
 	for ( size_t c = 0; c < N; ++c )
 	{

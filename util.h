@@ -15,30 +15,51 @@
 inline mat4x4f ComputeRotationX( const float degrees )
 {
 	const float theta = Radians( degrees );
-	return CreateMatrix4x4( 1.0f, 0.0f, 0.0f, 0.0f,
-							0.0f, cos( theta ), -sin( theta ), 0.0f,
-							0.0f, sin( theta ), cos( theta ), 0.0f,
-							0.0f, 0.0f, 0.0f, 0.0f );
+	return CreateMatrix4x4( 1.0f,	0.0f,			0.0f,			0.0f,
+							0.0f,	cos( theta ),	-sin( theta ),	0.0f,
+							0.0f,	sin( theta ),	cos( theta ),	0.0f,
+							0.0f,	0.0f,			0.0f,			1.0f );
 }
 
 
 inline mat4x4f ComputeRotationY( const float degrees )
 {
 	const float theta = Radians( degrees );
-	return CreateMatrix4x4( cos( theta ), 0.0f, sin( theta ), 0.0f,
-							0.0f, 1.0f, 0.0f, 0.0f,
-							-sin( theta ), 0.0f, cos( theta ), 0.0f,
-							0.0f, 0.0f, 0.0f, 0.0f );
+	return CreateMatrix4x4( cos( theta ),	0.0f,	sin( theta ),	0.0f,
+							0.0f,			1.0f,	0.0f,			0.0f,
+							-sin( theta ),	0.0f,	cos( theta ),	0.0f,
+							0.0f,			0.0f,	0.0f,			1.0f );
 }
 
 
 inline mat4x4f ComputeRotationZ( const float degrees )
 {
 	const float theta = Radians( degrees );
-	return CreateMatrix4x4( cos( theta ), -sin( theta ), 0.0f, 0.0f,
-							sin( theta ), cos( theta ), 0.0f, 0.0f,
-							0.0f, 0.0f, 1.0f, 0.0f,
-							0.0f, 0.0f, 0.0f, 0.0f );
+	return CreateMatrix4x4( cos( theta ),	-sin( theta ),	0.0f, 0.0f,
+							sin( theta ),	cos( theta ),	0.0f, 0.0f,
+							0.0f,			0.0f,			1.0f, 0.0f,
+							0.0f,			0.0f,			0.0f, 1.0f );
+}
+
+
+inline mat4x4f ComputeRotationZYX( const float xDegrees, const float yDegrees, const float zDegrees )
+{
+	const float alpha = Radians( xDegrees );
+	const float beta = Radians( yDegrees );
+	const float gamma = Radians( zDegrees );
+
+	const float cosAlpha = cos( alpha );
+	const float cosBeta = cos( beta );
+	const float cosGamma = cos( gamma );
+
+	const float sinAlpha = sin( alpha );
+	const float sinBeta = sin( beta );
+	const float sinGamma = sin( gamma );
+
+	return CreateMatrix4x4( cosBeta * cosGamma,		sinAlpha * sinBeta * cosGamma - cosAlpha * sinGamma,	cosAlpha * sinBeta * cosGamma + sinAlpha * sinGamma,	0.0f,
+							cosBeta * sinGamma,		sinAlpha * sinBeta * sinGamma + cosAlpha * cosGamma,	cosAlpha * sinBeta * sinGamma - sinAlpha * cosGamma,	0.0f,
+							-sinBeta,				sinAlpha * cosBeta,										cosAlpha * cosBeta,										0.0f,
+							0.0f,					0.0f,													0.0f,													1.0f );
 }
 
 
