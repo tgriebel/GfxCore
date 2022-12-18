@@ -167,6 +167,7 @@
     <ClInclude Include="color.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="geom.h" />
+    <ClInclude Include="handle.h" />
     <ClInclude Include="image.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="mathVector.h" />
