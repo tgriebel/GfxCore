@@ -148,12 +148,12 @@ public:
 
 	uint32_t GetVbOffset() const
 	{
-		return vertexBuffers[ GetVB() ].buffer.size();
+		return static_cast<uint32_t>( vertexBuffers[ GetVB() ].buffer.size() );
 	}
 
 	uint32_t GetIbOffset() const
 	{
-		return indexBuffers[ GetIB() ].buffer.size();
+		return static_cast<uint32_t>( indexBuffers[ GetIB() ].buffer.size() );
 	}
 
 	vertex_t* GetVertex( const uint32_t i )
@@ -198,7 +198,7 @@ public:
 
 	uint32_t GetModelCount()
 	{
-		return modelBuffer.size();
+		return static_cast<uint32_t>( modelBuffer.size() );
 	}
 
 	const Image<Color>* GetImageRef( const int32_t imageIx ) const
@@ -214,7 +214,7 @@ public:
 
 	uint32_t GetImageCount()
 	{
-		return imageBuffer.size();
+		return static_cast<uint32_t>( imageBuffer.size() );
 	}
 
 	const material_t* GetMaterialRef( const int32_t index ) const
@@ -231,6 +231,6 @@ public:
 
 	uint32_t GetMaterialCount()
 	{
-		return materialBuffer.size();
+		return static_cast<uint32_t>( materialBuffer.size() );
 	}
 };

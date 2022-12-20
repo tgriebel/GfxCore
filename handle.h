@@ -1,6 +1,7 @@
 #pragma once
 
 #include <assert.h>
+#include <cstdint>
 
 class refCount_t
 {
@@ -35,9 +36,9 @@ public:
 		this->instances = nullptr;
 	};
 
-	hdl_t( const int handle )
+	hdl_t( const uint64_t handle )
 	{
-		this->value = new int( handle );
+		this->value = new uint64_t( handle );
 		this->instances = new refCount_t( 1 );
 	}
 
@@ -116,7 +117,7 @@ public:
 		return ( value != nullptr ) && ( instances != nullptr );
 	}
 
-	int Get() const {
+	uint64_t Get() const {
 		return ( IsValid() && ( instances->IsFree() == false ) ) ? *value : -1;
 	}
 
@@ -126,8 +127,8 @@ public:
 		}
 	}
 private:
-	int* value;
-	refCount_t* instances;
+	uint64_t*	value;
+	refCount_t*	instances;
 };
 
 #define INVALID_HDL hdl_t()

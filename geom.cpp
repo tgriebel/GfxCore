@@ -48,7 +48,7 @@ void LoadMaterialObj( const std::string& path, ResourceManager& rm, material_t& 
 
 
 	material.Tr = objMaterial.Tr;
-	material.illum = objMaterial.illum;
+	material.illum = static_cast<float>( objMaterial.illum );
 	material.textured = false;
 
 	std::string name = path.substr( path.find_last_of( '/' ) + 1, path.size() );
@@ -174,7 +174,7 @@ uint32_t LoadModelObj( const std::string& path, ResourceManager& rm )
 			it->uv[ 0 ] = Saturate( it->uv[ 0 ] );
 			it->uv[ 1 ] = Saturate( it->uv[ 1 ] );
 
-			it->uv[ 1 ] = 1.0 - it->uv[ 1 ];
+			it->uv[ 1 ] = 1.0f - it->uv[ 1 ];
 		}
 	}
 
@@ -199,7 +199,7 @@ uint32_t LoadModelObj( const std::string& path, ResourceManager& rm )
 		surf.ibOffset = rm.GetIbOffset();
 
 		const uint32_t vertexCnt = uniqueVertices.size();
-		for ( int32_t i = 0; i < vertexCnt; ++i )
+		for ( uint32_t i = 0; i < vertexCnt; ++i )
 		{
 			rm.AddVertex( uniqueVertices[ i ] );
 		}
@@ -423,7 +423,7 @@ void StoreModelBin( const std::string& path, ResourceManager& rm, const uint32_t
 	const uint32_t vertexCount = rm.GetVbOffset();
 	const uint32_t indexCount = rm.GetIbOffset();
 	const uint32_t imageCount = rm.GetImageCount();
-	const uint32_t surfCount = model->surfs.size();
+	const uint32_t surfCount = static_cast<uint32_t>( model->surfs.size() );
 	const uint32_t materialCount = rm.GetMaterialCount();
 	const uint32_t vertexBytes = sizeof( vertex_t ) * vertexCount;
 	const uint32_t indexBytes = sizeof( uint32_t ) * indexCount;
@@ -467,7 +467,7 @@ void StoreModelBin( const std::string& path, ResourceManager& rm, const uint32_t
 
 	// Indices
 	{
-		for ( int32_t i = 0; i < indexCount; ++i )
+		for ( uint32_t i = 0; i < indexCount; ++i )
 		{
 			// TODO: can replace with ptr version now
 			uint32_t index = rm.GetIndex( i );
@@ -502,11 +502,11 @@ void StoreModelBin( const std::string& path, ResourceManager& rm, const uint32_t
 
 			filePtr += 2 * sizeof( uint32_t );
 
-			for ( int32_t y = 0; y < height; ++y )
+			for ( uint32_t y = 0; y < height; ++y )
 			{
-				for ( int32_t x = 0; x < width; ++x )
+				for ( uint32_t x = 0; x < width; ++x )
 				{
-					Color color = imageRef->GetPixel( x, y );
+					Color color = imageRef->GetPixel( static_cast<int32_t>( x ), static_cast<int32_t>( y ) );
 					const uint32_t pixel = color.AsR8G8B8A8();
 					
 					memcpy( filePtr, &pixel, sizeof( uint32_t ) );
@@ -530,7 +530,7 @@ void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat
 {
 	const Model* model = rm.GetModel( modelIx );
 
-	const uint32_t surfCount = model->surfs.size();
+	const uint32_t surfCount = static_cast<uint32_t>( model->surfs.size() );
 	const surface_t& baseSurf = model->surfs[ 0 ];
 
 	// These are same for all surfaces

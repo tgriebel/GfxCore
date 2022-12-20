@@ -52,7 +52,7 @@ public:
 				Split(); // For now just split the node if it's inside
 			}
 
-			const uint32_t childCnt = children.size();
+			const uint32_t childCnt = static_cast<uint32_t>( children.size() );
 			for( uint32_t i = 0; i < childCnt; ++i )
 			{
 				if( children[ i ].Insert( bounds, item, depth + 1 ) )
@@ -86,7 +86,7 @@ public:
 				children[ i ].Intersect( ray, hitItems );
 			}
 
-			const uint32_t itemCnt = items.size();
+			const uint32_t itemCnt = static_cast<uint32_t>( items.size() );
 			for ( uint32_t itemIx = 0; itemIx < itemCnt; ++itemIx )
 			{
 				hitItems.push_back( items[ itemIx ] );

@@ -194,14 +194,14 @@ RayToTriangleIntersection
 */
 inline bool RayToTriangleIntersection( const Ray& r, const Triangle& tri, bool& outBackface, float& outT )
 {
-	const float		epsilon	= 1e-7;
+	const float		epsilon	= 1e-7f;
 	const vec3f		e0		= tri.e0;
 	const vec3f		e1		= tri.e2;
 	const vec3f		p		= Cross( r.d, e1 );
 	const vec3f		h		= ( r.GetOrigin() - Trunc<4, 1>( tri.v0.pos ) );
 	const vec3f		q		= Cross( h, e0 );
 	const float		det		= Dot( e0, p );
-	const float		invDet	= ( 1.0 / det );
+	const float		invDet	= ( 1.0f / det );
 	const float		u		= invDet * Dot( h, p );
 	const float		v		= invDet * Dot( r.d, q );
 

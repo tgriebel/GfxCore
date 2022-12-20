@@ -301,12 +301,12 @@ inline void ProjectPoint( const mat4x4f& mvp, const vec2i& screenSize, const vec
 	vec4f csPt = mvp * vec4f( worldSpacePt[ 0 ], worldSpacePt[ 1 ], worldSpacePt[ 2 ], 1.0 );
 
 	// Normalized-Device-Coordinates
-	const float w = csPt[ 3 ] + 1e-7;
+	const float w = csPt[ 3 ] + 1e-7f;
 	vec4f ndsPt = vec4f( csPt[ 0 ] / w, csPt[ 1 ] / w, csPt[ 2 ] / w, w );
 
 	// Screen-Space
-	outPoint[ 0 ] = 0.5 * screenSize[ 0 ] * ( ndsPt[ 0 ] + 1.0 );
-	outPoint[ 1 ] = 0.5 * screenSize[ 1 ] * ( ndsPt[ 1 ] + 1.0 );
+	outPoint[ 0 ] = 0.5f * screenSize[ 0 ] * ( ndsPt[ 0 ] + 1.0f );
+	outPoint[ 1 ] = 0.5f * screenSize[ 1 ] * ( ndsPt[ 1 ] + 1.0f );
 	outPoint[ 2 ] = ndsPt[ 2 ];
 	outPoint[ 3 ] = w;
 }

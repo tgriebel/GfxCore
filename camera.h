@@ -11,16 +11,16 @@ public:
 
 	Camera( const vec4f& _origin, const vec4f& _X, const vec4f& _Y, const vec4f& _Z, const float _fovDegrees, const float _aspect, const float _near, const float _far )
 	{
-		float aspectRatio = ( _aspect != 0.0 ) ? _aspect : 1.0;
+		float aspectRatio = ( _aspect != 0.0f ) ? _aspect : 1.0f;
 
-		halfFovX = tan( 0.5 * Radians( _fovDegrees ) );
-		halfFovY = tan( 0.5 * Radians( _fovDegrees ) ) / aspectRatio;
+		halfFovX = tan( 0.5f * Radians( _fovDegrees ) );
+		halfFovY = tan( 0.5f * Radians( _fovDegrees ) ) / aspectRatio;
 		near = _near;
 		far = _far;
 		aspect = aspectRatio;
 		focalLength = far;
-		viewportWidth = 2.0 * halfFovX;
-		viewportHeight = 2.0 * halfFovY;
+		viewportWidth = 2.0f * halfFovX;
+		viewportHeight = 2.0f * halfFovY;
 		origin = _origin;
 		xAxis = _X;
 		yAxis = _Y;

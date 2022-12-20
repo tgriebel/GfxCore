@@ -83,5 +83,8 @@
     <ClInclude Include="handle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="assetLib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

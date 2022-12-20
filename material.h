@@ -38,17 +38,17 @@ struct material_t
 static inline float GGX( float NoH, float roughness )
 {
 	float a = NoH * roughness;
-	float k = roughness / ( 1.0 - NoH * NoH + a * a );
-	return k * k * ( 1.0 / PI );
+	float k = roughness / ( 1.0f - NoH * NoH + a * a );
+	return k * k * ( 1.0f / PI );
 }
 
 
 static inline float SmithGGXCorrelated( float NoV, float NoL, float roughness )
 {
 	float a2 = roughness * roughness;
-	float GGXV = NoL * sqrt( NoV * NoV * ( 1.0 - a2 ) + a2 );
-	float GGXL = NoV * sqrt( NoL * NoL * ( 1.0 - a2 ) + a2 );
-	return 0.5 / ( GGXV + GGXL );
+	float GGXV = NoL * sqrt( NoV * NoV * ( 1.0f - a2 ) + a2 );
+	float GGXL = NoV * sqrt( NoL * NoL * ( 1.0f - a2 ) + a2 );
+	return 0.5f / ( GGXV + GGXL );
 }
 
 
@@ -65,12 +65,12 @@ static inline float Lambert()
 
 static inline vec3f BrdfGGX( const vec3f& n, const vec3f& v, const vec3f& l, const material_t& m )
 {
-	float perceptualRoughness = 1.0;
-	float f0 = 0.1;
+	float perceptualRoughness = 1.0f;
+	float f0 = 0.1f;
 
 	vec3f h = ( v + l ).Normalize();
 
-	float NoV = abs( Dot( n, v ) ) + 1e-5;
+	float NoV = abs( Dot( n, v ) ) + 1e-5f;
 	float NoL = Clamp( Dot( n, l ), 0.0f, 1.0f );
 	float NoH = Clamp( Dot( n, h ), 0.0f, 1.0f );
 	float LoH = Clamp( Dot( l, h ), 0.0f, 1.0f );

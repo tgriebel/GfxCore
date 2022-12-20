@@ -7,11 +7,6 @@
 #include "bitmap.h"
 #include "image.h"
 
-// Put useful functions that use other core classes here
-// Core classes should be fairly independent from eachother
-// this file alongs for dependencies
-
-
 inline mat4x4f ComputeRotationX( const float degrees )
 {
 	const float theta = Radians( degrees );
@@ -200,8 +195,50 @@ static inline void RandomPointOnSphere( float& theta, float& phi )
 	phi = acos( 2.0f * v - 1.0f );
 }
 
+static inline void RandSpherePoint( const float radius, vec3f& outPoint )
+{
+	float theta;
+	float phi;
+	RandomPointOnSphere( theta, phi );
 
-static inline vec3f Randomvec3f( float r = 1.0f )
+	outPoint[ 0 ] = radius * sin( phi ) * cos( theta );
+	outPoint[ 1 ] = radius * sin( phi ) * sin( theta );
+	outPoint[ 2 ] = radius * cos( phi );
+}
+
+static inline void RandPlanePoint( vec2f& outPoint )
+{
+	outPoint[ 0 ] = Random();
+	outPoint[ 1 ] = Random();
+}
+
+// Fowler–Noll–Vo Hash - fnv1a - 32bits
+// https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
+static inline uint32_t Hash( const uint8_t* bytes, const uint32_t sizeBytes ) {
+	uint32_t result = 2166136261;
+	const uint32_t prime = 16777619;
+	for ( uint32_t i = 0; i < sizeBytes; ++i ) {
+		result = ( result ^ bytes[ i ] ) * prime;
+	}
+	return result;
+}
+
+// Polynomial Rolling hash
+static inline uint64_t Hash( const std::string& s ) {
+	const int p = 31;
+	const int m = static_cast<int>( 1e9 + 9 );
+	uint64_t hash = 0;
+	uint64_t pN = 1;
+	const int stringLen = static_cast<int>( s.size() );
+	for ( int i = 0; i < stringLen; ++i )
+	{
+		hash = ( hash + ( s[ i ] - (uint64_t)'a' + 1ull ) * pN ) % m;
+		pN = ( pN * p ) % m;
+	}
+	return hash;
+}
+
+static inline vec3f RandomVector( float r = 1.0f )
 {
 	float theta;
 	float phi;
@@ -215,13 +252,13 @@ static inline vec3f Randomvec3f( float r = 1.0f )
 }
 
 
-static inline vec3f Reflectvec3f( const vec3f& n, const vec3f& v )
+static inline vec3f ReflectVector( const vec3f& n, const vec3f& v )
 {
 	return ( 2.0f * Dot( v, n ) * n - v );
 }
 
 
-static inline vec3f Refractvec3f( const vec3f& uv, const vec3f& n, float refractionRatio = 1.0f )
+static inline vec3f RefractVector( const vec3f& uv, const vec3f& n, float refractionRatio = 1.0f )
 {
 	const float dot = std::min( Dot( uv.Reverse(), n ), 1.0f );
 

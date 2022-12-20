@@ -1,26 +1,31 @@
 #pragma once
-#include "common.h"
-#include <map>
+#include "util.h"
+#include <string>
+#include <unordered_map>
 
 template< class Asset >
 class AssetLib {
 private:
-	std::vector< Asset >		assets;
-	std::vector< std::string >	tags;
-	std::vector< hdl_t >		handles;
+	using assetMap_t = std::unordered_map<uint64_t, Asset>;
+	using tagMap_t = std::unordered_map<uint64_t, std::string>;
+	using handleMap_t = std::unordered_map<uint64_t, hdl_t>;
+	assetMap_t	assets;
+	tagMap_t	tags;
+	handleMap_t	handles;
 public:
 	void					Create();
 	void					Destroy();
-	const Asset*			GetDefault() const { return ( assets.size() > 0 ) ? &assets[ 0 ] : nullptr; };
+	const Asset*			GetDefault() const { return ( assets.size() > 0 ) ? &assets.begin()->second : nullptr; };
 	uint32_t				Count() const { return static_cast<uint32_t>( assets.size() ); }
-	int						Add( const char* name, const Asset& asset );
+	hdl_t					Add( const char* name, const Asset& asset );
 	Asset*					Find( const char* name );
 	const Asset*			Find( const char* name ) const;
+	Asset*					Find( const uint32_t id );
+	const Asset*			Find( const uint32_t id ) const;
+	Asset*					Find( const hdl_t& hdl );
+	const Asset*			Find( const hdl_t& hdl ) const;
+	const char*				FindName( const hdl_t& hdl ) const;
 	hdl_t					RetrieveHdl( const char* name ) const;
-	inline Asset*			Find( const int id ) { return ( id < assets.size() && id >= 0 ) ? &assets[ id ] : nullptr; }
-	inline const Asset*		Find( const int id ) const { return ( id < assets.size() && id >= 0 ) ? &assets[ id ] : nullptr; }
-	int						FindId( const char* name ) const;
-	const char*				FindName( const int id ) const { return ( id < tags.size() && id >= 0 ) ? tags[ id ].c_str() : ""; }
 };
 
 template< class Asset >
@@ -31,45 +36,76 @@ void AssetLib< Asset >::Destroy() {
 }
 
 template< class Asset >
-int AssetLib< Asset >::Add( const char* name, const Asset& asset )
+hdl_t AssetLib< Asset >::Add( const char* name, const Asset& asset )
 {
-	const int searchId = FindId( name );
-	if ( searchId < 0 ) {
-		const int id = static_cast<int>( assets.size() );
-		handles.push_back( hdl_t( id ) );
-		assets.push_back( asset );
-		tags.push_back( name );
-		return id;
+	const uint64_t hash = Hash( name );
+	handleMap_t::const_iterator it = handles.find( hash );
+	if ( it == handles.end() ) {
+		hdl_t handle = hdl_t( hash );
+		handles[ hash ] = handle;
+		assets[ hash ] = asset;
+		tags[ hash ] = std::string( name );
+		return handle;
 	} else {
-		return searchId;
+		return it->second;
 	}
-}
-
-template< class Asset >
-int AssetLib< Asset >::FindId( const char* name ) const
-{
-	auto it = find( tags.begin(), tags.end(), name );
-	const int idx = static_cast<int>( std::distance( tags.begin(), it ) );
-	return ( it != tags.end() ) ? idx : -1;
 }
 
 template< class Asset >
 Asset* AssetLib< Asset >::Find( const char* name )
 {
-	const int id = FindId( name );
-	return ( id >= 0 ) ? &assets[ id ] : nullptr;
+	assetMap_t::iterator it = assets.find( Hash( name ) );
+	return ( it != assets.end() ) ? &it->second : nullptr;
 }
 
 template< class Asset >
 const Asset* AssetLib< Asset >::Find( const char* name ) const
 {
-	const int id = FindId( name );
-	return ( id >= 0 ) ? &assets[ id ] : nullptr;
+	assetMap_t::const_iterator it = assets.find( Hash( name ) );
+	return ( it != assets.end() ) ? &it->second : nullptr;
+}
+
+template< class Asset >
+Asset* AssetLib< Asset >::Find( const uint32_t id )
+{
+	assetMap_t::iterator it = assets.begin();
+	std::advance( it, id );
+	return ( it != assets.end() ) ? &it->second : nullptr;
+}
+
+template< class Asset >
+const Asset* AssetLib< Asset >::Find( const uint32_t id ) const
+{
+	assetMap_t::const_iterator it = assets.begin();
+	std::advance( it, id );
+	return ( it != assets.end() ) ? &it->second : nullptr;
+}
+
+template< class Asset >
+Asset* AssetLib< Asset >::Find( const hdl_t& hdl )
+{
+	assetMap_t::iterator it = assets.find( hdl.Get() );
+	return ( it != assets.end() ) ? &it->second : nullptr;
+}
+
+template< class Asset >
+const Asset* AssetLib< Asset >::Find( const hdl_t& hdl ) const
+{
+	assetMap_t::const_iterator it = assets.find( hdl.Get() );
+	return ( it != assets.end() ) ? &it->second : nullptr;
+}
+
+template< class Asset >
+const char* AssetLib< Asset >::FindName( const hdl_t& hdl ) const
+{
+	tagMap_t::const_iterator it = tags.find( hdl.Get() );
+	return ( it != tags.end() ) ? it->second.c_str() : nullptr;
 }
 
 template< class Asset >
 hdl_t AssetLib< Asset >::RetrieveHdl( const char* name ) const
 {
-	const int id = FindId( name );
-	return ( id >= 0 ) ? handles[ id ] : INVALID_HDL;
+	const uint64_t hash = Hash( name );
+	handleMap_t::const_iterator it = handles.find( hash );
+	return ( it != handles.end() ) ? it->second : INVALID_HDL;
 }
