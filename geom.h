@@ -1,6 +1,7 @@
 #pragma once
 
 #include <utility>
+#include "handle.h"
 #include "mathVector.h"
 #include "matrix.h"
 #include "color.h"
@@ -104,7 +105,6 @@ struct Triangle
 	}
 };
 
-
 struct surface_t
 {
 	uint32_t		vb;
@@ -115,7 +115,6 @@ struct surface_t
 	uint32_t		ibEnd;
 	int32_t			materialId;
 };
-
 
 class Model
 {

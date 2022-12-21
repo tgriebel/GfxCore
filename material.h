@@ -33,6 +33,45 @@ struct material_t
 	int32_t		normalMapId;
 };
 
+class Material
+{
+public:
+	static const uint32_t MaxMaterialTextures = 8;
+	static const uint32_t MaxMaterialShaders = 16;
+
+	hdl_t					textures[ MaxMaterialTextures ];
+	hdl_t					shaders[ MaxMaterialShaders ];
+	int32_t					uploadId;
+
+	rgbTuplef_t				Ka;
+	rgbTuplef_t				Ke;
+	rgbTuplef_t				Kd;
+	rgbTuplef_t				Ks;
+	rgbTuplef_t				Tf;
+	float					Tr;
+	float					Ns;
+	float					Ni;
+	float					d;
+	float					illum;
+
+	bool					textured;
+
+	Material() :
+		Tr( 0.0f ),
+		Ns( 0.0f ),
+		Ni( 0.0f ),
+		d( 1.0f ),
+		illum( 0.0f )
+	{
+		for ( int i = 0; i < MaxMaterialTextures; ++i ) {
+			textures[ i ] = INVALID_HDL;
+		}
+		for ( int i = 0; i < MaxMaterialShaders; ++i ) {
+			shaders[ i ] = INVALID_HDL;
+		}
+		uploadId = -1;
+	}
+};
 
 // BRDF functions are adapted from "https://google.github.io/filament/Filament.md.html#overview/physicallybasedrendering"
 static inline float GGX( float NoH, float roughness )
