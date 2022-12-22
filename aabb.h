@@ -5,8 +5,9 @@
 #include "../GfxCore/matrix.h"
 #include "ray.h"
 
-struct AABB
+class AABB
 {
+public:
 	vec3f min;
 	vec3f max;
 

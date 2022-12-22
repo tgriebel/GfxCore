@@ -22,8 +22,10 @@ template <size_t D, typename T>
 class Vector
 {
 private:
-	T data[ D ];
 	static constexpr T epsilon = std::numeric_limits< T >::epsilon() * ( (T) 2.0 );
+	static const uint32_t version = 1;
+
+	T data[ D ];
 public:
 
 	static const size_t size = D;
@@ -51,6 +53,8 @@ public:
 	Vector<D, T>& operator-=( const Vector<D, T>& u );
 	Vector<D, T>& operator*=( T& s );
 	Vector<D, T>& operator/=( T& s );
+
+	bool Serialize( void* serializer );
 };
 
 using vec2i = Vector<2, int32_t>;

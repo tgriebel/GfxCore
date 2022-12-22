@@ -37,6 +37,8 @@ inline bool operator==( const vertex_t& vertex0, const vertex_t& vertex1 )
 {
 	return (	( vertex0.pos == vertex1.pos )
 			&& 	( vertex0.normal == vertex1.normal )
+			&& 	( vertex0.tangent == vertex1.tangent )
+			&& 	( vertex0.bitangent == vertex1.bitangent )
 			&&	( vertex0.uv == vertex1.uv )
 			&&	( vertex0.color == vertex1.color ) );
 }
@@ -116,7 +118,7 @@ struct surface_t
 	int32_t			materialId;
 };
 
-class Model
+class ModelSource
 {
 public:
 	static const uint32_t MaxMaterials = 3;

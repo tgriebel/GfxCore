@@ -83,6 +83,14 @@ enum class blendMode_t : uint32_t
 
 class Color
 {
+private:
+	static const uint32_t Version = 1;
+	union color_t
+	{
+		float				vec[ 5 ];
+		rgbaTuple_t<float>	rgba;
+	} u;
+
 public:
 	static const uint32_t Red		= 0xFF0000FF;
 	static const uint32_t Green		= 0x00FF00FF;
@@ -316,12 +324,7 @@ public:
 		return abgr.r8g8b8a8;
 	}
 
-private:
-	union color_t
-	{
-		float				vec[ 5 ];
-		rgbaTuple_t<float>	rgba;
-	} u;
+	bool Serialize( void* serializer );
 };
 
 

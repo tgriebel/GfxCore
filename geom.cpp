@@ -185,7 +185,7 @@ uint32_t LoadModelObj( const std::string& path, ResourceManager& rm )
 	/////////////////////////////////////////////
 
 	const uint32_t modelIx = rm.AllocModel();
-	Model* model = rm.GetModel( modelIx );
+	ModelSource* model = rm.GetModel( modelIx );
 	model->surfs.push_back( surface_t() );
 
 	surface_t& surf = model->surfs.back();
@@ -221,7 +221,7 @@ uint32_t LoadModelObj( const std::string& path, ResourceManager& rm )
 
 void StoreModelObj( const std::string& path, ResourceManager& rm, const uint32_t modelIx )
 {
-	const Model* model = rm.GetModel( modelIx );
+	const ModelSource* model = rm.GetModel( modelIx );
 
 	const surface_t& surf = model->surfs[ 0 ];
 
@@ -343,7 +343,7 @@ uint32_t LoadModelBin( const std::string& path, ResourceManager& rm )
 	file.close();
 
 	uint32_t modelIx = rm.AllocModel();
-	Model* model = rm.GetModel( modelIx );
+	ModelSource* model = rm.GetModel( modelIx );
 	
 	// Vertex buffers
 	const uint32_t vbOffset = rm.GetVbOffset();
@@ -413,7 +413,7 @@ uint32_t LoadModelBin( const std::string& path, ResourceManager& rm )
 
 void StoreModelBin( const std::string& path, ResourceManager& rm, const uint32_t modelIx )
 {
-	Model* model = rm.GetModel( modelIx );
+	ModelSource* model = rm.GetModel( modelIx );
 
 	surface_t& surf = model->surfs[ 0 ];
 
@@ -528,7 +528,7 @@ void StoreModelBin( const std::string& path, ResourceManager& rm, const uint32_t
 
 void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat4x4f& modelMatrix, const bool smoothNormals, const Color& tint, ModelInstance* outInstance, const matHdl_t materialId )
 {
-	const Model* model = rm.GetModel( modelIx );
+	const ModelSource* model = rm.GetModel( modelIx );
 
 	const uint32_t surfCount = static_cast<uint32_t>( model->surfs.size() );
 	const surface_t& baseSurf = model->surfs[ 0 ];
@@ -679,7 +679,7 @@ void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat
 uint32_t CreatePlaneModel( ResourceManager& rm, const vec2f& size, const vec2i& cellCnt, const matHdl_t materialId )
 {
 	uint32_t modelIx = rm.AllocModel();
-	Model* model = rm.GetModel( modelIx );
+	ModelSource* model = rm.GetModel( modelIx );
 	model->surfs.push_back( surface_t() );
 
 	surface_t& surf = model->surfs.back();

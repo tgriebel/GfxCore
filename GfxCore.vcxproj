@@ -83,6 +83,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
+    <IncludePath>C:\Users\thoma\source\repos\SysCore\SysCore;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -159,6 +160,7 @@
     <ClCompile Include="GfxCore.cpp" />
     <ClCompile Include="matrix.cpp" />
     <ClCompile Include="meshIO.cpp" />
+    <ClCompile Include="serializeClasses.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aabb.h" />
@@ -178,6 +180,11 @@
     <ClInclude Include="rasterLib.h" />
     <ClInclude Include="resourceManager.h" />
     <ClInclude Include="util.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SysCore\SysCore\SysCore.vcxproj">
+      <Project>{01728a43-da97-4bc6-8edf-f17cb75e7967}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

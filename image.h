@@ -6,6 +6,14 @@
 template<typename T>
 class Image
 {
+private:
+	static const uint32_t Version = 1;
+	uint32_t	width;
+	uint32_t	height;
+	uint32_t	length;
+	T* buffer;
+	const char* name;
+
 public:
 
 	Image()
@@ -159,10 +167,5 @@ public:
 		v = Saturate( v );
 	}
 
-private:
-	uint32_t	width;
-	uint32_t	height;
-	uint32_t	length;
-	T*			buffer;
-	const char*	name;
+	bool Serialize( void* serializer );
 };
