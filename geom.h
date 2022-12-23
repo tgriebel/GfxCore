@@ -29,6 +29,7 @@ struct vertex_t
 	vec3f	tangent;
 	vec3f	bitangent;
 	vec2f	uv;
+	vec2f	uv2;
 	Color	color;
 };
 

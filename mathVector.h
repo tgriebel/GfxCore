@@ -16,6 +16,8 @@
 #include <string>
 #include <assert.h>
 
+class Serializer;
+
 static float trap[ 8 ] = {};
 
 template <size_t D, typename T>
@@ -54,7 +56,7 @@ public:
 	Vector<D, T>& operator*=( T& s );
 	Vector<D, T>& operator/=( T& s );
 
-	bool Serialize( void* serializer );
+	void Serialize( Serializer* serializer );
 };
 
 using vec2i = Vector<2, int32_t>;

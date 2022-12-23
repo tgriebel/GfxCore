@@ -3,72 +3,33 @@
 #include <assert.h>
 #include <cstdint>
 
-class refCount_t
-{
-public:
-	refCount_t() = delete;
-
-	refCount_t( const int count ) {
-		assert( count > 0 );
-		this->count = count;
-	}
-	inline int Add() {
-		return ( count > 0 ) ? ++count : 0;
-	}
-	inline int Release() {
-		return ( count > 0 ) ? --count : 0;
-	}
-	[[nodiscard]]
-	inline int IsFree() const {
-		return ( count <= 0 );
-	}
-private:
-	int count; // Considered dead at 0
-};
-
-
 class hdl_t
 {
+private:
+	static const uint64_t InvalidValue = ~0ull;
 public:
 	hdl_t()
 	{
-		this->value = nullptr;
-		this->instances = nullptr;
+		this->value = InvalidValue;
 	};
 
 	hdl_t( const uint64_t handle )
 	{
-		this->value = new uint64_t( handle );
-		this->instances = new refCount_t( 1 );
+		this->value = handle;
 	}
 
 	hdl_t( const hdl_t& handle )
 	{
-		if ( handle.IsValid() )
-		{
+		if ( handle.IsValid() ) {
 			this->value = handle.value;
-			this->instances = handle.instances;
-			this->instances->Add();
-		}
-		else {
-			this->value = nullptr;
-			this->instances = nullptr;
+		} else {
+			this->value = InvalidValue;
 		}
 	}
 
 	~hdl_t()
 	{
-		if ( IsValid() )
-		{
-			instances->Release();
-			if ( instances->IsFree() )
-			{
-				delete instances;
-				delete value;
-			}
-			instances = nullptr;
-			value = nullptr;
-		}
+		value = InvalidValue;
 	}
 
 	hdl_t& operator=( const hdl_t& handle )
@@ -77,10 +38,6 @@ public:
 		{
 			this->~hdl_t();
 			this->value = handle.value;
-			this->instances = handle.instances;
-			if ( handle.IsValid() ) {
-				this->instances->Add();
-			}
 		}
 		return *this;
 	}
@@ -114,21 +71,14 @@ public:
 	}
 
 	bool IsValid() const {
-		return ( value != nullptr ) && ( instances != nullptr );
+		return ( value != InvalidValue );
 	}
 
 	uint64_t Get() const {
-		return ( IsValid() && ( instances->IsFree() == false ) ) ? *value : -1;
-	}
-
-	void Reassign( const int handle ) {
-		if ( IsValid() ) {
-			*value = handle;
-		}
+		return IsValid() ? value : InvalidValue;
 	}
 private:
-	uint64_t*	value;
-	refCount_t*	instances;
+	uint64_t	value;
 };
 
 #define INVALID_HDL hdl_t()

@@ -8,10 +8,8 @@ class AssetLib {
 private:
 	using assetMap_t = std::unordered_map<uint64_t, Asset>;
 	using tagMap_t = std::unordered_map<uint64_t, std::string>;
-	using handleMap_t = std::unordered_map<uint64_t, hdl_t>;
 	assetMap_t	assets;
 	tagMap_t	tags;
-	handleMap_t	handles;
 public:
 	void					Create();
 	void					Destroy();
@@ -32,22 +30,20 @@ template< class Asset >
 void AssetLib< Asset >::Destroy() {
 	assets.clear();
 	tags.clear();
-	handles.clear();
 }
 
 template< class Asset >
 hdl_t AssetLib< Asset >::Add( const char* name, const Asset& asset )
 {
 	const uint64_t hash = Hash( name );
-	handleMap_t::const_iterator it = handles.find( hash );
-	if ( it == handles.end() ) {
+	assetMap_t::const_iterator it = assets.find( hash );
+	if ( it == assets.end() ) {
 		hdl_t handle = hdl_t( hash );
-		handles[ hash ] = handle;
 		assets[ hash ] = asset;
 		tags[ hash ] = std::string( name );
 		return handle;
 	} else {
-		return it->second;
+		return hdl_t( hash );
 	}
 }
 
@@ -106,6 +102,6 @@ template< class Asset >
 hdl_t AssetLib< Asset >::RetrieveHdl( const char* name ) const
 {
 	const uint64_t hash = Hash( name );
-	handleMap_t::const_iterator it = handles.find( hash );
-	return ( it != handles.end() ) ? it->second : INVALID_HDL;
+	assetMap_t::const_iterator it = assets.find( hash );
+	return ( it != assets.end() ) ? hdl_t( hash ) : INVALID_HDL;
 }

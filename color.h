@@ -6,6 +6,8 @@
 
 #include "common.h"
 
+class Serializer;
+
 template<typename T>
 struct rgbaTuple_t
 {
@@ -324,7 +326,7 @@ public:
 		return abgr.r8g8b8a8;
 	}
 
-	bool Serialize( void* serializer );
+	void Serialize( Serializer* serializer );
 };
 
 

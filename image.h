@@ -3,6 +3,8 @@
 #include <assert.h>
 #include "common.h"
 
+class Serializer;
+
 template<typename T>
 class Image
 {
@@ -167,5 +169,5 @@ public:
 		v = Saturate( v );
 	}
 
-	bool Serialize( void* serializer );
+	void Serialize( Serializer* serializer );
 };

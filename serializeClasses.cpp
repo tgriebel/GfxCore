@@ -1,3 +1,4 @@
+#include <type_traits>
 #include "mathVector.h"
 #include "geom.h"
 #include "color.h"
@@ -8,66 +9,67 @@
 
 #ifdef SERIALIZE_IMPLEMENTATIONS
 template<size_t D, typename T>
-bool Vector<D, T>::Serialize( void* serializer )
+void Vector<D, T>::Serialize( Serializer* serializer )
 {
 	Serializer* s = reinterpret_cast<Serializer*>( serializer );
+	uint32_t length = D;
+	s->Next( length );
+	if ( length != D ) {
+		throw std::runtime_error( "Wrong vector length." );
+	}
 	for ( size_t i = 0; i < D; ++i ) {
-		bool ret = s->Next( Ref( data[i] ) );
-		if( ret == false ) {
-			return false;
-		}
+		s->Next( data[i] );
 	}
-	return true;
 }
 
-bool SerializeVertex( Serializer* s, vertex_t& v ) {
-	bool ret = true;
-	ret = ret && v.pos.Serialize( s );
-	ret = ret && v.normal.Serialize( s );
-	ret = ret && v.tangent.Serialize( s );
-	ret = ret && v.bitangent.Serialize( s );
-	ret = ret && v.uv.Serialize( s );
-	ret = ret && v.color.Serialize( s );
-	return ret;
+
+void SerializeStruct( Serializer* s, vertex_t& v )
+{
+	static_assert( sizeof( vertex_t ) == 88, "Serialization out-of-date" );
+	v.pos.Serialize( s );
+	v.normal.Serialize( s );
+	v.tangent.Serialize( s );
+	v.bitangent.Serialize( s );
+	v.uv.Serialize( s );
+	v.color.Serialize( s );
 }
 
-bool SerializeRGBA( Serializer* s, rgbaTuple_t<float>& rgba ) {
-	bool ret = true;
-	ret = ret && s->Next( Ref( rgba.r ) );
-	ret = ret && s->Next( Ref( rgba.g ) );
-	ret = ret && s->Next( Ref( rgba.b ) );
-	ret = ret && s->Next( Ref( rgba.a ) );
-	return ret;
+
+void SerializeStruct( Serializer* s, rgbaTuple_t<float>& rgba )
+{
+	static_assert( sizeof( rgbaTuple_t<float> ) == 16, "Serialization out-of-date" );
+	s->Next( rgba.r );
+	s->Next( rgba.g );
+	s->Next( rgba.b );
+	s->Next( rgba.a );
 }
 
-bool Color::Serialize( void* serializer )
+
+void Color::Serialize( Serializer* serializer )
 {
 	Serializer* s = reinterpret_cast<Serializer*>( serializer );
 
-	uint32_t version = 0;
-	bool ret = s->Next( Ref( version ) );
-	if ( version != Color::Version ) {
-		return false;
+	uint32_t version = Version;
+	s->Next( version );
+	if ( version != Version ) {
+		throw std::runtime_error( "Wrong version number." );
 	}
-	ret = ret && SerializeRGBA( s, u.rgba );
-	return ret;
+	SerializeStruct( s, u.rgba );
 }
 
 template<typename T>
-bool Image<T>::Serialize( void* serializer )
+void Image<T>::Serialize( Serializer* serializer )
 {
 	Serializer* s = reinterpret_cast<Serializer*>( serializer );
 	
-	uint32_t version = 0;
-	bool ret = s->Next( Ref( version ) );
-	if( version != Image<T>::Version ) {
-		return false;
+	uint32_t version = Version;
+	s->Next( version );
+	if( version != Version ) {
+		throw std::runtime_error( "Wrong version number." );
 	}
-	ret = ret && s->Next( Ref( width ) );
-	ret = ret && s->Next( Ref( height ) );
-	ret = ret && s->Next( Ref( length ) );
-	ret = ret && s->NextArray( buffer, length );
-	
-	return ret;
+	s->Next( width );
+	s->Next( height );
+	s->Next( length );
+	s->NextArray( buffer, length );
 }
 #endif
