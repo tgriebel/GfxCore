@@ -57,6 +57,20 @@ void Color::Serialize( Serializer* serializer )
 	SerializeStruct( s, u.rgba );
 }
 
+
+void AABB::Serialize( Serializer* serializer )
+{
+	Serializer* s = reinterpret_cast<Serializer*>( serializer );
+
+	uint32_t version = Version;
+	s->Next( version );
+	if ( version != Version ) {
+		throw std::runtime_error( "Wrong version number." );
+	}
+	min.Serialize( s );
+	max.Serialize( s );
+}
+
 template<typename T>
 void Image<T>::Serialize( Serializer* serializer )
 {

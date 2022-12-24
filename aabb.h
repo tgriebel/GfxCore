@@ -7,6 +7,8 @@
 
 class AABB
 {
+private:
+	static const uint32_t Version = 1;
 public:
 	vec3f min;
 	vec3f max;
@@ -133,4 +135,6 @@ public:
 	vec3f GetCenter() const {
 		return 0.5f * GetSize() + GetMin();
 	}
+
+	void Serialize( Serializer* serializer );
 };

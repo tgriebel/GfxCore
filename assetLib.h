@@ -2,6 +2,13 @@
 #include "util.h"
 #include <string>
 #include <unordered_map>
+#include <sstream>
+
+static std::string HashString( const hdl_t& hdl ) {
+	std::stringstream ss;
+	ss << hdl.Get();
+	return ss.str();
+}
 
 template< class Asset >
 class AssetLib {
@@ -11,8 +18,7 @@ private:
 	assetMap_t	assets;
 	tagMap_t	tags;
 public:
-	void					Create();
-	void					Destroy();
+	void					Clear();
 	const Asset*			GetDefault() const { return ( assets.size() > 0 ) ? &assets.begin()->second : nullptr; };
 	uint32_t				Count() const { return static_cast<uint32_t>( assets.size() ); }
 	hdl_t					Add( const char* name, const Asset& asset );
@@ -27,7 +33,7 @@ public:
 };
 
 template< class Asset >
-void AssetLib< Asset >::Destroy() {
+void AssetLib< Asset >::Clear() {
 	assets.clear();
 	tags.clear();
 }

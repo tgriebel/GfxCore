@@ -80,7 +80,7 @@ public:
 
 		if ( aabb.Intersect( ray, tNear, tFar ) )
 		{
-			const uint32_t childCnt = children.size();
+			const uint32_t childCnt = static_cast<uint32_t>( children.size() );
 			for ( uint32_t i = 0; i < childCnt; ++i )
 			{
 				children[ i ].Intersect( ray, hitItems );
