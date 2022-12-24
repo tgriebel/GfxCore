@@ -3,22 +3,23 @@
 #include <assert.h>
 #include <cstdint>
 
-class hdl_t
+template<typename T>
+class Handle
 {
 private:
-	static const uint64_t InvalidValue = ~0ull;
+	static const T InvalidValue = ~0ull;
 public:
-	hdl_t()
+	Handle()
 	{
 		this->value = InvalidValue;
 	};
 
-	hdl_t( const uint64_t handle )
+	Handle( const T handle )
 	{
 		this->value = handle;
 	}
 
-	hdl_t( const hdl_t& handle )
+	Handle( const Handle& handle )
 	{
 		if ( handle.IsValid() ) {
 			this->value = handle.value;
@@ -27,58 +28,64 @@ public:
 		}
 	}
 
-	~hdl_t()
+	~Handle()
 	{
 		value = InvalidValue;
 	}
 
-	hdl_t& operator=( const hdl_t& handle )
+	Handle& operator=( const Handle& handle )
 	{
 		if ( this != &handle )
 		{
-			this->~hdl_t();
+			this->~Handle();
 			this->value = handle.value;
 		}
 		return *this;
 	}
 
-	bool operator==( const hdl_t& rhs ) const {
+	bool operator==( const Handle& rhs ) const {
 		return ( value == rhs.value );
 	}
 
-	bool operator!=( const hdl_t& rhs ) const {
+	bool operator!=( const Handle& rhs ) const {
 		return ( value != rhs.value );
 	}
 
-	bool operator<( const hdl_t& rhs )  const {
+	bool operator<( const Handle& rhs )  const {
 		return ( value < rhs.value );
 	}
 
-	bool operator<=( const hdl_t& rhs ) const {
+	bool operator<=( const Handle& rhs ) const {
 		return ( value <= rhs.value );
 	}
 
-	bool operator>( const hdl_t& rhs )  const {
+	bool operator>( const Handle& rhs )  const {
 		return ( value > rhs.value );
 	}
 
-	bool operator>=( const hdl_t& rhs ) const {
+	bool operator>=( const Handle& rhs ) const {
 		return ( value >= rhs.value );
 	}
 
 	void Reset() {
-		this->~hdl_t();
+		this->~Handle();
 	}
 
 	bool IsValid() const {
 		return ( value != InvalidValue );
 	}
 
-	uint64_t Get() const {
+	T Get() const {
 		return IsValid() ? value : InvalidValue;
 	}
 private:
-	uint64_t	value;
+	T	value;
 };
+
+ using hdl8_t = Handle<uint8_t>;
+ using hdl16_t = Handle<uint16_t>;
+ using hdl32_t = Handle<uint32_t>;
+ using hdl64_t = Handle<uint64_t>;
+ using hdl_t = hdl64_t;
 
 #define INVALID_HDL hdl_t()
