@@ -94,12 +94,12 @@ uint32_t LoadModelObj( const std::string& path, ResourceManager& rm )
 
 			faces.reserve( 10000 );
 
-			const int32_t faceCnt = faces.size();
-			for ( int32_t faceIx = 0; faceIx < faceCnt; ++faceIx )
+			const uint32_t faceCnt = static_cast<uint32_t>( faces.size() );
+			for ( uint32_t faceIx = 0; faceIx < faceCnt; ++faceIx )
 			{
-				const int32_t vertexCnt = faces[ faceIx ].vertices.size();
+				const uint32_t vertexCnt = static_cast<uint32_t>( faces[ faceIx ].vertices.size() );
 				assert( ( vertexCnt == 3 ) || ( vertexCnt == 4 ) );
-				for ( int32_t i = 0; i < vertexCnt; ++i )
+				for ( uint32_t i = 0; i < vertexCnt; ++i )
 				{
 					vertex_t vert;
 					const int32_t vertIx = faces[ faceIx ].vertices[ i ].vertexIx;
