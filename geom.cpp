@@ -136,12 +136,12 @@ uint32_t LoadModelObj( const std::string& path, ResourceManager& rm )
 
 					if ( it == uniqueVertices.end() )
 					{
-						indices.push_back( uniqueVertices.size() );
+						indices.push_back( static_cast<int32_t>( uniqueVertices.size() ) );
 						uniqueVertices.push_back( vert );
 					}
 					else
 					{
-						indices.push_back( std::distance( uniqueVertices.begin(), it ) );
+						indices.push_back( static_cast<int32_t>( std::distance( uniqueVertices.begin(), it ) ) );
 					}
 				}
 
@@ -198,7 +198,7 @@ uint32_t LoadModelObj( const std::string& path, ResourceManager& rm )
 		surf.vbOffset = rm.GetVbOffset();
 		surf.ibOffset = rm.GetIbOffset();
 
-		const uint32_t vertexCnt = uniqueVertices.size();
+		const uint32_t vertexCnt = static_cast<uint32_t>( uniqueVertices.size() );
 		for ( uint32_t i = 0; i < vertexCnt; ++i )
 		{
 			rm.AddVertex( uniqueVertices[ i ] );
@@ -693,7 +693,7 @@ uint32_t CreatePlaneModel( ResourceManager& rm, const vec2f& size, const vec2i& 
 	surf.vbOffset = rm.GetVbOffset();
 	surf.ibOffset = rm.GetIbOffset();
 
-	vec2f gridSize = Divide( size, vec2f( cellCnt[ 0 ], cellCnt[ 1 ] ) );
+	vec2f gridSize = Divide( size, vec2f( (float)cellCnt[ 0 ], (float)cellCnt[ 1 ] ) );
 
 	const uint32_t verticesPerQuad = 6;
 
