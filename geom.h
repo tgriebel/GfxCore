@@ -108,6 +108,46 @@ struct Triangle
 	}
 };
 
+
+class Surface {
+public:
+	hdl_t						materialHdl;
+	std::vector<vertex_t>		vertices;
+	std::vector<uint32_t>		indices;
+
+	void Serialize( Serializer* serializer );
+};
+
+
+struct surfaceUpload_t
+{
+	surfaceUpload_t() : vertexCount( 0 ), indexCount( 0 ), vertexOffset( 0 ), firstIndex( 0 ) {}
+
+	uint32_t					vertexCount;
+	uint32_t					indexCount;
+	uint32_t					vertexOffset;
+	uint32_t					firstIndex;
+};
+
+
+class Model
+{
+	static const uint32_t Version = 1;
+public:
+	Model() : surfCount( 0 ), uploaded( false ) {}
+
+	static const uint32_t		MaxSurfaces = 10;
+	AABB						bounds;
+	Surface						surfs[ MaxSurfaces ];
+	surfaceUpload_t				upload[ MaxSurfaces ];
+	uint32_t					surfCount;
+	bool						uploaded;
+
+	void Serialize( Serializer* serializer );
+};
+
+
+// TODO: deprecated
 struct surface_t
 {
 	uint32_t		vb;
@@ -129,7 +169,7 @@ public:
 };
 
 
-class ModelInstance
+class RtModel
 {
 public:
 	std::vector<Triangle>	triCache;
@@ -238,12 +278,3 @@ inline bool RayToTriangleIntersection( const Ray& r, const Triangle& tri, bool& 
 		return false;
 	}
 }
-
-
-void LoadMaterialObj( const std::string& path, ResourceManager& rm, material_t& material );
-uint32_t LoadModelObj( const std::string& path, ResourceManager& rm );
-void StoreModelObj( const std::string& path, ResourceManager& rm, const uint32_t modelIx );
-uint32_t LoadModelBin( const std::string& path, ResourceManager& rm );
-void StoreModelBin( const std::string& path, ResourceManager& rm, const uint32_t modelIx );
-void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat4x4f& modelMatrix, const bool smoothNormals, const Color& tint, ModelInstance* outInstance, const int32_t materialId = -1 );
-uint32_t CreatePlaneModel( ResourceManager& rm, const vec2f& size, const vec2i& cellCnt, const int32_t materialId );

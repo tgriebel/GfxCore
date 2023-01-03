@@ -5,6 +5,16 @@
 #include "mathVector.h"
 #include "geom.h"
 
+struct viewport_t
+{
+	float x;
+	float y;
+	float width;
+	float height;
+	float near;
+	float far;
+};
+
 class Camera
 {
 private:

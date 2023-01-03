@@ -156,6 +156,7 @@
   <ItemGroup>
     <ClCompile Include="bitmap.cpp" />
     <ClCompile Include="color.cpp" />
+    <ClCompile Include="entity.cpp" />
     <ClCompile Include="geom.cpp" />
     <ClCompile Include="GfxCore.cpp" />
     <ClCompile Include="matrix.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="entity.h" />
     <ClInclude Include="geom.h" />
     <ClInclude Include="handle.h" />
     <ClInclude Include="image.h" />
@@ -179,7 +181,9 @@
     <ClInclude Include="octree.h" />
     <ClInclude Include="rasterLib.h" />
     <ClInclude Include="resourceManager.h" />
+    <ClInclude Include="scene.h" />
     <ClInclude Include="util.h" />
+    <ClInclude Include="renderview.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SysCore\SysCore\SysCore.vcxproj">

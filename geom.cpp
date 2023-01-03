@@ -526,7 +526,7 @@ void StoreModelBin( const std::string& path, ResourceManager& rm, const uint32_t
 }
 
 
-void CreateModelInstance( ResourceManager& rm, const uint32_t modelIx, const mat4x4f& modelMatrix, const bool smoothNormals, const Color& tint, ModelInstance* outInstance, const matHdl_t materialId )
+void CreateRayTraceModel( ResourceManager& rm, const uint32_t modelIx, const mat4x4f& modelMatrix, const bool smoothNormals, const Color& tint, RtModel* outInstance, const matHdl_t materialId )
 {
 	const ModelSource* model = rm.GetModel( modelIx );
 

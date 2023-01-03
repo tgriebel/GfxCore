@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{e57b148a-8316-4d0b-942e-cad7a1d7a498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{20bea58b-a4e9-4602-bc74-478c707ec7f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset">
+      <UniqueIdentifier>{16ce3163-cb91-45a6-936e-6ea6b2a06912}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GfxCore.cpp">
@@ -36,18 +45,12 @@
     <ClCompile Include="serializeClasses.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="entity.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="meshIO.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="mathVector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="matrix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bitmap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="common.h">
@@ -59,12 +62,6 @@
     <ClInclude Include="aabb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="geom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -72,9 +69,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resourceManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="rasterLib.h">
@@ -88,6 +82,33 @@
     </ClInclude>
     <ClInclude Include="color.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="renderview.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="mathVector.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="matrix.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="bitmap.h">
+      <Filter>Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="material.h">
+      <Filter>Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="image.h">
+      <Filter>Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="scene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="entity.h">
+      <Filter>Scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
