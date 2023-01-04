@@ -48,6 +48,9 @@
     <ClCompile Include="entity.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
+    <ClCompile Include="math\matrix.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="meshIO.h">
@@ -109,6 +112,18 @@
     </ClInclude>
     <ClInclude Include="entity.h">
       <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="gpuProgram.h">
+      <Filter>Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="math\mathVector.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\matrix.h">
+      <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
