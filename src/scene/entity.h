@@ -1,8 +1,8 @@
 #pragma once
 
-#include "matrix.h"
-#include "handle.h"
-#include "aabb.h"
+#include "../math/matrix.h"
+#include "../core/handle.h"
+#include "../acceleration/aabb.h"
 
 enum entityFlags_t {
 	ENT_FLAG_NONE			= 0,

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <utility>
-#include "../GfxCore/mathVector.h"
-#include "../GfxCore/matrix.h"
-#include "ray.h"
+#include "../math/mathVector.h"
+#include "../math/matrix.h"
+#include "../primitives/ray.h"
 
 class AABB
 {

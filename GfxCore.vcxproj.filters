@@ -1,129 +1,130 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Scene">
       <UniqueIdentifier>{e57b148a-8316-4d0b-942e-cad7a1d7a498}</UniqueIdentifier>
     </Filter>
     <Filter Include="Math">
       <UniqueIdentifier>{20bea58b-a4e9-4602-bc74-478c707ec7f0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset">
+    <Filter Include="Resource Types">
       <UniqueIdentifier>{16ce3163-cb91-45a6-936e-6ea6b2a06912}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Primitives">
+      <UniqueIdentifier>{d59a879d-32c6-40cb-9a10-8d2793246a51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Image">
+      <UniqueIdentifier>{f3085368-bd00-477f-b844-383a054cb7fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Acceleration">
+      <UniqueIdentifier>{afac19cc-7530-4994-b2a8-9793564282a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{73017f8d-1ea4-4acf-a016-61b78710d630}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Test Driver">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="IO">
+      <UniqueIdentifier>{2100f28e-faf5-44f2-a722-f46d022156bc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GfxCore.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Test Driver</Filter>
     </ClCompile>
-    <ClCompile Include="meshIO.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\math\matrix.cpp">
+      <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="matrix.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\image\bitmap.cpp">
+      <Filter>Image</Filter>
     </ClCompile>
-    <ClCompile Include="bitmap.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\image\color.cpp">
+      <Filter>Image</Filter>
     </ClCompile>
-    <ClCompile Include="color.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="geom.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="serializeClasses.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="entity.cpp">
+    <ClCompile Include="src\scene\entity.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="math\matrix.cpp">
-      <Filter>Math</Filter>
+    <ClCompile Include="src\primitives\geom.cpp">
+      <Filter>Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="src\io\meshIO.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="src\io\serializeClasses.cpp">
+      <Filter>IO</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="meshIO.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="util.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="aabb.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="geom.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="octree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="resourceManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="rasterLib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="handle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="assetLib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="color.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="renderview.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="mathVector.h">
+    <ClInclude Include="src\math\mathVector.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="matrix.h">
+    <ClInclude Include="src\math\matrix.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="camera.h">
+    <ClInclude Include="src\resource_types\gpuProgram.h">
+      <Filter>Resource Types</Filter>
+    </ClInclude>
+    <ClInclude Include="src\resource_types\material.h">
+      <Filter>Resource Types</Filter>
+    </ClInclude>
+    <ClInclude Include="src\resource_types\texture.h">
+      <Filter>Resource Types</Filter>
+    </ClInclude>
+    <ClInclude Include="src\image\bitmap.h">
+      <Filter>Image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\image\color.h">
+      <Filter>Image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\image\image.h">
+      <Filter>Image</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scene\camera.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="bitmap.h">
-      <Filter>Asset</Filter>
-    </ClInclude>
-    <ClInclude Include="material.h">
-      <Filter>Asset</Filter>
-    </ClInclude>
-    <ClInclude Include="image.h">
-      <Filter>Asset</Filter>
-    </ClInclude>
-    <ClInclude Include="scene.h">
+    <ClInclude Include="src\scene\entity.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="entity.h">
+    <ClInclude Include="src\scene\renderview.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="texture.h">
-      <Filter>Asset</Filter>
+    <ClInclude Include="src\scene\resourceManager.h">
+      <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="gpuProgram.h">
-      <Filter>Asset</Filter>
+    <ClInclude Include="src\scene\scene.h">
+      <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="math\mathVector.h">
-      <Filter>Math</Filter>
+    <ClInclude Include="src\primitives\geom.h">
+      <Filter>Primitives</Filter>
     </ClInclude>
-    <ClInclude Include="math\matrix.h">
-      <Filter>Math</Filter>
+    <ClInclude Include="src\primitives\ray.h">
+      <Filter>Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="src\acceleration\aabb.h">
+      <Filter>Acceleration</Filter>
+    </ClInclude>
+    <ClInclude Include="src\acceleration\octree.h">
+      <Filter>Acceleration</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\rasterLib.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\util.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\assetLib.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\common.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\handle.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\io\meshIO.h">
+      <Filter>IO</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

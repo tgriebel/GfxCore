@@ -3,8 +3,8 @@
 #include <assert.h>
 #include <vector>
 #include <stack>
-#include "geom.h"
-#include "image.h"
+#include "../primitives/geom.h"
+#include "../image/image.h"
 
 struct vertexBuffer_t
 {

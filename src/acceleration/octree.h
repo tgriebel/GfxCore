@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "geom.h"
-#include "../GfxCore/ray.h"
+#include "../primitives/geom.h"
+#include "../primitives/ray.h"
 
 enum octreeRegion_t : uint8_t
 {

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "common.h"
-#include "mathVector.h"
-#include "matrix.h"
-#include "color.h"
-#include "bitmap.h"
-#include "image.h"
+#include "../core/common.h"
+#include "../math/mathVector.h"
+#include "../math/matrix.h"
+#include "../image/color.h"
+#include "../image/bitmap.h"
+#include "../image/image.h"
 
 inline mat4x4f ComputeRotationX( const float degrees )
 {

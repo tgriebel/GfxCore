@@ -1,10 +1,10 @@
 #pragma once
 
 #include <deque>
-#include "mathVector.h"
-#include "matrix.h"
-#include "image.h"
-#include "bitmap.h"
+#include "../math/mathVector.h"
+#include "../math/matrix.h"
+#include "../image/image.h"
+#include "../image/bitmap.h"
 
 /*
 ===================================

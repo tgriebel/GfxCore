@@ -154,39 +154,39 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="bitmap.cpp" />
-    <ClCompile Include="color.cpp" />
-    <ClCompile Include="entity.cpp" />
-    <ClCompile Include="geom.cpp" />
     <ClCompile Include="GfxCore.cpp" />
-    <ClCompile Include="math\matrix.cpp" />
-    <ClCompile Include="matrix.cpp" />
-    <ClCompile Include="meshIO.cpp" />
-    <ClCompile Include="serializeClasses.cpp" />
+    <ClCompile Include="src\image\bitmap.cpp" />
+    <ClCompile Include="src\image\color.cpp" />
+    <ClCompile Include="src\io\meshIO.cpp" />
+    <ClCompile Include="src\io\serializeClasses.cpp" />
+    <ClCompile Include="src\math\matrix.cpp" />
+    <ClCompile Include="src\primitives\geom.cpp" />
+    <ClCompile Include="src\scene\entity.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="aabb.h" />
-    <ClInclude Include="assetLib.h" />
-    <ClInclude Include="bitmap.h" />
-    <ClInclude Include="camera.h" />
-    <ClInclude Include="color.h" />
-    <ClInclude Include="common.h" />
-    <ClInclude Include="entity.h" />
-    <ClInclude Include="geom.h" />
-    <ClInclude Include="gpuProgram.h" />
-    <ClInclude Include="handle.h" />
-    <ClInclude Include="image.h" />
-    <ClInclude Include="material.h" />
-    <ClInclude Include="math\mathVector.h" />
-    <ClInclude Include="math\matrix.h" />
-    <ClInclude Include="meshIO.h" />
-    <ClInclude Include="octree.h" />
-    <ClInclude Include="rasterLib.h" />
-    <ClInclude Include="resourceManager.h" />
-    <ClInclude Include="scene.h" />
-    <ClInclude Include="texture.h" />
-    <ClInclude Include="util.h" />
-    <ClInclude Include="renderview.h" />
+    <ClInclude Include="src\acceleration\aabb.h" />
+    <ClInclude Include="src\acceleration\octree.h" />
+    <ClInclude Include="src\core\assetLib.h" />
+    <ClInclude Include="src\core\common.h" />
+    <ClInclude Include="src\core\handle.h" />
+    <ClInclude Include="src\core\rasterLib.h" />
+    <ClInclude Include="src\core\util.h" />
+    <ClInclude Include="src\image\bitmap.h" />
+    <ClInclude Include="src\image\color.h" />
+    <ClInclude Include="src\image\image.h" />
+    <ClInclude Include="src\io\meshIO.h" />
+    <ClInclude Include="src\math\mathVector.h" />
+    <ClInclude Include="src\math\matrix.h" />
+    <ClInclude Include="src\primitives\geom.h" />
+    <ClInclude Include="src\primitives\ray.h" />
+    <ClInclude Include="src\resource_types\gpuProgram.h" />
+    <ClInclude Include="src\resource_types\material.h" />
+    <ClInclude Include="src\resource_types\texture.h" />
+    <ClInclude Include="src\scene\camera.h" />
+    <ClInclude Include="src\scene\entity.h" />
+    <ClInclude Include="src\scene\renderview.h" />
+    <ClInclude Include="src\scene\resourceManager.h" />
+    <ClInclude Include="src\scene\scene.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SysCore\SysCore\SysCore.vcxproj">

@@ -3,9 +3,9 @@
 #include <vector>
 
 #include "camera.h"
-#include "common.h"
-#include "assetLib.h"
-#include "mathVector.h"
+#include "../core/common.h"
+#include "../core/assetLib.h"
+#include "../math/mathVector.h"
 #include "entity.h"
 
 const uint32_t MaxLights = 3;

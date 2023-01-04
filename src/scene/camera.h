@@ -1,9 +1,9 @@
 #pragma once
 
-#include "common.h"
-#include "util.h"
-#include "mathVector.h"
-#include "geom.h"
+#include "../core/common.h"
+#include "../core/util.h"
+#include "../math/mathVector.h"
+#include "../primitives/geom.h"
 
 struct viewport_t
 {

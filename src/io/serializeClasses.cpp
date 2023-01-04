@@ -1,9 +1,9 @@
 #include <type_traits>
-#include "mathVector.h"
-#include "geom.h"
-#include "color.h"
+#include "../math/mathVector.h"
+#include "../primitives/geom.h"
+#include "../image/color.h"
+#include "../image/image.h"
 #include "serializer.h"
-#include "image.h"
 
 #define SERIALIZE_IMPLEMENTATIONS
 

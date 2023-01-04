@@ -1,10 +1,10 @@
 #pragma once
 
 #include <cinttypes>
-#include "common.h"
-#include "mathVector.h"
-#include "matrix.h"
-#include "color.h"
+#include "../core/common.h"
+#include "../math/mathVector.h"
+#include "../math/matrix.h"
+#include "../image/color.h"
 
 struct lightInput_t
 {

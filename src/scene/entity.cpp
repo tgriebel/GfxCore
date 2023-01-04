@@ -1,6 +1,6 @@
 #include "entity.h"
-#include "util.h"
-#include "geom.h"
+#include "../core/util.h"
+#include "../primitives/geom.h"
 
 vec3f Entity::GetOrigin() const {
 	return vec3f( matrix[ 3 ][ 0 ], matrix[ 3 ][ 1 ], matrix[ 3 ][ 2 ] );
