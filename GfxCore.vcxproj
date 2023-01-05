@@ -177,6 +177,7 @@
     <ClInclude Include="src\io\meshIO.h" />
     <ClInclude Include="src\math\mathVector.h" />
     <ClInclude Include="src\math\matrix.h" />
+    <ClInclude Include="src\math\quaternion.h" />
     <ClInclude Include="src\primitives\geom.h" />
     <ClInclude Include="src\primitives\ray.h" />
     <ClInclude Include="src\resource_types\gpuProgram.h" />

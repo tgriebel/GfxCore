@@ -126,5 +126,8 @@
     <ClInclude Include="src\io\meshIO.h">
       <Filter>IO</Filter>
     </ClInclude>
+    <ClInclude Include="src\math\quaternion.h">
+      <Filter>Math</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
