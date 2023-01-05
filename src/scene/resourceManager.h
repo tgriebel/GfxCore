@@ -17,7 +17,6 @@ struct indexBuffer_t
 	std::vector<uint32_t> buffer;
 };
 
-using matHdl_t = int32_t;
 using imgHdl_t = int32_t;
 using vertHdl_t = int32_t;
 using idxHdl_t = int32_t;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <deque>
-#include "../math/mathVector.h"
+#include "../math/vector.h"
 #include "../math/matrix.h"
 #include "../image/image.h"
 #include "../image/bitmap.h"
