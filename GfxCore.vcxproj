@@ -175,7 +175,7 @@
     <ClInclude Include="src\image\color.h" />
     <ClInclude Include="src\image\image.h" />
     <ClInclude Include="src\io\meshIO.h" />
-    <ClInclude Include="src\math\mathVector.h" />
+    <ClInclude Include="src\math\vector.h" />
     <ClInclude Include="src\math\matrix.h" />
     <ClInclude Include="src\math\quaternion.h" />
     <ClInclude Include="src\primitives\geom.h" />

@@ -12,7 +12,7 @@
 
 #include <cmath>
 #include <ostream>
-#include "MathVector.h"
+#include "vector.h"
 
 
 template <typename T>

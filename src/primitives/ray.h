@@ -1,7 +1,7 @@
 #pragma once
 
 #include <utility>
-#include "../math/mathVector.h"
+#include "../math/vector.h"
 #include "../math/matrix.h"
 #include "../core/common.h"
 

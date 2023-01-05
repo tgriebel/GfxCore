@@ -57,9 +57,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\math\mathVector.h">
-      <Filter>Math</Filter>
-    </ClInclude>
     <ClInclude Include="src\math\matrix.h">
       <Filter>Math</Filter>
     </ClInclude>
@@ -127,6 +124,9 @@
       <Filter>IO</Filter>
     </ClInclude>
     <ClInclude Include="src\math\quaternion.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\vector.h">
       <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>

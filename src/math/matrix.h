@@ -2,7 +2,7 @@
 #define MATRIX_H
 
 #include <math.h>
-#include "mathVector.h"
+#include "vector.h"
 
 //------------------------------------------------------------------------//
 // Matrix Class and matrix functions

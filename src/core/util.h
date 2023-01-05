@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../core/common.h"
-#include "../math/mathVector.h"
+#include "../math/vector.h"
 #include "../math/matrix.h"
 #include "../image/color.h"
 #include "../image/bitmap.h"

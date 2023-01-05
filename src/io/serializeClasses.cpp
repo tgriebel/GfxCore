@@ -1,5 +1,5 @@
 #include <type_traits>
-#include "../math/mathVector.h"
+#include "../math/vector.h"
 #include "../primitives/geom.h"
 #include "../image/color.h"
 #include "../image/image.h"

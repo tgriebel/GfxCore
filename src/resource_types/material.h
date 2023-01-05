@@ -2,7 +2,7 @@
 
 #include <cinttypes>
 #include "../core/common.h"
-#include "../math/mathVector.h"
+#include "../math/vector.h"
 #include "../math/matrix.h"
 #include "../image/color.h"
 
