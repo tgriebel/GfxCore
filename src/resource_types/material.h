@@ -12,6 +12,20 @@ struct lightInput_t
 	vec3f	normal;
 };
 
+enum drawPass_t : uint32_t
+{
+	DRAWPASS_SHADOW,
+	DRAWPASS_DEPTH,
+	DRAWPASS_TERRAIN,
+	DRAWPASS_OPAQUE,
+	DRAWPASS_SKYBOX,
+	DRAWPASS_TRANS,
+	DRAWPASS_DEBUG_SOLID,
+	DRAWPASS_DEBUG_WIREFRAME,
+	DRAWPASS_POST_2D,
+	DRAWPASS_COUNT
+};
+
 // FIXME: Deprecated
 struct material_t
 {
@@ -38,7 +52,7 @@ class Material
 {
 public:
 	static const uint32_t MaxMaterialTextures = 8;
-	static const uint32_t MaxMaterialShaders = 16;
+	static const uint32_t MaxMaterialShaders = DRAWPASS_COUNT;
 
 	hdl_t					textures[ MaxMaterialTextures ];
 	hdl_t					shaders[ MaxMaterialShaders ];

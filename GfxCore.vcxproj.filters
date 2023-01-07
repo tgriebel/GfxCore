@@ -55,6 +55,12 @@
     <ClCompile Include="src\io\serializeClasses.cpp">
       <Filter>IO</Filter>
     </ClCompile>
+    <ClCompile Include="src\core\assetLib.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\io\io.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\math\matrix.h">
@@ -128,6 +134,9 @@
     </ClInclude>
     <ClInclude Include="src\resource_types\model.h">
       <Filter>Resource Types</Filter>
+    </ClInclude>
+    <ClInclude Include="src\io\io.h">
+      <Filter>IO</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

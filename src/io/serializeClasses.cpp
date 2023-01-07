@@ -3,6 +3,7 @@
 #include "../primitives/geom.h"
 #include "../image/color.h"
 #include "../image/image.h"
+#include "../resource_types/model.h"
 #include <serializer.h>
 
 #define SERIALIZE_IMPLEMENTATIONS
@@ -85,5 +86,60 @@ void Image<T>::Serialize( Serializer* serializer )
 	s->Next( height );
 	s->Next( length );
 	s->NextArray( buffer, length );
+}
+
+
+void Surface::Serialize( Serializer* s )
+{
+	uint32_t vertexCount = 0;
+	if ( s->GetMode() == serializeMode_t::LOAD )
+	{
+		s->Next( vertexCount );
+		vertices.resize( vertexCount );
+	}
+	else if ( s->GetMode() == serializeMode_t::STORE )
+	{
+		vertexCount = static_cast<uint32_t>( vertices.size() );
+		s->Next( vertexCount );
+	}
+
+	for ( uint32_t i = 0; i < vertexCount; ++i ) {
+		SerializeStruct( s, vertices[ i ] );
+	}
+
+	uint32_t indexCount = 0;
+	if ( s->GetMode() == serializeMode_t::LOAD )
+	{
+		s->Next( indexCount );
+		indices.resize( indexCount );
+	}
+	else if ( s->GetMode() == serializeMode_t::STORE )
+	{
+		indexCount = static_cast<uint32_t>( indices.size() );
+		s->Next( indexCount );
+	}
+
+	for ( uint32_t i = 0; i < indexCount; ++i ) {
+		s->Next( indices[ i ] );
+	}
+	uint64_t hash = materialHdl.Get();
+	s->Next( hash );
+	materialHdl = hdl_t( hash );
+}
+
+
+void Model::Serialize( Serializer* s )
+{
+	uint32_t version = Version;
+	s->Next( version );
+	if ( version != Version ) {
+		throw std::runtime_error( "Wrong version number." );
+	}
+	bounds.Serialize( s );
+
+	s->Next( surfCount );
+	for ( uint32_t i = 0; i < surfCount; ++i ) {
+		surfs[ i ].Serialize( s );
+	}
 }
 #endif

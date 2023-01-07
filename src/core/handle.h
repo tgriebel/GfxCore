@@ -2,6 +2,8 @@
 
 #include <assert.h>
 #include <cstdint>
+#include <sstream>
+#include <string>
 
 template<typename T>
 class Handle
@@ -65,6 +67,13 @@ public:
 
 	bool operator>=( const Handle& rhs ) const {
 		return ( value >= rhs.value );
+	}
+
+	std::string String() const
+	{
+		std::stringstream ss;
+		ss << Get();
+		return ss.str();
 	}
 
 	void Reset() {
