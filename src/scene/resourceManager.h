@@ -29,7 +29,7 @@ class ResourceManager
 private:
 	std::vector<vertexBuffer_t>	vertexBuffers;
 	std::vector<indexBuffer_t>	indexBuffers;
-	std::vector<ModelSource>			modelBuffer;
+	std::vector<ModelSource>	modelBuffer;
 	std::vector<material_t>		materialBuffer;
 	std::vector< Image<Color> >	imageBuffer;
 	std::stack<int32_t>			currentVB;

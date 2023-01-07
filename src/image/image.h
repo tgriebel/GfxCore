@@ -13,8 +13,8 @@ private:
 	uint32_t	width;
 	uint32_t	height;
 	uint32_t	length;
-	T* buffer;
-	const char* name;
+	T*			buffer;
+	const char*	name;
 
 public:
 

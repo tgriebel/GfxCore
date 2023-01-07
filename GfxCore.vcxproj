@@ -186,7 +186,6 @@
     <ClInclude Include="src\resource_types\texture.h" />
     <ClInclude Include="src\scene\camera.h" />
     <ClInclude Include="src\scene\entity.h" />
-    <ClInclude Include="src\scene\renderview.h" />
     <ClInclude Include="src\scene\resourceManager.h" />
     <ClInclude Include="src\scene\scene.h" />
   </ItemGroup>

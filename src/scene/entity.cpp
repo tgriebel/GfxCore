@@ -2,6 +2,15 @@
 #include "../core/util.h"
 #include "../primitives/geom.h"
 
+AABB Entity::GetBounds() const {
+	return AABB( bounds.GetMin() + GetOrigin(), bounds.GetMax() + GetOrigin() );;
+}
+
+void Entity::ExpandBounds( const AABB& modelBounds ) {
+	bounds.Expand( modelBounds.GetMin() );
+	bounds.Expand( modelBounds.GetMax() );
+}
+
 vec3f Entity::GetOrigin() const {
 	return vec3f( matrix[ 3 ][ 0 ], matrix[ 3 ][ 1 ], matrix[ 3 ][ 2 ] );
 }

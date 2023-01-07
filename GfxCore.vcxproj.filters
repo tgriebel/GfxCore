@@ -84,9 +84,6 @@
     <ClInclude Include="src\scene\entity.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\scene\renderview.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
     <ClInclude Include="src\scene\resourceManager.h">
       <Filter>Scene</Filter>
     </ClInclude>

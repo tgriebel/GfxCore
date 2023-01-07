@@ -12,6 +12,7 @@ struct lightInput_t
 	vec3f	normal;
 };
 
+// FIXME: Deprecated
 struct material_t
 {
 	static const uint32_t BufferSize = 256;
@@ -61,7 +62,8 @@ public:
 		Ns( 0.0f ),
 		Ni( 0.0f ),
 		d( 1.0f ),
-		illum( 0.0f )
+		illum( 0.0f ),
+		textured( false )
 	{
 		for ( int i = 0; i < MaxMaterialTextures; ++i ) {
 			textures[ i ] = INVALID_HDL;

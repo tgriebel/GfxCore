@@ -18,23 +18,25 @@ struct viewport_t
 class Camera
 {
 private:
+	static constexpr float MaxFov = Radians( 120.0f );
+	static constexpr float MinFov = Radians( 30.0f );
+
 	mat4x4f	axis;
 	vec4f	origin;
-
-public:
-
-	float	fov;
-	float	near;
-	float	far;
-	float	aspect;
 	float	yaw;
 	float	pitch;
-
-	float	focalLength;
+	float	aspect;
 	float	viewportWidth;
 	float	viewportHeight;
+	float	fov;
 	float	halfFovX;
 	float	halfFovY;
+
+public:
+	// FIXME: make private
+	float	near;
+	float	far;
+	float	focalLength;
 
 	void Init( const vec4f& _origin, const mat4x4f& _axis, const float _aspect = 1.0f, const float _fov = 90.0f, const float _near = 1.0f, const float _far = 1000.0f )
 	{
@@ -50,11 +52,7 @@ public:
 		pitch = 0.0f;
 		focalLength = _far;
 
-		aspect = aspectRatio;
-		halfFovX = tan( 0.5f * fov );
-		halfFovY = tan( 0.5f * fov ) / aspectRatio;
-		viewportWidth = 2.0f * halfFovX;
-		viewportHeight = 2.0f * halfFovY;
+		SetAspectRatio( aspectRatio );
 	}
 
 	Camera()
@@ -79,6 +77,34 @@ public:
 	Camera( const vec4f& _origin, const mat4x4f& _axis )
 	{
 		Init( _origin, _axis );
+	}
+
+	void SetAspectRatio( const float aspectRatio )
+	{
+		aspect = aspectRatio;
+		halfFovX = tan( 0.5f * fov );
+		halfFovY = tan( 0.5f * fov ) / aspectRatio;
+		viewportWidth = 2.0f * halfFovX;
+		viewportHeight = 2.0f * halfFovY;
+	}
+
+	float GetAspectRatio() const
+	{
+		return aspect;
+	}
+
+	void SetFov( const float fieldOfView )
+	{
+		fov = Clamp( fieldOfView, MinFov, MaxFov );
+		halfFovX = tan( 0.5f * fov );
+		halfFovY = tan( 0.5f * fov ) / aspect;
+		viewportWidth = 2.0f * halfFovX;
+		viewportHeight = 2.0f * halfFovY;
+	}
+
+	float GetFov() const
+	{
+		return fov;
 	}
 
 	struct plane_t
@@ -183,12 +209,12 @@ public:
 		origin += offset;
 	}
 
-	void SetYaw( const float delta )
+	void AdjustYaw( const float delta )
 	{
 		yaw += delta;
 	}
 
-	void SetPitch( const float delta )
+	void AdjustPitch( const float delta )
 	{
 		pitch += delta;
 	}

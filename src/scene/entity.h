@@ -29,6 +29,7 @@ public:
 	hdl_t			materialHdl;
 
 	AABB			GetBounds() const;
+	void			ExpandBounds( const AABB& bounds );
 	vec3f			GetOrigin() const;
 	void			SetOrigin( const vec3f& origin );
 	void			SetScale( const vec3f& scale );
@@ -41,4 +42,5 @@ public:
 private:
 	entityFlags_t	flags;
 	mat4x4f			matrix;
+	AABB			bounds;
 };

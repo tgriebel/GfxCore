@@ -5,7 +5,11 @@
 #include "camera.h"
 #include "../core/common.h"
 #include "../core/assetLib.h"
-#include "../math/mathVector.h"
+#include "../math/vector.h"
+#include "../image/color.h"
+#include "../resource_types/texture.h"
+#include "../resource_types/material.h"
+#include "../resource_types/gpuProgram.h"
 #include "entity.h"
 
 const uint32_t MaxLights = 3;
@@ -15,11 +19,8 @@ struct light_t
 	vec4f	lightPos;
 	vec4f	intensity;
 	vec4f	lightDir;
+	Color	color;
 };
-
-class Model;
-struct texture_t;
-class GpuProgram;
 
 typedef AssetLib< Model >			AssetLibModels;
 typedef AssetLib< texture_t >		AssetLibImages;
@@ -41,25 +42,18 @@ struct Scene
 	Scene()
 	{
 		camera = Camera( vec4f( 0.0f, 1.66f, 1.0f, 0.0f ) );
-		camera.fov = Radians( 90.0f );
 		camera.far = defaultFar;
 		camera.near = defaultNear;
-		camera.aspect = 1.0f;
-
-		camera.halfFovX = tan( 0.5f * Radians( 90.0f ) );
-		camera.halfFovY = tan( 0.5f * Radians( 90.0f ) ) / camera.aspect;
-		camera.near = camera.near;
-		camera.far = camera.far;
-		camera.aspect = camera.aspect;
 		camera.focalLength = camera.far;
-		camera.viewportWidth = 2.0f * camera.halfFovX;
-		camera.viewportHeight = 2.0f * camera.halfFovY;
+		camera.SetFov( Radians( 90.0f ) );
+		camera.SetAspectRatio( 1.0f );
 	}
 
 	void CreateEntity( const hdl_t modelHdl, Entity& entity )
 	{
 		const Model* model = modelLib.Find( modelHdl );
 		entity.modelHdl = modelHdl.Get();
+		entity.ExpandBounds( model->bounds );
 	}
 
 	Entity* FindEntity( const uint32_t entityIx ) {

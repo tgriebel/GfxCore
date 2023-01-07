@@ -3,7 +3,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-static float PI = 3.14159265358979323846f;
+static constexpr float PI = 3.14159265358979323846f;
 
 template<typename T>
 inline T Min( const T& a, const T& b )
@@ -42,14 +42,14 @@ inline T1 Lerp( const T1& v0, const T1& v1, T2 t )
 
 
 template<typename T>
-inline T Radians( const T& degrees )
+constexpr inline T Radians( const T& degrees )
 {
 	return ( degrees * ( PI / static_cast<T>( 180.0 ) ) );
 }
 
 
 template<typename T>
-inline T Degrees( const T& radians )
+constexpr inline T Degrees( const T& radians )
 {
 	return ( radians * ( static_cast<T>( 180.0 ) / PI ) );
 }
