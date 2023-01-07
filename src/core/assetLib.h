@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <sstream>
+#include <iterator>
 
 static std::string HashString( const hdl_t& hdl ) {
 	std::stringstream ss;

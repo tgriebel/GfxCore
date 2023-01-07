@@ -183,6 +183,7 @@
     <ClInclude Include="src\primitives\ray.h" />
     <ClInclude Include="src\resource_types\gpuProgram.h" />
     <ClInclude Include="src\resource_types\material.h" />
+    <ClInclude Include="src\resource_types\model.h" />
     <ClInclude Include="src\resource_types\texture.h" />
     <ClInclude Include="src\scene\camera.h" />
     <ClInclude Include="src\scene\entity.h" />

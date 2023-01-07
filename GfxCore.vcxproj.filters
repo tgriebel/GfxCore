@@ -126,5 +126,8 @@
     <ClInclude Include="src\math\vector.h">
       <Filter>Math</Filter>
     </ClInclude>
+    <ClInclude Include="src\resource_types\model.h">
+      <Filter>Resource Types</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

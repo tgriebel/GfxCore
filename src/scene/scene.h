@@ -10,6 +10,7 @@
 #include "../resource_types/texture.h"
 #include "../resource_types/material.h"
 #include "../resource_types/gpuProgram.h"
+#include "../resource_types/model.h"
 #include "entity.h"
 
 const uint32_t MaxLights = 3;
