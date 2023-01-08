@@ -18,7 +18,7 @@
 
 class Serializer;
 
-static float trap[ 8 ] = {};
+static float trap[8] = {};
 
 template <size_t D, typename T>
 class Vector
@@ -33,8 +33,9 @@ public:
 	static const size_t size = D;
 
 	Vector() { Zero(); };
-	Vector( const Vector< D, T>& vec );
-	Vector( const Vector< D-1, T>& vec, T value );
+	Vector( const Vector<D, T>& vec );
+	Vector( const Vector<D - 1, T>& vec, T value );
+	Vector( const Vector<D + 1, T>& vec );
 	Vector( const T& d1 );
 	Vector( const T& d1, const T& d2 );
 	Vector( const T& d1, const T& d2, const T& d3 );
@@ -85,6 +86,15 @@ Vector<D, T>::Vector( const Vector< ( D - 1 ), T>& vec, T value )
 		data[ i ] = vec[ i ];
 	}
 	data[ D - 1 ] = value;
+}
+
+
+template<size_t D, typename T>
+Vector<D, T>::Vector( const Vector< ( D + 1 ), T>& vec )
+{
+	for ( size_t i = 0; i < D; ++i ) {
+		data[ i ] = vec[ i ];
+	}
 }
 
 
