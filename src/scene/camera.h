@@ -134,7 +134,7 @@ public:
 		return Ray( rayOrigin, rayTarget );
 	}
 
-	vec4f GetOrigin()
+	vec4f GetOrigin() const
 	{
 		return origin;
 	}
