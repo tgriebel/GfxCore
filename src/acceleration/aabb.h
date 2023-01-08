@@ -118,12 +118,12 @@ public:
 		max[ 2 ] = std::max( pt[ 2 ], max[ 2 ] );
 	}
 
-	vec3f GetMin() const
+	const vec3f& GetMin() const
 	{
 		return min;
 	}
 
-	vec3f GetMax() const
+	const vec3f& GetMax() const
 	{
 		return max;
 	}
@@ -138,3 +138,12 @@ public:
 
 	void Serialize( Serializer* serializer );
 };
+
+
+static inline std::ostream& operator<<( std::ostream& stream, const AABB& aabb )
+{
+	stream << "[min=(" << aabb.GetMin()[0] << ", " << aabb.GetMin()[1] << ", " << aabb.GetMin()[2] << ")";
+	stream << ", ";
+	stream << "max=(" << aabb.GetMax()[0] << ", " << aabb.GetMax()[1] << ", " << aabb.GetMax()[2] << ")]";
+	return stream;
+}
