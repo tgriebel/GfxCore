@@ -3,7 +3,9 @@
 #include "../primitives/geom.h"
 
 AABB Entity::GetBounds() const {
-	return AABB( bounds.GetMin() + GetOrigin(), bounds.GetMax() + GetOrigin() );;
+	const vec3f min = vec3f( GetMatrix().Transpose() * vec4f( bounds.GetMin(), 1.0f ) );
+	const vec3f max = vec3f( GetMatrix().Transpose() * vec4f( bounds.GetMax(), 1.0f ) );
+	return AABB( min, max );
 }
 
 void Entity::ExpandBounds( const AABB& modelBounds ) {
