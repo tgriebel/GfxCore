@@ -118,7 +118,7 @@ static inline float Lambert()
 }
 
 
-static inline vec3f BrdfGGX( const vec3f& n, const vec3f& v, const vec3f& l, const material_t& m )
+static inline vec3f BrdfGGX( const vec3f& n, const vec3f& v, const vec3f& l, const Material& m )
 {
 	float perceptualRoughness = 1.0f;
 	float f0 = 0.1f;
