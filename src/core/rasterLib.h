@@ -36,6 +36,11 @@ DrawLine
 */
 inline void DrawLine( Image<Color>& image, int32_t x0, int32_t y0, int32_t x1, int32_t y1, const Color& color, blendMode_t blendMode = blendMode_t::SRCALPHA )
 {
+	x0 = Clamp( x0, 0, (int32_t)image.GetWidth() - 1 );
+	y0 = Clamp( y0, 0, (int32_t)image.GetHeight() - 1 );
+	x1 = Clamp( x1, 0, (int32_t)image.GetWidth() - 1 );
+	y1 = Clamp( y1, 0, (int32_t)image.GetHeight() - 1 );
+
 	const int dx = abs( x1 - x0 );
 	const int dy = abs( y1 - y0 );
 	const int sx = ( x0 < x1 ) ? 1 : -1;
