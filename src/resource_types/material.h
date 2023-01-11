@@ -79,6 +79,7 @@ public:
 		illum( 0.0f ),
 		textured( false )
 	{
+		Kd = rgbTuplef_t( 1.0f, 1.0f, 1.0f );
 		for ( int i = 0; i < MaxMaterialTextures; ++i ) {
 			textures[ i ] = INVALID_HDL;
 		}
