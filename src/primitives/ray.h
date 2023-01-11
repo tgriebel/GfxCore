@@ -22,7 +22,7 @@ struct Ray
 
 	bool Inside( const float _t ) const
 	{
-		return ( _t >= mint ) && ( _t <= maxt );
+		return ( _t >= mint ) && ( _t <= t );
 	}
 
 	vec3f GetPoint( const float _t ) const
@@ -38,7 +38,7 @@ struct Ray
 
 	vec3f GetEndPoint() const
 	{
-		return ( o + d );
+		return GetPoint( t );
 	}
 
 	vec3f GetVector() const
