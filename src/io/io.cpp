@@ -159,15 +159,18 @@ hdl_t LoadRawModel( Scene& scene, const std::string& fileName, const std::string
 			texturePath + material.bump_texname,
 			texturePath + material.specular_texname,
 		};
+		uint32_t texCount = 0;
 		for ( int i = 0; i < 3; ++i )
 		{
-			if ( LoadTextureImage( supportedTextures[ i ].c_str(), texture ) ) {
+			if ( LoadTextureImage( supportedTextures[ i ].c_str(), texture ) )
+			{
+				++texCount;
 				texture.uploadId = -1;
 				texture.info.mipLevels = static_cast<uint32_t>( std::floor( std::log2( std::max( texture.info.width, texture.info.height ) ) ) ) + 1;
 				scene.textureLib.Add( supportedTextures[ i ].c_str(), texture );
 			}
 		}
-
+		
 		Material mat;
 		mat.shaders[ DRAWPASS_SHADOW ] = scene.gpuPrograms.RetrieveHdl( "Shadow" );
 		mat.shaders[ DRAWPASS_DEPTH ] = scene.gpuPrograms.RetrieveHdl( "LitDepth" );
@@ -177,6 +180,7 @@ hdl_t LoadRawModel( Scene& scene, const std::string& fileName, const std::string
 		mat.textures[ 0 ] = scene.textureLib.RetrieveHdl( supportedTextures[ 0 ].c_str() );
 		mat.textures[ 1 ] = scene.textureLib.RetrieveHdl( supportedTextures[ 1 ].c_str() );
 		mat.textures[ 2 ] = scene.textureLib.RetrieveHdl( supportedTextures[ 2 ].c_str() );
+		mat.textured = ( texCount > 0 );
 
 		mat.Kd = rgbTuplef_t( material.diffuse[ 0 ], material.diffuse[ 1 ], material.diffuse[ 2 ] );
 		mat.Ks = rgbTuplef_t( material.specular[ 0 ], material.specular[ 1 ], material.specular[ 2 ] );
