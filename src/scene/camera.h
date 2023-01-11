@@ -167,9 +167,9 @@ public:
 		mat4x4f proj = mat4x4f( 0.0f );
 		proj[ 0 ][ 0 ] = 1.0f / halfFovX;
 		proj[ 1 ][ 1 ] = 1.0f / halfFovY;
-		proj[ 2 ][ 2 ] = far / ( near - far );
+		proj[ 2 ][ 2 ] = -near / ( far - near );
 		proj[ 2 ][ 3 ] = -1.0f;
-		proj[ 3 ][ 2 ] = -( far * near ) / ( far - near );
+		proj[ 3 ][ 2 ] = ( far * near ) / ( far - near );
 		return proj;
 	}
 

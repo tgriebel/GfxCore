@@ -37,8 +37,8 @@ struct Scene
 	AssetLibMaterials			materialLib;
 	AssetLibGpuProgram			gpuPrograms;
 	light_t						lights[ MaxLights ];
-	float						defaultNear = 1000.0f;
-	float						defaultFar = 0.1f;
+	float						defaultNear = 0.1f;
+	float						defaultFar = 1000.0f;
 
 	Scene()
 	{

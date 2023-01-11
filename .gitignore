@@ -64,3 +64,4 @@ Release/GfxCore.vcxproj.FileListAbsolute.txt
 Release/matrix.obj
 Release/meshIO.obj
 *.obj
+Test (Debug)/
