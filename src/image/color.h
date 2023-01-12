@@ -27,11 +27,12 @@ struct rgbTuple_t
 		this->g = g;
 		this->b = b;
 	}
+
 	T	b;
 	T	g;
 	T	r;
 };
-using RGB = rgbaTuple_t<uint8_t>;
+using RGB = rgbTuple_t<uint8_t>;
 
 using rgbTuplef_t = rgbTuple_t<float>;
 using rgbTupled_t = rgbTuple_t<double>;
@@ -122,10 +123,10 @@ public:
 		Pixel pixel;
 		pixel.r8g8b8a8 = _color;
 
-		for ( int32_t i = 0; i < 4; ++i )
-		{
-			(*this)[ i ] = pixel[ i ] / 255.0f;
-		}
+		(*this)[ 0 ] = pixel[ 0 ] / 255.0f;
+		(*this)[ 1 ] = pixel[ 1 ] / 255.0f;
+		(*this)[ 2 ] = pixel[ 2 ] / 255.0f;
+		(*this)[ 3 ] = pixel[ 3 ] / 255.0f;
 	}
 
 	Color( const float _r, const float _g, const float _b, const float _a )
@@ -146,13 +147,29 @@ public:
 
 	Color( const float _value )
 	{
-		for ( int32_t i = 0; i < 4; ++i )
-		{
-			u.vec[ i ] = _value;
-		}
+		u.vec[ 0 ] = _value;
+		u.vec[ 1 ] = _value;
+		u.vec[ 2 ] = _value;
+		u.vec[ 3 ] = _value;
 	}
 
-	Color( const rgbTuple_t<float> rgb, float a = 1.0f )
+	Color( const RGB& rgb, uint8_t a )
+	{
+		u.rgba.r = rgb.r / 255.0f;
+		u.rgba.g = rgb.g / 255.0f;
+		u.rgba.b = rgb.b;
+		u.rgba.a = a;
+	}
+
+	Color( const RGBA& rgba )
+	{	
+		u.rgba.r = rgba.r / 255.0f;
+		u.rgba.g = rgba.g / 255.0f;
+		u.rgba.b = rgba.b / 255.0f;
+		u.rgba.a = rgba.a / 255.0f;
+	}
+
+	Color( const rgbTuple_t<float>& rgb, float a = 1.0f )
 	{
 		u.rgba.r = rgb.r;
 		u.rgba.g = rgb.g;

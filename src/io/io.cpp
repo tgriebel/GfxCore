@@ -20,7 +20,7 @@
 #include "../../external/stb_image.h"
 
 
-bool LoadTextureImage( const char* texturePath, texture_t& texture )
+bool LoadTextureImage( const char* texturePath, Texture& texture )
 {
 	int texWidth, texHeight, texChannels;
 	stbi_uc* pixels = stbi_load( texturePath, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha );
@@ -30,8 +30,8 @@ bool LoadTextureImage( const char* texturePath, texture_t& texture )
 		return false;
 	}
 
-	texture.info.width = texWidth;
-	texture.info.height = texHeight;
+	texture.info.width = static_cast<uint32_t>( texWidth );
+	texture.info.height = static_cast<uint32_t>( texHeight );
 	texture.info.channels = texChannels;
 	texture.info.layers = 1;
 	texture.info.type = TEXTURE_TYPE_2D;
@@ -40,12 +40,27 @@ bool LoadTextureImage( const char* texturePath, texture_t& texture )
 	texture.sizeBytes = ( texWidth * texHeight * 4 );
 	texture.bytes = new uint8_t[ texture.sizeBytes ];
 	memcpy( texture.bytes, pixels, texture.sizeBytes );
+
+	texture.cpuImage.Init( texture.info.width, texture.info.height );
+
+	// images are always loaded with 4 channels
+	for ( int py = 0; py < texHeight; ++py ) {
+		for ( int px = 0; px < texWidth; ++px ) {
+			RGBA rgba;
+			rgba.r = texture.bytes[ ( py * texture.info.width + px ) * 4 + 0 ];
+			rgba.g = texture.bytes[ ( py * texture.info.width + px ) * 4 + 1 ];
+			rgba.b = texture.bytes[ ( py * texture.info.width + px ) * 4 + 2 ];
+			rgba.a = texture.bytes[ ( py * texture.info.width + px ) * 4 + 3 ];
+			texture.cpuImage.SetPixel( px, py, rgba );
+		}
+	}
+
 	stbi_image_free( pixels );
 	return true;
 }
 
 
-bool LoadTextureCubeMapImage( const char* textureBasePath, const char* ext, texture_t& texture )
+bool LoadTextureCubeMapImage( const char* textureBasePath, const char* ext, Texture& texture )
 {
 	std::string paths[ 6 ] = {
 		( std::string( textureBasePath ) + "_right." + ext ),
@@ -57,7 +72,7 @@ bool LoadTextureCubeMapImage( const char* textureBasePath, const char* ext, text
 	};
 
 	int sizeBytes = 0;
-	texture_t textures2D[ 6 ];
+	Texture textures2D[ 6 ];
 	for ( int i = 0; i < 6; ++i )
 	{
 		if ( LoadTextureImage( paths[ i ].c_str(), textures2D[ i ] ) == false ) {
@@ -153,7 +168,7 @@ hdl_t LoadRawModel( Scene& scene, const std::string& fileName, const std::string
 
 	for ( const auto& material : materials )
 	{
-		texture_t texture;
+		Texture texture;
 		const std::string supportedTextures[ 3 ] = {
 			texturePath + material.diffuse_texname,
 			texturePath + material.bump_texname,

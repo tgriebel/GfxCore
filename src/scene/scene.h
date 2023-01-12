@@ -24,7 +24,7 @@ struct light_t
 };
 
 typedef AssetLib< Model >			AssetLibModels;
-typedef AssetLib< texture_t >		AssetLibImages;
+typedef AssetLib< Texture >			AssetLibImages;
 typedef AssetLib< Material >		AssetLibMaterials;
 typedef AssetLib< GpuProgram >		AssetLibGpuProgram;
 

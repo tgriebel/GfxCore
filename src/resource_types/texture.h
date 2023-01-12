@@ -27,16 +27,18 @@ struct textureInfo_t {
 	textureType_t	type;
 };
 
-struct texture_t
+class Texture
 {
+public:
 	uint8_t*		bytes;
 	uint32_t		sizeBytes;
 	textureInfo_t	info;
 	int				uploadId;
 
-	GpuImage		image;
+	Image<Color>	cpuImage;
+	GpuImage		gpuImage;
 
-	texture_t() {
+	Texture() {
 		info.width = 0;
 		info.height = 0;
 		info.channels = 0;

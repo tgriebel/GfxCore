@@ -27,16 +27,9 @@ public:
 		buffer = nullptr;
 	}
 
-	Image( const uint32_t _width, const uint32_t _height, const T _default = static_cast<T>( 0.0f ), const char* _name = "" )
+	Image( const uint32_t _width, const uint32_t _height, const T _default = T(), const char* _name = "" )
 	{
-		name = _name;
-
-		width = _width;
-		height = _height;
-		length = width * height;
-		buffer = new T[ length ];
-
-		Clear( _default );
+		Init( _width, _height, _default, _name );
 	}
 
 	Image( const Image& _image )
@@ -69,6 +62,25 @@ public:
 		{
 			delete[] buffer;
 		}
+	}
+
+
+	void Init( const uint32_t _width, const uint32_t _height, const T _default = T(), const char* _name = "" )
+	{
+		if( buffer != nullptr )
+		{
+			delete[] buffer;
+			buffer = nullptr;
+		}
+
+		name = _name;
+
+		width = _width;
+		height = _height;
+		length = width * height;
+		buffer = new T[ length ];
+
+		Clear( _default );
 	}
 
 
