@@ -4,18 +4,16 @@
 #include <unordered_map>
 #include <iterator>
 
+#include "asset.h"
+
 template< class AssetType >
 class AssetLib {
 private:
-	using assetMap_t = std::unordered_map<uint64_t, AssetType>;
-	using tagMap_t = std::unordered_map<uint64_t, std::string>;
-	using deferredMap_t = std::unordered_map<uint64_t, uint64_t>;
-	assetMap_t		assets;
-	tagMap_t		tags;
-	deferredMap_t	deferredAssets;
+	using assetMap_t = std::unordered_map< uint64_t, Asset<AssetType> >;
+	assetMap_t assets;
 public:
 	void					Clear();
-	const AssetType*		GetDefault() const { return ( assets.size() > 0 ) ? &assets.begin()->second : nullptr; };
+	const AssetType*		GetDefault() const { return ( assets.size() > 0 ) ? &assets.begin()->second.Get() : nullptr; };
 	uint32_t				Count() const { return static_cast<uint32_t>( assets.size() ); }
 	hdl_t					Add( const char* name, const AssetType& asset );
 	hdl_t					AddDeferred( const char* name );
@@ -33,7 +31,6 @@ public:
 template< class AssetType >
 void AssetLib< AssetType >::Clear() {
 	assets.clear();
-	tags.clear();
 }
 
 template< class AssetType >
@@ -44,8 +41,7 @@ hdl_t AssetLib< AssetType >::Add( const char* name, const AssetType& asset )
 	if ( it == assets.end() )
 	{
 		hdl_t handle = hdl_t( hash );
-		assets[ hash ] = asset;
-		tags[ hash ] = std::string( name );
+		assets[ hash ] = Asset<AssetType>( asset, name );
 		return handle;
 	} 
 	else {
@@ -61,8 +57,7 @@ hdl_t AssetLib< AssetType >::AddDeferred( const char* name )
 	if ( it == assets.end() )
 	{
 		hdl_t handle = hdl_t( hash );
-		deferredAssets[ hash ] = INVALID_HDL.Get();
-		tags[ hash ] = std::string( name );
+		assets[ hash ] = Asset<AssetType>( AssetType(), name, false );
 		return handle;
 	}
 	else {
@@ -74,14 +69,14 @@ template< class AssetType >
 AssetType* AssetLib< AssetType >::Find( const char* name )
 {
 	auto it = assets.find( Hash( name ) );
-	return ( it != assets.end() ) ? &it->second : nullptr;
+	return ( it != assets.end() ) ? &it->second.Get() : nullptr;
 }
 
 template< class AssetType >
 const AssetType* AssetLib< AssetType >::Find( const char* name ) const
 {
 	auto it = assets.find( Hash( name ) );
-	return ( it != assets.end() ) ? &it->second : nullptr;
+	return ( it != assets.end() ) ? &it->second.Get() : nullptr;
 }
 
 template< class AssetType >
@@ -89,7 +84,7 @@ AssetType* AssetLib< AssetType >::Find( const uint32_t id )
 {
 	auto it = assets.begin();
 	std::advance( it, id );
-	return ( it != assets.end() ) ? &it->second : nullptr;
+	return ( it != assets.end() ) ? &it->second.Get() : nullptr;
 }
 
 template< class AssetType >
@@ -97,36 +92,36 @@ const AssetType* AssetLib< AssetType >::Find( const uint32_t id ) const
 {
 	auto it = assets.begin();
 	std::advance( it, id );
-	return ( it != assets.end() ) ? &it->second : nullptr;
+	return ( it != assets.end() ) ? &it->second.Get() : nullptr;
 }
 
 template< class AssetType >
 AssetType* AssetLib< AssetType >::Find( const hdl_t& hdl )
 {
 	auto it = assets.find( hdl.Get() );
-	return ( it != assets.end() ) ? &it->second : nullptr;
+	return ( it != assets.end() ) ? &it->second.Get() : nullptr;
 }
 
 template< class AssetType >
 const AssetType* AssetLib< AssetType >::Find( const hdl_t& hdl ) const
 {
 	auto it = assets.find( hdl.Get() );
-	return ( it != assets.end() ) ? &it->second : nullptr;
+	return ( it != assets.end() ) ? &it->second.Get() : nullptr;
 }
 
 template< class AssetType >
 const char* AssetLib< AssetType >::FindName( const hdl_t& hdl ) const
 {
-	auto it = tags.find( hdl.Get() );
-	return ( it != tags.end() ) ? it->second.c_str() : nullptr;
+	auto it = assets.find( hdl.Get() );
+	return ( it != assets.end() ) ? it->second.GetName().c_str() : nullptr;
 }
 
 template< class AssetType >
 const char* AssetLib< AssetType >::FindName( const uint32_t id ) const
 {
-	auto it = tags.begin();
+	auto it = assets.begin();
 	std::advance( it, id );
-	return ( it != tags.end() ) ? it->second.c_str() : nullptr;
+	return ( it != assets.end() ) ? it->second.GetName().c_str() : nullptr;
 }
 
 template< class AssetType >

@@ -22,8 +22,9 @@ struct shaderSource_t
 };
 
 
-struct GpuProgram
+class GpuProgram
 {
+public:
 	static const uint32_t MaxShaders = 2;
 
 	shaderSource_t			shaders[ MaxShaders ];

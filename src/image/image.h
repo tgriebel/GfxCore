@@ -13,7 +13,7 @@ private:
 	uint32_t	width;
 	uint32_t	height;
 	uint32_t	length;
-	T*			buffer;
+	T*			buffer = nullptr;
 	const char*	name;
 
 public:

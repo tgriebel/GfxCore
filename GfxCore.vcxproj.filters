@@ -7,9 +7,6 @@
     <Filter Include="Math">
       <UniqueIdentifier>{20bea58b-a4e9-4602-bc74-478c707ec7f0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Types">
-      <UniqueIdentifier>{16ce3163-cb91-45a6-936e-6ea6b2a06912}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Primitives">
       <UniqueIdentifier>{d59a879d-32c6-40cb-9a10-8d2793246a51}</UniqueIdentifier>
     </Filter>
@@ -28,6 +25,9 @@
     </Filter>
     <Filter Include="IO">
       <UniqueIdentifier>{2100f28e-faf5-44f2-a722-f46d022156bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Asset Types">
+      <UniqueIdentifier>{16ce3163-cb91-45a6-936e-6ea6b2a06912}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -65,15 +65,6 @@
   <ItemGroup>
     <ClInclude Include="src\math\matrix.h">
       <Filter>Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\resource_types\gpuProgram.h">
-      <Filter>Resource Types</Filter>
-    </ClInclude>
-    <ClInclude Include="src\resource_types\material.h">
-      <Filter>Resource Types</Filter>
-    </ClInclude>
-    <ClInclude Include="src\resource_types\texture.h">
-      <Filter>Resource Types</Filter>
     </ClInclude>
     <ClInclude Include="src\image\bitmap.h">
       <Filter>Image</Filter>
@@ -132,11 +123,23 @@
     <ClInclude Include="src\math\vector.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\resource_types\model.h">
-      <Filter>Resource Types</Filter>
-    </ClInclude>
     <ClInclude Include="src\io\io.h">
       <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\asset.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\resource_types\gpuProgram.h">
+      <Filter>Asset Types</Filter>
+    </ClInclude>
+    <ClInclude Include="src\resource_types\material.h">
+      <Filter>Asset Types</Filter>
+    </ClInclude>
+    <ClInclude Include="src\resource_types\model.h">
+      <Filter>Asset Types</Filter>
+    </ClInclude>
+    <ClInclude Include="src\resource_types\texture.h">
+      <Filter>Asset Types</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
