@@ -174,12 +174,11 @@ hdl_t LoadRawModel( Scene& scene, const std::string& fileName, const std::string
 			texturePath + material.bump_texname,
 			texturePath + material.specular_texname,
 		};
-		uint32_t texCount = 0;
+
 		for ( int i = 0; i < 3; ++i )
 		{
 			if ( LoadTextureImage( supportedTextures[ i ].c_str(), texture ) )
 			{
-				++texCount;
 				texture.uploadId = -1;
 				texture.info.mipLevels = static_cast<uint32_t>( std::floor( std::log2( std::max( texture.info.width, texture.info.height ) ) ) ) + 1;
 				scene.textureLib.Add( supportedTextures[ i ].c_str(), texture );
@@ -187,15 +186,15 @@ hdl_t LoadRawModel( Scene& scene, const std::string& fileName, const std::string
 		}
 		
 		Material mat;
-		mat.shaders[ DRAWPASS_SHADOW ] = scene.gpuPrograms.RetrieveHdl( "Shadow" );
-		mat.shaders[ DRAWPASS_DEPTH ] = scene.gpuPrograms.RetrieveHdl( "LitDepth" );
-		mat.shaders[ DRAWPASS_OPAQUE ] = scene.gpuPrograms.RetrieveHdl( "LitOpaque" );
-		mat.shaders[ DRAWPASS_DEBUG_WIREFRAME ] = scene.gpuPrograms.RetrieveHdl( "Debug" ); // FIXME: do this with an override
-		mat.shaders[ DRAWPASS_DEBUG_SOLID ] = scene.gpuPrograms.RetrieveHdl( "Debug_Solid" );
-		mat.textures[ 0 ] = scene.textureLib.RetrieveHdl( supportedTextures[ 0 ].c_str() );
-		mat.textures[ 1 ] = scene.textureLib.RetrieveHdl( supportedTextures[ 1 ].c_str() );
-		mat.textures[ 2 ] = scene.textureLib.RetrieveHdl( supportedTextures[ 2 ].c_str() );
-		mat.textured = ( texCount > 0 );
+		mat.AddShader( DRAWPASS_SHADOW, scene.gpuPrograms.RetrieveHdl( "Shadow" ) );
+		mat.AddShader( DRAWPASS_DEPTH, scene.gpuPrograms.RetrieveHdl( "LitDepth" ) );
+		mat.AddShader( DRAWPASS_OPAQUE, scene.gpuPrograms.RetrieveHdl( "LitOpaque" ) );
+		mat.AddShader( DRAWPASS_DEBUG_WIREFRAME, scene.gpuPrograms.RetrieveHdl( "Debug" ) ); // FIXME: do this with an override
+		mat.AddShader( DRAWPASS_DEBUG_SOLID, scene.gpuPrograms.RetrieveHdl( "Debug_Solid" ) );
+
+		mat.AddTexture( GGX_COLOR_MAP_SLOT, scene.textureLib.RetrieveHdl( supportedTextures[ 0 ].c_str() ) );
+		mat.AddTexture( GGX_NORMAL_MAP_SLOT, scene.textureLib.RetrieveHdl( supportedTextures[ 1 ].c_str() ) );
+		mat.AddTexture( GGX_SPEC_MAP_SLOT, scene.textureLib.RetrieveHdl( supportedTextures[ 2 ].c_str() ) );
 
 		mat.Kd = rgbTuplef_t( material.diffuse[ 0 ], material.diffuse[ 1 ], material.diffuse[ 2 ] );
 		mat.Ks = rgbTuplef_t( material.specular[ 0 ], material.specular[ 1 ], material.specular[ 2 ] );
@@ -207,6 +206,7 @@ hdl_t LoadRawModel( Scene& scene, const std::string& fileName, const std::string
 		mat.d = material.dissolve;
 		mat.Tr = ( 1.0f - material.dissolve );
 		mat.illum = static_cast<float>( material.illum );
+
 		scene.materialLib.Add( material.name.c_str(), mat );
 	}
 

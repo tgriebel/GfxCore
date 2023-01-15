@@ -34,7 +34,7 @@ public:
 
 	Image( const Image& _image )
 	{
-		if ( buffer == nullptr )
+		if ( buffer != nullptr )
 		{
 			delete[] buffer;
 		}

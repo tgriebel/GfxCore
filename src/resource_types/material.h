@@ -26,6 +26,30 @@ enum drawPass_t : uint32_t
 	DRAWPASS_COUNT
 };
 
+enum ggxTextureSlot_t : uint32_t
+{
+	GGX_COLOR_MAP_SLOT,
+	GGX_NORMAL_MAP_SLOT,
+	GGX_SPEC_MAP_SLOT,
+};
+
+enum cubeTextureSlot_t : uint32_t
+{
+	CUBE_RIGHT_SLOT,
+	CUBE_LEFT_SLOT,
+	CUBE_TOP_SLOT,
+	CUBE_BOTTOM_SLOT,
+	CUBE_FRONT_SLOT,
+	CUBE_BACK_SLOT,
+};
+
+enum hgtTextureSlot_t : uint32_t
+{
+	HGT_HEIGHT_MAP_SLOT,
+	HGT_COLOR_MAP_SLOT0,
+	HGT_COLOR_MAP_SLOT1,
+};
+
 // FIXME: Deprecated
 struct material_t
 {
@@ -54,8 +78,6 @@ public:
 	static const uint32_t MaxMaterialTextures = 8;
 	static const uint32_t MaxMaterialShaders = DRAWPASS_COUNT;
 
-	hdl_t					textures[ MaxMaterialTextures ];
-	hdl_t					shaders[ MaxMaterialShaders ];
 	int32_t					uploadId;
 
 	rgbTuplef_t				Ka;
@@ -69,15 +91,22 @@ public:
 	float					d;
 	float					illum;
 
-	bool					textured;
+private:
+	uint16_t				textureBitSet;
+	uint16_t				shaderBitSet;
 
+	hdl_t					textures[ MaxMaterialTextures ];
+	hdl_t					shaders[ MaxMaterialShaders ];
+
+public:
 	Material() :
 		Tr( 0.0f ),
 		Ns( 0.0f ),
 		Ni( 0.0f ),
 		d( 1.0f ),
 		illum( 0.0f ),
-		textured( false )
+		textureBitSet( 0 ),
+		shaderBitSet( 0 )
 	{
 		Kd = rgbTuplef_t( 1.0f, 1.0f, 1.0f );
 		for ( int i = 0; i < MaxMaterialTextures; ++i ) {
@@ -87,6 +116,71 @@ public:
 			shaders[ i ] = INVALID_HDL;
 		}
 		uploadId = -1;
+	}
+
+	inline bool IsTextured() const
+	{
+		return ( textureBitSet > 0 );
+	}
+
+	inline uint32_t TextureCount() const
+	{
+		uint32_t count = 0;
+		uint32_t bits = textureBitSet;
+		while( bits )
+		{
+			bits &= ( bits - 1 );
+			count++;
+		}
+		return count;
+	}
+
+	inline bool AddTexture( const uint32_t slot, const hdl_t hdl )
+	{
+		if ( slot >= MaxMaterialTextures ) {
+			return false;
+		}
+		textures[ slot ] = hdl;
+		textureBitSet |= ( 1 << slot );
+		return true;
+	}
+
+	inline hdl_t GetTexture( const uint32_t slot ) const
+	{
+		if ( slot >= MaxMaterialTextures ) {
+			return INVALID_HDL;
+		}
+		return textures[ slot ];
+	}
+
+	inline bool AddShader( const uint32_t slot, const hdl_t hdl )
+	{
+		if ( slot >= MaxMaterialShaders ) {
+			return false;
+		}
+		shaders[ slot ] = hdl;
+		shaderBitSet |= ( 1 << slot );
+		return true;
+	}
+
+	inline hdl_t GetShader( const uint32_t slot ) const
+	{
+		if ( slot >= MaxMaterialShaders ) {
+			return INVALID_HDL;
+		}
+		return shaders[ slot ];
+	}
+
+	inline uint32_t ShaderCount() const
+	{
+		uint32_t count = 0;
+		uint32_t bits = shaderBitSet;
+		while ( bits )
+		{
+			bits &= ( bits - 1 );
+			count++;
+		}
+		return count;
 	}
 };
 
