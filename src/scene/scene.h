@@ -52,9 +52,9 @@ struct Scene
 
 	void CreateEntity( const hdl_t modelHdl, Entity& entity )
 	{
-		const Model* model = modelLib.Find( modelHdl );
+		const Model& model = modelLib.Find( modelHdl )->Get();
 		entity.modelHdl = modelHdl.Get();
-		entity.ExpandBounds( model->bounds );
+		entity.ExpandBounds( model.bounds );
 	}
 
 	Entity* FindEntity( const uint32_t entityIx ) {

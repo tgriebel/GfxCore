@@ -375,16 +375,16 @@ bool LoadModel( Scene& scene, const hdl_t& hdl, const std::string& bakePath, con
 	name[ nameLength ] = '2'; // FIXME: test
 
 	hdl_t modelHdl = scene.modelLib.Add( reinterpret_cast<char*>( &name[ 0 ] ), Model() );
-	Model* model = scene.modelLib.Find( modelHdl );
+	Model& model = scene.modelLib.Find( modelHdl )->Get();
 
-	model->Serialize( s );
+	model.Serialize( s );
 	return true;
 }
 
 
 bool WriteModel( Scene& scene, const std::string& fileName, hdl_t modelHdl )
 {
-	Model* model = scene.modelLib.Find( modelHdl );
+	Asset<Model>* model = scene.modelLib.Find( modelHdl );
 	if ( model == nullptr ) {
 		return false;
 	}
@@ -398,7 +398,7 @@ bool WriteModel( Scene& scene, const std::string& fileName, hdl_t modelHdl )
 	s->Next( nameLength );
 	s->NextArray( buffer, nameLength );
 
-	model->Serialize( s );
+	model->Get().Serialize( s );
 	s->WriteFile( fileName );
 	return true;
 }

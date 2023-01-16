@@ -21,8 +21,8 @@ public:
 	const Asset<AssetType>* Find( const char* name ) const;
 	Asset<AssetType>*		Find( const uint32_t id );
 	const Asset<AssetType>*	Find( const uint32_t id ) const;
-	AssetType*				Find( const hdl_t& hdl );
-	const AssetType*		Find( const hdl_t& hdl ) const;
+	Asset<AssetType>*		Find( const hdl_t& hdl );
+	const Asset<AssetType>*	Find( const hdl_t& hdl ) const;
 	const char*				FindName( const hdl_t& hdl ) const;
 	const char*				FindName( const uint32_t id ) const;
 	hdl_t					RetrieveHdl( const char* name ) const;
@@ -96,17 +96,17 @@ const Asset<AssetType>* AssetLib< AssetType >::Find( const uint32_t id ) const
 }
 
 template< class AssetType >
-AssetType* AssetLib< AssetType >::Find( const hdl_t& hdl )
+Asset<AssetType>* AssetLib< AssetType >::Find( const hdl_t& hdl )
 {
 	auto it = assets.find( hdl.Get() );
-	return ( it != assets.end() ) ? &it->second.Get() : nullptr;
+	return ( it != assets.end() ) ? &it->second : nullptr;
 }
 
 template< class AssetType >
-const AssetType* AssetLib< AssetType >::Find( const hdl_t& hdl ) const
+const Asset<AssetType>* AssetLib< AssetType >::Find( const hdl_t& hdl ) const
 {
 	auto it = assets.find( hdl.Get() );
-	return ( it != assets.end() ) ? &it->second.Get() : nullptr;
+	return ( it != assets.end() ) ? &it->second : nullptr;
 }
 
 template< class AssetType >
