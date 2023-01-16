@@ -37,8 +37,6 @@ public:
 	uint32_t				shaderCount;
 	bool					isCompute;
 
-	void Serialize( Serializer* serializer );
-
 	friend class LoadHandler<GpuProgram>;
 };
 
@@ -46,51 +44,60 @@ public:
 class GpuProgramLoader : public LoadHandler<GpuProgram>
 {
 private:
-	std::string vsPath;
-	std::string psPath;
-	std::string csPath;
+	std::string basePath;
+	std::string vsFileName;
+	std::string psFileName;
+	std::string csFileName;
 
-	void LoadRasterProgram( GpuProgram& program )
+	bool LoadRasterProgram( GpuProgram& program )
 	{
-		program.shaders[ 0 ].name = vsPath;
-		program.shaders[ 0 ].blob = ReadFile( vsPath );
-		program.shaders[ 1 ].name = psPath;
-		program.shaders[ 1 ].blob = ReadFile( psPath );
+		program.shaders[ 0 ].name = vsFileName;
+		program.shaders[ 0 ].blob = ReadFile( basePath + vsFileName );
+		program.shaders[ 1 ].name = psFileName;
+		program.shaders[ 1 ].blob = ReadFile( basePath + psFileName );
 		program.shaderCount = 2;
 		program.isCompute = false;
+		return true;
 	}
 
-	void LoadCsProgram( GpuProgram& program )
+	bool LoadComputeProgram( GpuProgram& program )
 	{
-		program.shaders[ 0 ].name = csPath;
-		program.shaders[ 0 ].blob = ReadFile( csPath );
+		program.shaders[ 0 ].name = csFileName;
+		program.shaders[ 0 ].blob = ReadFile( basePath + csFileName );
 		program.shaderCount = 1;
 		program.isCompute = true;
+		return true;
 	}
+
+	bool Load( GpuProgram& program )
+	{
+		if( ( vsFileName != "" ) && ( psFileName != "" ) )
+		{
+			return LoadRasterProgram( program );
+		}
+		else if( csFileName != "" )
+		{
+			return LoadComputeProgram( program );
+		}
+	}
+
 public:
-	void Load( GpuProgram& program )
+	void SetBathPath( const std::string path )
 	{
-		if( ( vsPath != "" ) && ( psPath != "" ) )
-		{
-			LoadRasterProgram( program );
-		}
-		else if( psPath != "" )
-		{
-			LoadCsProgram( program );
-		}
+		basePath = path;
 	}
 
-	void AddRasterPath( const std::string vertexPath, const std::string pixelPath )
+	void AddRasterPath( const std::string vertexFileName, const std::string pixelFileName )
 	{
-		vsPath = vertexPath;
-		psPath = pixelPath;
-		csPath = "";
+		vsFileName = vertexFileName;
+		psFileName = pixelFileName;
+		csFileName = "";
 	}
 
-	void AddComputePath( const std::string path )
+	void AddComputePath( const std::string name )
 	{
-		vsPath = "";
-		psPath = "";
-		csPath = path;
+		vsFileName = "";
+		psFileName = "";
+		csFileName = name;
 	}
 };

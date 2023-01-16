@@ -143,10 +143,4 @@ void Model::Serialize( Serializer* s )
 		surfs[ i ].Serialize( s );
 	}
 }
-
-
-void GpuProgram::Serialize( Serializer* serializer )
-{
-	
-}
 #endif

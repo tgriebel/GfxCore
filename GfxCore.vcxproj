@@ -230,6 +230,7 @@
     <ClCompile Include="src\io\serializeClasses.cpp" />
     <ClCompile Include="src\math\matrix.cpp" />
     <ClCompile Include="src\primitives\geom.cpp" />
+    <ClCompile Include="src\resource_types\gpuProgram.cpp" />
     <ClCompile Include="src\scene\entity.cpp" />
   </ItemGroup>
   <ItemGroup>

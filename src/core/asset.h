@@ -5,27 +5,35 @@
 #include <string>
 
 template< class AssetType >
+class Asset;
+
+template< class AssetType >
 class LoadHandler
 {
-public:
-	void Load( AssetType& asset );
+private:
+	virtual bool Load( AssetType& asset ) = 0;
+
+	friend class Asset<AssetType>;
 };
 
 template< class AssetType >
 class Asset
 {
+public:
+	using loadHandlerPtr_t = std::unique_ptr< LoadHandler<AssetType> >;
+
 protected:
-	std::string				name;
-	std::string				json;
-	AssetType				asset;
-	LoadHandler<AssetType>	loader;
-	bool					loaded;
-	bool					isDefault;
+	std::string					name;
+	std::string					json;
+	AssetType					asset;
+	loadHandlerPtr_t			loader;
+	bool						loaded;
+	bool						isDefault;
 
 public:
-	Asset() : name( "" ), loaded( false ) {}
+	Asset() : name( "" ), loaded( false ), isDefault( false ), loader( nullptr ) {}
 	Asset( const AssetType& _asset, const std::string _name, const bool _loaded = true ) : 
-		name( _name ), asset( _asset ), loaded( _loaded ), isDefault( false ) {}
+		name( _name ), asset( _asset ), loaded( _loaded ), isDefault( false ), loader( nullptr ) {}
 
 	inline const std::string& GetName() const
 	{
@@ -62,8 +70,16 @@ public:
 		return asset;
 	}
 
-	inline LoadHandler<AssetType>& GetLoader()
+	inline void AttachLoader( loadHandlerPtr_t _loader )
 	{
-		return loader;
+		loader = std::move( _loader );
+	}
+
+	inline void Load()
+	{
+		if( loaded == false )
+		{
+			loaded = loader->Load( asset );
+		}
 	}
 };

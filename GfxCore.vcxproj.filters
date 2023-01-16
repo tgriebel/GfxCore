@@ -61,6 +61,9 @@
     <ClCompile Include="src\io\io.cpp">
       <Filter>IO</Filter>
     </ClCompile>
+    <ClCompile Include="src\resource_types\gpuProgram.cpp">
+      <Filter>Asset Types</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\math\matrix.h">
