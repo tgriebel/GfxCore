@@ -17,10 +17,10 @@ public:
 	uint32_t				Count() const { return static_cast<uint32_t>( assets.size() ); }
 	hdl_t					Add( const char* name, const AssetType& asset );
 	hdl_t					AddDeferred( const char* name );
-	AssetType*				Find( const char* name );
-	const AssetType*		Find( const char* name ) const;
-	AssetType*				Find( const uint32_t id );
-	const AssetType*		Find( const uint32_t id ) const;
+	Asset<AssetType>*		Find( const char* name );
+	const Asset<AssetType>* Find( const char* name ) const;
+	Asset<AssetType>*		Find( const uint32_t id );
+	const Asset<AssetType>*	Find( const uint32_t id ) const;
 	AssetType*				Find( const hdl_t& hdl );
 	const AssetType*		Find( const hdl_t& hdl ) const;
 	const char*				FindName( const hdl_t& hdl ) const;
@@ -66,33 +66,33 @@ hdl_t AssetLib< AssetType >::AddDeferred( const char* name )
 }
 
 template< class AssetType >
-AssetType* AssetLib< AssetType >::Find( const char* name )
+Asset<AssetType>* AssetLib< AssetType >::Find( const char* name )
 {
 	auto it = assets.find( Hash( name ) );
-	return ( it != assets.end() ) ? &it->second.Get() : nullptr;
+	return ( it != assets.end() ) ? &it->second : nullptr;
 }
 
 template< class AssetType >
-const AssetType* AssetLib< AssetType >::Find( const char* name ) const
+const Asset<AssetType>* AssetLib< AssetType >::Find( const char* name ) const
 {
 	auto it = assets.find( Hash( name ) );
-	return ( it != assets.end() ) ? &it->second.Get() : nullptr;
+	return ( it != assets.end() ) ? &it->second : nullptr;
 }
 
 template< class AssetType >
-AssetType* AssetLib< AssetType >::Find( const uint32_t id )
+Asset<AssetType>* AssetLib< AssetType >::Find( const uint32_t id )
 {
 	auto it = assets.begin();
 	std::advance( it, id );
-	return ( it != assets.end() ) ? &it->second.Get() : nullptr;
+	return ( it != assets.end() ) ? &it->second : nullptr;
 }
 
 template< class AssetType >
-const AssetType* AssetLib< AssetType >::Find( const uint32_t id ) const
+const Asset<AssetType>* AssetLib< AssetType >::Find( const uint32_t id ) const
 {
 	auto it = assets.begin();
 	std::advance( it, id );
-	return ( it != assets.end() ) ? &it->second.Get() : nullptr;
+	return ( it != assets.end() ) ? &it->second : nullptr;
 }
 
 template< class AssetType >

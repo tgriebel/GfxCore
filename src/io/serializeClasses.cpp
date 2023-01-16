@@ -4,6 +4,7 @@
 #include "../image/color.h"
 #include "../image/image.h"
 #include "../resource_types/model.h"
+#include "../resource_types/gpuProgram.h"
 #include <serializer.h>
 
 #define SERIALIZE_IMPLEMENTATIONS
@@ -141,5 +142,11 @@ void Model::Serialize( Serializer* s )
 	for ( uint32_t i = 0; i < surfCount; ++i ) {
 		surfs[ i ].Serialize( s );
 	}
+}
+
+
+void GpuProgram::Serialize( Serializer* serializer )
+{
+	
 }
 #endif
