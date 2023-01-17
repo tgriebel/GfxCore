@@ -75,9 +75,14 @@ public:
 		loader = std::move( _loader );
 	}
 
+	inline bool HasLoader() const
+	{
+		return loader ? true : false;
+	}
+
 	inline void Load()
 	{
-		if( loaded == false )
+		if( ( loaded == false ) && HasLoader() )
 		{
 			loaded = loader->Load( asset );
 		}

@@ -50,6 +50,14 @@ enum hgtTextureSlot_t : uint32_t
 	HGT_COLOR_MAP_SLOT1,
 };
 
+enum materialUsage_t : uint32_t
+{
+	MATERIAL_USAGE_UNKNOWN,
+	MATERIAL_USAGE_GGX,
+	MATERIAL_USAGE_HEIGHT_MAP,
+	MATERIAL_USAGE_CUBE,
+};
+
 // FIXME: Deprecated
 struct material_t
 {
@@ -79,6 +87,7 @@ public:
 	static const uint32_t MaxMaterialShaders = DRAWPASS_COUNT;
 
 	int32_t					uploadId;
+	materialUsage_t			usage;
 
 	rgbTuplef_t				Ka;
 	rgbTuplef_t				Ke;
@@ -116,6 +125,7 @@ public:
 			shaders[ i ] = INVALID_HDL;
 		}
 		uploadId = -1;
+		usage = MATERIAL_USAGE_UNKNOWN;
 	}
 
 	inline bool IsTextured() const

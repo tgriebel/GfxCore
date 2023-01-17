@@ -16,7 +16,7 @@ public:
 	const AssetType*		GetDefault() const { return ( assets.size() > 0 ) ? &assets.begin()->second.Get() : nullptr; };
 	uint32_t				Count() const { return static_cast<uint32_t>( assets.size() ); }
 	hdl_t					Add( const char* name, const AssetType& asset );
-	hdl_t					AddDeferred( const char* name );
+	hdl_t					AddDeferred( const char* name, std::unique_ptr< LoadHandler<AssetType> > loader = std::unique_ptr< LoadHandler<AssetType> >() );
 	Asset<AssetType>*		Find( const char* name );
 	const Asset<AssetType>* Find( const char* name ) const;
 	Asset<AssetType>*		Find( const uint32_t id );
@@ -50,7 +50,7 @@ hdl_t AssetLib< AssetType >::Add( const char* name, const AssetType& asset )
 }
 
 template< class AssetType >
-hdl_t AssetLib< AssetType >::AddDeferred( const char* name )
+hdl_t AssetLib< AssetType >::AddDeferred( const char* name, std::unique_ptr< LoadHandler<AssetType> > loader )
 {
 	const uint64_t hash = Hash( name );
 	auto it = assets.find( hash );
@@ -58,11 +58,14 @@ hdl_t AssetLib< AssetType >::AddDeferred( const char* name )
 	{
 		hdl_t handle = hdl_t( hash );
 		assets[ hash ] = Asset<AssetType>( AssetType(), name, false );
-		return handle;
 	}
-	else {
-		return hdl_t( hash );
+
+	Asset<AssetType>& asset = assets[ hash ];
+	if( loader ) {
+		asset.AttachLoader( std::move( loader ) );
 	}
+
+	return hdl_t( hash );
 }
 
 template< class AssetType >

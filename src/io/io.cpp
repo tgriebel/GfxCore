@@ -44,6 +44,8 @@ bool LoadTextureImage( const char* texturePath, Texture& texture )
 	texture.cpuImage.Init( texture.info.width, texture.info.height );
 
 	// images are always loaded with 4 channels
+	// FIXME: Takes a long time, but can make this async (per image)
+#if 0
 	for ( int py = 0; py < texHeight; ++py ) {
 		for ( int px = 0; px < texWidth; ++px ) {
 			RGBA rgba;
@@ -54,6 +56,7 @@ bool LoadTextureImage( const char* texturePath, Texture& texture )
 			texture.cpuImage.SetPixel( px, py, rgba );
 		}
 	}
+#endif
 
 	stbi_image_free( pixels );
 	return true;

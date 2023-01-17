@@ -82,19 +82,19 @@ private:
 	}
 
 public:
-	void SetBathPath( const std::string path )
+	void SetBasePath( const std::string& path )
 	{
 		basePath = path;
 	}
 
-	void AddRasterPath( const std::string vertexFileName, const std::string pixelFileName )
+	void AddRasterPath( const std::string& vertexFileName, const std::string& pixelFileName )
 	{
 		vsFileName = vertexFileName;
 		psFileName = pixelFileName;
 		csFileName = "";
 	}
 
-	void AddComputePath( const std::string name )
+	void AddComputePath( const std::string& name )
 	{
 		vsFileName = "";
 		psFileName = "";

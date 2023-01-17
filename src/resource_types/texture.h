@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include "../io/io.h"
+#include "../core/asset.h"
 
 struct GpuImage
 {
@@ -46,5 +48,42 @@ public:
 		info.type = TEXTURE_TYPE_UNKNOWN;
 		uploadId = -1;
 		bytes = nullptr;
+	}
+};
+
+
+class TextureLoader : public LoadHandler<Texture>
+{
+private:
+	std::string basePath;
+	std::string fileName;
+	std::string ext;
+	bool cubemap;
+
+	bool Load( Texture& texture )
+	{
+		if ( cubemap ) {
+			return LoadTextureCubeMapImage( ( basePath + fileName ).c_str(), "jpg", texture );
+		} else {
+			return LoadTextureImage( ( basePath + fileName ).c_str(), texture );
+		}
+	}
+
+public:
+	TextureLoader() : cubemap( false ) {}
+
+	void SetBasePath( const std::string& path )
+	{
+		basePath = path;
+	}
+
+	void SetTextureFile( const std::string& file )
+	{
+		fileName = file;
+	}
+
+	void LoadAsCubemap( const bool isCubemap )
+	{
+		cubemap = isCubemap;
 	}
 };
