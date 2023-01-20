@@ -55,9 +55,6 @@
     <ClCompile Include="src\io\serializeClasses.cpp">
       <Filter>IO</Filter>
     </ClCompile>
-    <ClCompile Include="src\core\assetLib.cpp">
-      <Filter>Core</Filter>
-    </ClCompile>
     <ClCompile Include="src\io\io.cpp">
       <Filter>IO</Filter>
     </ClCompile>

@@ -41,7 +41,7 @@ bool LoadTextureImage( const char* texturePath, Texture& texture )
 	texture.bytes = new uint8_t[ texture.sizeBytes ];
 	memcpy( texture.bytes, pixels, texture.sizeBytes );
 
-	texture.cpuImage.Init( texture.info.width, texture.info.height );
+	//texture.cpuImage.Init( texture.info.width, texture.info.height );
 
 	// images are always loaded with 4 channels
 	// FIXME: Takes a long time, but can make this async (per image)
@@ -157,7 +157,7 @@ std::vector<char> ReadFile( const std::string& filename )
 }
 
 
-hdl_t LoadRawModel( Scene& scene, const std::string& fileName, const std::string& objectName, const std::string& modelPath, const std::string& texturePath )
+bool LoadRawModel( Scene& scene, const std::string& fileName, const std::string& modelPath, const std::string& texturePath, Model& model )
 {
 	tinyobj::attrib_t attrib;
 	std::vector<tinyobj::shape_t> shapes;
@@ -171,29 +171,27 @@ hdl_t LoadRawModel( Scene& scene, const std::string& fileName, const std::string
 
 	for ( const auto& material : materials )
 	{
-		Texture texture;
 		const std::string supportedTextures[ 3 ] = {
-			texturePath + material.diffuse_texname,
-			texturePath + material.bump_texname,
-			texturePath + material.specular_texname,
+			material.diffuse_texname,
+			material.bump_texname,
+			material.specular_texname,
 		};
 
 		for ( int i = 0; i < 3; ++i )
 		{
-			if ( LoadTextureImage( supportedTextures[ i ].c_str(), texture ) )
-			{
-				texture.uploadId = -1;
-				texture.info.mipLevels = static_cast<uint32_t>( std::floor( std::log2( std::max( texture.info.width, texture.info.height ) ) ) ) + 1;
-				scene.textureLib.Add( supportedTextures[ i ].c_str(), texture );
+			const std::string& name = supportedTextures[ i ];
+			if( name.length() == 0 ) {
+				continue;
 			}
+			scene.textureLib.AddDeferred( name.c_str(), pTexLoader_t( new TextureLoader( texturePath, name ) ) );
 		}
 		
 		Material mat;
-		mat.AddShader( DRAWPASS_SHADOW, scene.gpuPrograms.RetrieveHdl( "Shadow" ) );
-		mat.AddShader( DRAWPASS_DEPTH, scene.gpuPrograms.RetrieveHdl( "LitDepth" ) );
-		mat.AddShader( DRAWPASS_OPAQUE, scene.gpuPrograms.RetrieveHdl( "LitOpaque" ) );
-		mat.AddShader( DRAWPASS_DEBUG_WIREFRAME, scene.gpuPrograms.RetrieveHdl( "Debug" ) ); // FIXME: do this with an override
-		mat.AddShader( DRAWPASS_DEBUG_SOLID, scene.gpuPrograms.RetrieveHdl( "Debug_Solid" ) );
+		mat.AddShader( DRAWPASS_SHADOW, AssetLibGpuProgram::Handle( "Shadow" ) );
+		mat.AddShader( DRAWPASS_DEPTH, AssetLibGpuProgram::Handle( "LitDepth" ) );
+		mat.AddShader( DRAWPASS_OPAQUE, AssetLibGpuProgram::Handle( "LitOpaque" ) );
+		mat.AddShader( DRAWPASS_DEBUG_WIREFRAME, AssetLibGpuProgram::Handle( "Debug" ) );
+		mat.AddShader( DRAWPASS_DEBUG_SOLID, AssetLibGpuProgram::Handle( "Debug_Solid" ) );
 
 		mat.AddTexture( GGX_COLOR_MAP_SLOT, scene.textureLib.RetrieveHdl( supportedTextures[ 0 ].c_str() ) );
 		mat.AddTexture( GGX_NORMAL_MAP_SLOT, scene.textureLib.RetrieveHdl( supportedTextures[ 1 ].c_str() ) );
@@ -212,8 +210,6 @@ hdl_t LoadRawModel( Scene& scene, const std::string& fileName, const std::string
 
 		scene.materialLib.Add( material.name.c_str(), mat );
 	}
-
-	Model model;
 
 	uint32_t vertexCnt = 0;
 	//model.surfs[ 0 ].vertices.reserve( attrib.vertices.size() );
@@ -355,7 +351,7 @@ hdl_t LoadRawModel( Scene& scene, const std::string& fileName, const std::string
 		}
 		++model.surfCount;
 	}
-	return scene.modelLib.Add( objectName.c_str(), model );
+	return true;
 }
 
 

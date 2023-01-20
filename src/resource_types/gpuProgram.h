@@ -79,9 +79,23 @@ private:
 		{
 			return LoadComputeProgram( program );
 		}
+		return false;
 	}
 
 public:
+	GpuProgramLoader() {}
+	GpuProgramLoader( const std::string& path, const std::string& vertexFileName, const std::string& pixelFileName )
+	{
+		SetBasePath( path );
+		AddRasterPath( vertexFileName, pixelFileName );
+	}
+
+	GpuProgramLoader( const std::string& path, const std::string& computeFileName )
+	{
+		SetBasePath( path );
+		AddComputePath( computeFileName );
+	}
+
 	void SetBasePath( const std::string& path )
 	{
 		basePath = path;
@@ -101,3 +115,5 @@ public:
 		csFileName = name;
 	}
 };
+
+using pShaderLoader_t = Asset<GpuProgramLoader>::loadHandlerPtr_t;

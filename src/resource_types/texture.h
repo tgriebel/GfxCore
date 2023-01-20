@@ -37,7 +37,7 @@ public:
 	textureInfo_t	info;
 	int				uploadId;
 
-	Image<Color>	cpuImage;
+	//Image<Color>	cpuImage;
 	GpuImage		gpuImage;
 
 	Texture() {
@@ -71,6 +71,11 @@ private:
 
 public:
 	TextureLoader() : cubemap( false ) {}
+	TextureLoader( const std::string& path, const std::string& file ) : cubemap( false )
+	{
+		SetBasePath( path );
+		SetTextureFile( file );
+	}
 
 	void SetBasePath( const std::string& path )
 	{
@@ -87,3 +92,5 @@ public:
 		cubemap = isCubemap;
 	}
 };
+
+using pTexLoader_t = Asset<Texture>::loadHandlerPtr_t;

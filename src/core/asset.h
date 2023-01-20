@@ -32,7 +32,7 @@ protected:
 
 public:
 	Asset() : name( "" ), loaded( false ), isDefault( false ), loader( nullptr ) {}
-	Asset( const AssetType& _asset, const std::string _name, const bool _loaded = true ) : 
+	Asset( const AssetType& _asset, const std::string& _name, const bool _loaded = true ) : 
 		name( _name ), asset( _asset ), loaded( _loaded ), isDefault( false ), loader( nullptr ) {}
 
 	inline const std::string& GetName() const
@@ -80,11 +80,13 @@ public:
 		return loader ? true : false;
 	}
 
-	inline void Load()
+	inline bool Load()
 	{
 		if( ( loaded == false ) && HasLoader() )
 		{
 			loaded = loader->Load( asset );
+			return loaded;
 		}
+		return true;
 	}
 };

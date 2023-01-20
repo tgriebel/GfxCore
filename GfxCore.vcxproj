@@ -222,7 +222,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GfxCore.cpp" />
-    <ClCompile Include="src\core\assetLib.cpp" />
     <ClCompile Include="src\image\bitmap.cpp" />
     <ClCompile Include="src\image\color.cpp" />
     <ClCompile Include="src\io\io.cpp" />

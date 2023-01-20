@@ -23,7 +23,7 @@ public:
 		outline = false;
 	}
 
-	std::string		dbgName;
+	std::string		name;
 	bool			outline;
 	hdl_t			modelHdl;
 	hdl_t			materialHdl;

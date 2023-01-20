@@ -1,8 +1,10 @@
 #pragma once
 #include "util.h"
 #include "handle.h"
+#include <list>
 #include <unordered_map>
 #include <iterator>
+#include <sstream>
 
 #include "asset.h"
 
@@ -10,13 +12,20 @@ template< class AssetType >
 class AssetLib {
 private:
 	using assetMap_t = std::unordered_map< uint64_t, Asset<AssetType> >;
+	using loadList_t = std::list<uint64_t>;
 	assetMap_t assets;
+	loadList_t pendingLoad;
 public:
+	static inline hdl_t		Handle( const char* name ) { return Hash( name ); }
 	void					Clear();
 	const AssetType*		GetDefault() const { return ( assets.size() > 0 ) ? &assets.begin()->second.Get() : nullptr; };
+	void					LoadAll();
+	bool					HasPendingLoads() const { return ( pendingLoad.size() > 0 ); }
 	uint32_t				Count() const { return static_cast<uint32_t>( assets.size() ); }
-	hdl_t					Add( const char* name, const AssetType& asset );
+	hdl_t					Add( const char* name, const AssetType& asset, const bool replaceIfFound = false );
 	hdl_t					AddDeferred( const char* name, std::unique_ptr< LoadHandler<AssetType> > loader = std::unique_ptr< LoadHandler<AssetType> >() );
+	void					Remove( const uint32_t id );
+	void					Remove( const hdl_t& hdl );
 	Asset<AssetType>*		Find( const char* name );
 	const Asset<AssetType>* Find( const char* name ) const;
 	Asset<AssetType>*		Find( const uint32_t id );
@@ -34,30 +43,71 @@ void AssetLib< AssetType >::Clear() {
 }
 
 template< class AssetType >
-hdl_t AssetLib< AssetType >::Add( const char* name, const AssetType& asset )
+void AssetLib< AssetType >::LoadAll()
 {
-	const uint64_t hash = Hash( name );
-	auto it = assets.find( hash );
-	if ( it == assets.end() )
-	{
-		hdl_t handle = hdl_t( hash );
-		assets[ hash ] = Asset<AssetType>( asset, name );
-		return handle;
-	} 
-	else {
-		return hdl_t( hash );
+	for ( auto it = pendingLoad.begin(); it != pendingLoad.end(); ) {
+		hdl_t handle = *it;
+		Asset<AssetType>* asset = Find( handle );
+		if( asset->Load() == false )
+		{
+			// Assume this is a bad asset, path, or loader
+			Remove( handle );
+			it = pendingLoad.erase( it );
+		}
+		else 
+		{
+			if ( asset->IsLoaded() ) {
+				it = pendingLoad.erase( it );
+			} else {
+				++it;
+			}
+		}
 	}
+}
+
+template< class AssetType >
+hdl_t AssetLib< AssetType >::Add( const char* name, const AssetType& asset, const bool replaceIfFound )
+{
+	std::string assetName = name;
+	if( assetName.length() == 0 ) {
+		return INVALID_HDL;
+	}
+	
+	uint64_t hash = Hash( assetName.c_str() );
+	
+	if( replaceIfFound == false )
+	{
+		uint64_t instance = 0;
+		auto it = assets.find( hash );
+		while( it != assets.end() )
+		{
+			++instance;
+			std::stringstream ss;
+			ss << name << "_" << instance;
+			assetName = ss.str();
+		
+			hash = Hash( assetName.c_str() );
+			it = assets.find( hash );
+		}
+	}
+
+	assets[ hash ] = Asset<AssetType>( asset, assetName );
+	return Handle( name );
 }
 
 template< class AssetType >
 hdl_t AssetLib< AssetType >::AddDeferred( const char* name, std::unique_ptr< LoadHandler<AssetType> > loader )
 {
+	std::string assetName = name;
+	if ( assetName.length() == 0 ) {
+		return INVALID_HDL;
+	}
+
 	const uint64_t hash = Hash( name );
 	auto it = assets.find( hash );
-	if ( it == assets.end() )
-	{
-		hdl_t handle = hdl_t( hash );
-		assets[ hash ] = Asset<AssetType>( AssetType(), name, false );
+	if ( it == assets.end() ) {
+		assets[ hash ] = Asset<AssetType>( AssetType(), assetName, false );
+		pendingLoad.push_back( hash );
 	}
 
 	Asset<AssetType>& asset = assets[ hash ];
@@ -65,7 +115,21 @@ hdl_t AssetLib< AssetType >::AddDeferred( const char* name, std::unique_ptr< Loa
 		asset.AttachLoader( std::move( loader ) );
 	}
 
-	return hdl_t( hash );
+	return Handle( name );
+}
+
+template< class AssetType >
+void AssetLib<AssetType>::Remove( const uint32_t id )
+{
+	auto it = assets.begin();
+	std::advance( it, id );
+	assets.erase( it );
+}
+
+template< class AssetType >
+void AssetLib<AssetType>::Remove( const hdl_t& hdl )
+{
+	assets.erase( hdl.Get() );
 }
 
 template< class AssetType >

@@ -5,6 +5,8 @@
 #include "../acceleration/aabb.h"
 #include "../primitives/geom.h"
 #include "../core/handle.h"
+#include "../core/asset.h"
+#include "../io/io.h"
 
 class Surface {
 public:
@@ -41,4 +43,40 @@ public:
 	bool						uploaded;
 
 	void Serialize( Serializer* serializer );
+};
+
+
+class ModelLoader : public LoadHandler<Model>
+{
+private:
+	std::string texturePath;
+	std::string modelPath;
+	std::string modelName;
+	Scene* scene;
+
+	bool Load( Model& model )
+	{
+		return LoadRawModel( *scene, modelName + ".obj", modelPath, texturePath, model );
+	}
+
+public:
+	void SetTexturePath( const std::string& path )
+	{
+		texturePath = path;
+	}
+
+	void SetModelPath( const std::string& path )
+	{
+		modelPath = path;
+	}
+
+	void SetModelName( const std::string& fileName )
+	{
+		modelName = fileName;
+	}
+
+	void SetSceneRef( Scene* scenePtr )
+	{
+		scene = scenePtr;
+	}
 };

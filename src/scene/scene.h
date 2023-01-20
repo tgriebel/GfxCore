@@ -50,7 +50,7 @@ struct Scene
 		camera.SetAspectRatio( 1.0f );
 	}
 
-	void CreateEntity( const hdl_t modelHdl, Entity& entity )
+	void CreateEntityBounds( const hdl_t modelHdl, Entity& entity )
 	{
 		const Model& model = modelLib.Find( modelHdl )->Get();
 		entity.modelHdl = modelHdl.Get();
@@ -64,7 +64,7 @@ struct Scene
 	Entity* FindEntity( const char* name ) {
 		const uint32_t entCount = static_cast<uint32_t>( entities.size() );
 		for ( uint32_t i = 0; i < entCount; ++i ) {
-			if ( entities[ i ]->dbgName == name ) {
+			if ( entities[ i ]->name == name ) {
 				return entities[ i ];
 			}
 		}
