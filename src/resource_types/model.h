@@ -80,3 +80,5 @@ public:
 		scene = scenePtr;
 	}
 };
+
+using loader_t = Asset<Model>::loadHandlerPtr_t;

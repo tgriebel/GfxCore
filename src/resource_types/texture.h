@@ -63,9 +63,9 @@ private:
 	bool Load( Texture& texture )
 	{
 		if ( cubemap ) {
-			return LoadTextureCubeMapImage( ( basePath + fileName ).c_str(), "jpg", texture );
+			return LoadTextureCubeMapImage( ( basePath + fileName ).c_str(), ext.c_str(), texture );
 		} else {
-			return LoadTextureImage( ( basePath + fileName ).c_str(), texture );
+			return LoadTextureImage( ( basePath + fileName + "." + ext ).c_str(), texture );
 		}
 	}
 
@@ -84,7 +84,9 @@ public:
 
 	void SetTextureFile( const std::string& file )
 	{
-		fileName = file;
+		const size_t extIndex = file.find_last_of( "." );
+		ext = file.substr( extIndex + 1 );
+		fileName = file.substr( 0, extIndex );
 	}
 
 	void LoadAsCubemap( const bool isCubemap )
