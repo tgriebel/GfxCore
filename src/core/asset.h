@@ -89,4 +89,10 @@ public:
 		}
 		return true;
 	}
+
+	inline void Unload()
+	{
+		asset.~AssetType();
+		loaded = false;
+	}
 };

@@ -20,6 +20,7 @@ public:
 	void					Clear();
 	const AssetType*		GetDefault() const { return ( assets.size() > 0 ) ? &assets.begin()->second.Get() : nullptr; };
 	void					LoadAll();
+	void					UnloadAll();
 	bool					HasPendingLoads() const { return ( pendingLoad.size() > 0 ); }
 	uint32_t				Count() const { return static_cast<uint32_t>( assets.size() ); }
 	hdl_t					Add( const char* name, const AssetType& asset, const bool replaceIfFound = false );
@@ -61,6 +62,20 @@ void AssetLib< AssetType >::LoadAll()
 			} else {
 				++it;
 			}
+		}
+	}
+}
+
+template< class AssetType >
+void AssetLib< AssetType >::UnloadAll()
+{
+	for ( auto it = assets.begin(); it != assets.end(); ++it )
+	{
+		Asset<AssetType>& asset = it->second;
+		if( asset.HasLoader() )
+		{
+			asset.Unload();
+			pendingLoad.push_back( it->first );
 		}
 	}
 }
