@@ -10,6 +10,7 @@
 #include <common.h>
 
 #include "../scene/scene.h"
+#include "../scene/assetManager.h"
 #include "../resource_types/model.h"
 #include "../resource_types/texture.h"
 
@@ -157,7 +158,7 @@ std::vector<char> ReadFile( const std::string& filename )
 }
 
 
-bool LoadRawModel( Scene& scene, const std::string& fileName, const std::string& modelPath, const std::string& texturePath, Model& model )
+bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std::string& modelPath, const std::string& texturePath, Model& model )
 {
 	tinyobj::attrib_t attrib;
 	std::vector<tinyobj::shape_t> shapes;
@@ -183,7 +184,7 @@ bool LoadRawModel( Scene& scene, const std::string& fileName, const std::string&
 			if( name.length() == 0 ) {
 				continue;
 			}
-			scene.textureLib.AddDeferred( name.c_str(), pTexLoader_t( new TextureLoader( texturePath, name ) ) );
+			assets.textureLib.AddDeferred( name.c_str(), pTexLoader_t( new TextureLoader( texturePath, name ) ) );
 		}
 		
 		Material mat;
@@ -193,9 +194,9 @@ bool LoadRawModel( Scene& scene, const std::string& fileName, const std::string&
 		mat.AddShader( DRAWPASS_DEBUG_WIREFRAME, AssetLibGpuProgram::Handle( "Debug" ) );
 		mat.AddShader( DRAWPASS_DEBUG_SOLID, AssetLibGpuProgram::Handle( "Debug_Solid" ) );
 
-		mat.AddTexture( GGX_COLOR_MAP_SLOT, scene.textureLib.RetrieveHdl( supportedTextures[ 0 ].c_str() ) );
-		mat.AddTexture( GGX_NORMAL_MAP_SLOT, scene.textureLib.RetrieveHdl( supportedTextures[ 1 ].c_str() ) );
-		mat.AddTexture( GGX_SPEC_MAP_SLOT, scene.textureLib.RetrieveHdl( supportedTextures[ 2 ].c_str() ) );
+		mat.AddTexture( GGX_COLOR_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 0 ].c_str() ) );
+		mat.AddTexture( GGX_NORMAL_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 1 ].c_str() ) );
+		mat.AddTexture( GGX_SPEC_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 2 ].c_str() ) );
 
 		mat.Kd = rgbTuplef_t( material.diffuse[ 0 ], material.diffuse[ 1 ], material.diffuse[ 2 ] );
 		mat.Ks = rgbTuplef_t( material.specular[ 0 ], material.specular[ 1 ], material.specular[ 2 ] );
@@ -208,7 +209,7 @@ bool LoadRawModel( Scene& scene, const std::string& fileName, const std::string&
 		mat.Tr = ( 1.0f - material.dissolve );
 		mat.illum = static_cast<float>( material.illum );
 
-		scene.materialLib.Add( material.name.c_str(), mat );
+		assets.materialLib.Add( material.name.c_str(), mat );
 	}
 
 	uint32_t vertexCnt = 0;
@@ -344,7 +345,7 @@ bool LoadRawModel( Scene& scene, const std::string& fileName, const std::string&
 		model.surfs[ model.surfCount ].materialHdl = INVALID_HDL;
 		if ( ( materials.size() > 0 ) && ( shape.mesh.material_ids.size() > 0 ) ) {
 			const int shapeMaterial = shape.mesh.material_ids[ 0 ];
-			const hdl_t materialHdl = scene.materialLib.RetrieveHdl( materials[ shapeMaterial ].name.c_str() );
+			const hdl_t materialHdl = assets.materialLib.RetrieveHdl( materials[ shapeMaterial ].name.c_str() );
 			if ( materialHdl.IsValid() ) {
 				model.surfs[ model.surfCount ].materialHdl = materialHdl;
 			}
@@ -355,7 +356,7 @@ bool LoadRawModel( Scene& scene, const std::string& fileName, const std::string&
 }
 
 
-bool LoadModel( Scene& scene, const hdl_t& hdl, const std::string& bakePath, const std::string& modelPath, const std::string& ext )
+bool LoadModel( AssetManager& assets, const hdl_t& hdl, const std::string& bakePath, const std::string& modelPath, const std::string& ext )
 {
 	Serializer* s = new Serializer( MB( 8 ), serializeMode_t::LOAD );
 	std::string fileName = bakePath + modelPath + hdl.String() + ext;
@@ -373,21 +374,21 @@ bool LoadModel( Scene& scene, const hdl_t& hdl, const std::string& bakePath, con
 
 	name[ nameLength ] = '2'; // FIXME: test
 
-	hdl_t modelHdl = scene.modelLib.Add( reinterpret_cast<char*>( &name[ 0 ] ), Model() );
-	Model& model = scene.modelLib.Find( modelHdl )->Get();
+	hdl_t modelHdl = assets.modelLib.Add( reinterpret_cast<char*>( &name[ 0 ] ), Model() );
+	Model& model = assets.modelLib.Find( modelHdl )->Get();
 
 	model.Serialize( s );
 	return true;
 }
 
 
-bool WriteModel( Scene& scene, const std::string& fileName, hdl_t modelHdl )
+bool WriteModel( AssetManager& assets, const std::string& fileName, hdl_t modelHdl )
 {
-	Asset<Model>* model = scene.modelLib.Find( modelHdl );
+	Asset<Model>* model = assets.modelLib.Find( modelHdl );
 	if ( model == nullptr ) {
 		return false;
 	}
-	std::string name = scene.modelLib.FindName( modelHdl );
+	std::string name = assets.modelLib.FindName( modelHdl );
 	Serializer* s = new Serializer( MB( 8 ), serializeMode_t::STORE );
 
 	uint8_t buffer[ 256 ];

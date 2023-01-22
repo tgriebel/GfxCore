@@ -12,6 +12,7 @@
 #include "../resource_types/gpuProgram.h"
 #include "../resource_types/model.h"
 #include "entity.h"
+#include "assetManager.h"
 
 const uint32_t MaxLights = 3;
 
@@ -23,19 +24,13 @@ struct light_t
 	Color	color;
 };
 
-typedef AssetLib< Model >			AssetLibModels;
-typedef AssetLib< Texture >			AssetLibImages;
-typedef AssetLib< Material >		AssetLibMaterials;
-typedef AssetLib< GpuProgram >		AssetLibGpuProgram;
+extern AssetManager gAssets;
 
-struct Scene
+class Scene
 {
+public:
 	Camera						camera;
 	std::vector<Entity*>		entities;
-	AssetLibModels				modelLib;
-	AssetLibImages				textureLib;
-	AssetLibMaterials			materialLib;
-	AssetLibGpuProgram			gpuPrograms;
 	light_t						lights[ MaxLights ];
 	float						defaultNear = 0.1f;
 	float						defaultFar = 1000.0f;
@@ -52,7 +47,7 @@ struct Scene
 
 	void CreateEntityBounds( const hdl_t modelHdl, Entity& entity )
 	{
-		const Model& model = modelLib.Find( modelHdl )->Get();
+		const Model& model = gAssets.modelLib.Find( modelHdl )->Get();
 		entity.modelHdl = modelHdl.Get();
 		entity.ExpandBounds( model.bounds );
 	}

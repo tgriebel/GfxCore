@@ -141,5 +141,8 @@
     <ClInclude Include="src\resource_types\texture.h">
       <Filter>Asset Types</Filter>
     </ClInclude>
+    <ClInclude Include="src\scene\assetManager.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

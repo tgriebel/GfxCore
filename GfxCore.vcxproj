@@ -255,6 +255,7 @@
     <ClInclude Include="src\resource_types\material.h" />
     <ClInclude Include="src\resource_types\model.h" />
     <ClInclude Include="src\resource_types\texture.h" />
+    <ClInclude Include="src\scene\assetManager.h" />
     <ClInclude Include="src\scene\camera.h" />
     <ClInclude Include="src\scene\entity.h" />
     <ClInclude Include="src\scene\resourceManager.h" />

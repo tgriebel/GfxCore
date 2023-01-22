@@ -52,11 +52,11 @@ private:
 	std::string texturePath;
 	std::string modelPath;
 	std::string modelName;
-	Scene* scene;
+	AssetManager* assets;
 
 	bool Load( Model& model )
 	{
-		return LoadRawModel( *scene, modelName + ".obj", modelPath, texturePath, model );
+		return LoadRawModel( *assets, modelName + ".obj", modelPath, texturePath, model );
 	}
 
 public:
@@ -75,9 +75,9 @@ public:
 		modelName = fileName;
 	}
 
-	void SetSceneRef( Scene* scenePtr )
+	void SetAssetRef( AssetManager* assetsPtr )
 	{
-		scene = scenePtr;
+		assets = assetsPtr;
 	}
 };
 
