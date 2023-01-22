@@ -24,6 +24,8 @@ struct light_t
 	Color	color;
 };
 
+struct Ray;
+
 extern AssetManager gAssets;
 
 class Scene
@@ -35,34 +37,25 @@ public:
 	float						defaultNear = 0.1f;
 	float						defaultFar = 1000.0f;
 
+	virtual void Update( const float dt ) {}
+	virtual void Init() {}
+
 	Scene()
 	{
 		camera = Camera( vec4f( 0.0f, 1.66f, 1.0f, 0.0f ) );
 		camera.far = defaultFar;
 		camera.near = defaultNear;
 		camera.focalLength = camera.far;
+
 		camera.SetFov( Radians( 90.0f ) );
 		camera.SetAspectRatio( 1.0f );
 	}
 
-	void CreateEntityBounds( const hdl_t modelHdl, Entity& entity )
-	{
-		const Model& model = gAssets.modelLib.Find( modelHdl )->Get();
-		entity.modelHdl = modelHdl.Get();
-		entity.ExpandBounds( model.bounds );
-	}
+	void			CreateEntityBounds( const hdl_t modelHdl, Entity& entity );
+	Entity*			GetTracedEntity( const Ray& ray );
 
-	Entity* FindEntity( const uint32_t entityIx ) {
-		return entities[ entityIx ];
-	}
-
-	Entity* FindEntity( const char* name ) {
-		const uint32_t entCount = static_cast<uint32_t>( entities.size() );
-		for ( uint32_t i = 0; i < entCount; ++i ) {
-			if ( entities[ i ]->name == name ) {
-				return entities[ i ];
-			}
-		}
-		return nullptr;
-	}
+	Entity*			FindEntity( const uint32_t entityIx );
+	const Entity*	FindEntity( const uint32_t entityIx ) const ;
+	Entity*			FindEntity( const char* name );
+	const Entity*	FindEntity( const char* name ) const;
 };

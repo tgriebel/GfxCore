@@ -61,6 +61,9 @@
     <ClCompile Include="src\resource_types\gpuProgram.cpp">
       <Filter>Asset Types</Filter>
     </ClCompile>
+    <ClCompile Include="src\scene\scene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\math\matrix.h">
