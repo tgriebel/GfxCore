@@ -87,6 +87,7 @@ public:
 	static const uint32_t MaxMaterialShaders = DRAWPASS_COUNT;
 
 	int32_t					uploadId;
+	bool					dirty;
 	materialUsage_t			usage;
 
 	rgbTuplef_t				Ka;
@@ -124,6 +125,7 @@ public:
 		for ( int i = 0; i < MaxMaterialShaders; ++i ) {
 			shaders[ i ] = INVALID_HDL;
 		}
+		dirty = true;
 		uploadId = -1;
 		usage = MATERIAL_USAGE_UNKNOWN;
 	}
