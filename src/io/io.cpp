@@ -192,7 +192,7 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 		mat.AddShader( DRAWPASS_DEPTH, AssetLibGpuProgram::Handle( "LitDepth" ) );
 		mat.AddShader( DRAWPASS_OPAQUE, AssetLibGpuProgram::Handle( "LitOpaque" ) );
 		mat.AddShader( DRAWPASS_DEBUG_WIREFRAME, AssetLibGpuProgram::Handle( "Debug" ) );
-		mat.AddShader( DRAWPASS_DEBUG_SOLID, AssetLibGpuProgram::Handle( "Debug_Solid" ) );
+		mat.AddShader( DRAWPASS_DEBUG_SOLID, AssetLibGpuProgram::Handle( "DebugSolid" ) );
 
 		mat.AddTexture( GGX_COLOR_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 0 ].c_str() ) );
 		mat.AddTexture( GGX_NORMAL_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 1 ].c_str() ) );

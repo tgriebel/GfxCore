@@ -152,6 +152,9 @@ public:
 		if ( slot >= MaxMaterialTextures ) {
 			return false;
 		}
+		if( hdl.IsValid() == false ) {
+			return false;
+		}
 		textures[ slot ] = hdl;
 		textureBitSet |= ( 1 << slot );
 		return true;
@@ -168,6 +171,9 @@ public:
 	inline bool AddShader( const uint32_t slot, const hdl_t hdl )
 	{
 		if ( slot >= MaxMaterialShaders ) {
+			return false;
+		}
+		if ( hdl.IsValid() == false ) {
 			return false;
 		}
 		shaders[ slot ] = hdl;

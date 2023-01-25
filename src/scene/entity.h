@@ -10,6 +10,7 @@ enum entityFlags_t {
 	ENT_FLAG_NO_DRAW		= ( 1 << 1 ),
 	ENT_FLAG_NO_SHADOWS		= ( 1 << 2 ),
 	ENT_FLAG_WIREFRAME		= ( 1 << 3 ),
+	ENT_FLAG_DEBUG			= ( 1 << 4 ),
 };
 
 class Entity
