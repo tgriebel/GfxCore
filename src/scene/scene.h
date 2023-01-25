@@ -54,6 +54,7 @@ public:
 	void			CreateEntityBounds( const hdl_t modelHdl, Entity& entity );
 	Entity*			GetTracedEntity( const Ray& ray );
 
+	uint32_t		EntityCount() const;
 	Entity*			FindEntity( const uint32_t entityIx );
 	const Entity*	FindEntity( const uint32_t entityIx ) const ;
 	Entity*			FindEntity( const char* name );

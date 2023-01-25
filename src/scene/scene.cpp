@@ -33,6 +33,12 @@ Entity* Scene::GetTracedEntity( const Ray& ray )
 }
 
 
+uint32_t Scene::EntityCount() const
+{
+	return static_cast<uint32_t>( entities.size() );
+}
+
+
 Entity* Scene::FindEntity( const uint32_t entityIx )
 {
 	return entities[ entityIx ];
