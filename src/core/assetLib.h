@@ -18,7 +18,8 @@ private:
 public:
 	static inline hdl_t		Handle( const char* name ) { return Hash( name ); }
 	void					Clear();
-	const AssetType*		GetDefault() const { return ( assets.size() > 0 ) ? &assets.begin()->second.Get() : nullptr; };
+	Asset<AssetType>*		GetDefault() { return ( assets.size() > 0 ) ? &assets.begin()->second : nullptr; };
+	const Asset<AssetType>*	GetDefault() const { return ( assets.size() > 0 ) ? &assets.begin()->second : nullptr; };
 	void					LoadAll();
 	void					UnloadAll();
 	bool					HasPendingLoads() const { return ( pendingLoad.size() > 0 ); }
@@ -151,14 +152,14 @@ template< class AssetType >
 Asset<AssetType>* AssetLib< AssetType >::Find( const char* name )
 {
 	auto it = assets.find( Hash( name ) );
-	return ( it != assets.end() ) ? &it->second : nullptr;
+	return ( it != assets.end() ) ? &it->second : GetDefault();
 }
 
 template< class AssetType >
 const Asset<AssetType>* AssetLib< AssetType >::Find( const char* name ) const
 {
 	auto it = assets.find( Hash( name ) );
-	return ( it != assets.end() ) ? &it->second : nullptr;
+	return ( it != assets.end() ) ? &it->second : GetDefault();
 }
 
 template< class AssetType >
@@ -166,7 +167,7 @@ Asset<AssetType>* AssetLib< AssetType >::Find( const uint32_t id )
 {
 	auto it = assets.begin();
 	std::advance( it, id );
-	return ( it != assets.end() ) ? &it->second : nullptr;
+	return ( it != assets.end() ) ? &it->second : GetDefault();
 }
 
 template< class AssetType >
@@ -174,28 +175,28 @@ const Asset<AssetType>* AssetLib< AssetType >::Find( const uint32_t id ) const
 {
 	auto it = assets.begin();
 	std::advance( it, id );
-	return ( it != assets.end() ) ? &it->second : nullptr;
+	return ( it != assets.end() ) ? &it->second : GetDefault();
 }
 
 template< class AssetType >
 Asset<AssetType>* AssetLib< AssetType >::Find( const hdl_t& hdl )
 {
 	auto it = assets.find( hdl.Get() );
-	return ( it != assets.end() ) ? &it->second : nullptr;
+	return ( it != assets.end() ) ? &it->second : GetDefault();
 }
 
 template< class AssetType >
 const Asset<AssetType>* AssetLib< AssetType >::Find( const hdl_t& hdl ) const
 {
 	auto it = assets.find( hdl.Get() );
-	return ( it != assets.end() ) ? &it->second : nullptr;
+	return ( it != assets.end() ) ? &it->second : GetDefault();
 }
 
 template< class AssetType >
 const char* AssetLib< AssetType >::FindName( const hdl_t& hdl ) const
 {
 	auto it = assets.find( hdl.Get() );
-	return ( it != assets.end() ) ? it->second.GetName().c_str() : nullptr;
+	return ( it != assets.end() ) ? it->second.GetName().c_str() : "<missing-asset>";
 }
 
 template< class AssetType >
@@ -203,7 +204,7 @@ const char* AssetLib< AssetType >::FindName( const uint32_t id ) const
 {
 	auto it = assets.begin();
 	std::advance( it, id );
-	return ( it != assets.end() ) ? it->second.GetName().c_str() : nullptr;
+	return ( it != assets.end() ) ? it->second.GetName().c_str() : "<missing-asset>";
 }
 
 template< class AssetType >

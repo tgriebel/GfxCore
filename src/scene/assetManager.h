@@ -19,4 +19,27 @@ public:
 	AssetLibImages				textureLib;
 	AssetLibMaterials			materialLib;
 	AssetLibGpuProgram			gpuPrograms;
+
+	inline bool HasPendingLoads()
+	{
+		bool hasItems = false;
+		hasItems = hasItems || gpuPrograms.HasPendingLoads();
+		hasItems = hasItems || modelLib.HasPendingLoads();
+		hasItems = hasItems || textureLib.HasPendingLoads();
+		hasItems = hasItems || materialLib.HasPendingLoads();
+		return hasItems;
+	}
+
+	void RunLoadLoop( const uint32_t limit = 12 )
+	{
+		uint32_t i = 0;
+		while ( HasPendingLoads() && ( i < limit ) )
+		{
+			gpuPrograms.LoadAll();		
+			textureLib.LoadAll();
+			materialLib.LoadAll();
+			modelLib.LoadAll();
+			++i;
+		}
+	}
 };

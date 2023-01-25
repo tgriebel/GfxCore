@@ -230,10 +230,15 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 
 			model.bounds.Expand( vec3f( vertex.pos[ 0 ], vertex.pos[ 1 ], vertex.pos[ 2 ] ) );
 
-			vertex.uv[ 0 ] = attrib.texcoords[ 2 * index.texcoord_index + 0 ];
-			vertex.uv[ 1 ] = 1.0f - attrib.texcoords[ 2 * index.texcoord_index + 1 ];
+			vertex.uv[ 0 ] = 0.0f;
+			vertex.uv[ 1 ] = 0.0f;
 			vertex.uv2[ 0 ] = 0.0f;
 			vertex.uv2[ 1 ] = 0.0f;
+			if( index.texcoord_index >= 0 )
+			{
+				vertex.uv[ 0 ] = attrib.texcoords[ 2 * index.texcoord_index + 0 ];
+				vertex.uv[ 1 ] = 1.0f - attrib.texcoords[ 2 * index.texcoord_index + 1 ];
+			}
 
 			vertex.normal[ 0 ] = attrib.normals[ 3 * index.normal_index + 0 ];
 			vertex.normal[ 1 ] = attrib.normals[ 3 * index.normal_index + 1 ];
