@@ -162,14 +162,23 @@ public:
 		return mat4x4f( values );
 	}
 
-	mat4x4f GetPerspectiveMatrix() const
+	mat4x4f GetPerspectiveMatrix( const bool inverseZ = true ) const
 	{
 		mat4x4f proj = mat4x4f( 0.0f );
 		proj[ 0 ][ 0 ] = 1.0f / halfFovX;
 		proj[ 1 ][ 1 ] = 1.0f / halfFovY;
-		proj[ 2 ][ 2 ] = -near / ( far - near );
 		proj[ 2 ][ 3 ] = -1.0f;
-		proj[ 3 ][ 2 ] = ( far * near ) / ( far - near );
+
+		if( inverseZ )
+		{
+			proj[ 2 ][ 2 ] = -near / ( far - near );
+			proj[ 3 ][ 2 ] = ( far * near ) / ( far - near );
+		}
+		else
+		{
+			proj[ 2 ][ 2 ] = far / ( near - far );
+			proj[ 3 ][ 2 ] = -( far * near ) / ( far - near );
+		}
 		return proj;
 	}
 
