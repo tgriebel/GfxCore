@@ -4,7 +4,8 @@
 #include "../core/handle.h"
 #include "../acceleration/aabb.h"
 
-enum entityFlags_t {
+enum entityFlags_t
+{
 	ENT_FLAG_NONE			= 0,
 	ENT_FLAG_SELECTABLE		= ( 1 << 0 ),
 	ENT_FLAG_NO_DRAW		= ( 1 << 1 ),
@@ -16,8 +17,11 @@ enum entityFlags_t {
 class Entity
 {
 public:
-	Entity() {
-		matrix = mat4x4f( 1.0f );
+	Entity()
+	{
+		orientation = mat4x4f( 1.0f );
+		scale = mat4x4f( 1.0f );
+		translation = vec4f( 0.0f );
 		modelHdl = INVALID_HDL;
 		materialHdl = INVALID_HDL;
 		flags = ENT_FLAG_NONE;
@@ -33,7 +37,9 @@ public:
 	void			ExpandBounds( const AABB& bounds );
 	vec3f			GetOrigin() const;
 	void			SetOrigin( const vec3f& origin );
+	vec3f			GetScale() const;
 	void			SetScale( const vec3f& scale );
+	mat4x4f			GetRotation() const;
 	void			SetRotation( const vec3f& xyzDegrees );
 	mat4x4f			GetMatrix() const;
 	void			SetFlag( const entityFlags_t flag );
@@ -42,6 +48,8 @@ public:
 
 private:
 	entityFlags_t	flags;
-	mat4x4f			matrix;
+	mat4x4f			orientation;
+	mat4x4f			scale;
+	vec4f			translation;
 	AABB			bounds;
 };
