@@ -286,11 +286,11 @@ template< size_t M, size_t N, typename T>
 Vector<N, T> operator*( const Vector<N, T>& u, const Matrix<M, N, T>& m )
 {
 	Vector< N, T > v;
-	for ( size_t r = 0; r < M; ++r )
+	for ( size_t c = 0; c < N; ++c )
 	{
-		for ( size_t c = 0; c < N; ++c )
+		for ( size_t r = 0; r < M; ++r )
 		{
-			v[ r ] += u[ r ] * m[ c ][ r ];
+			v[ c ] += u[ r ] * m[ r ][ c ];
 		}
 	}
 	return v;
