@@ -13,18 +13,18 @@ class MatrixRow
 {
 private:
 
-	T columns[ N ];
+	T row[ N ];
 
 public:
 
 	inline T& operator[]( size_t i )
 	{
-		return columns[ i ];
+		return row[ i ];
 	}
 
 	inline const T& operator[]( size_t i ) const
 	{
-		return columns[ i ];
+		return row[ i ];
 	}
 };
 
@@ -288,9 +288,9 @@ Vector<N, T> operator*( const Vector<N, T>& u, const Matrix<M, N, T>& m )
 	Vector< N, T > v;
 	for ( size_t r = 0; r < M; ++r )
 	{
-		for ( size_t c = 0, rd = 0; c < N; ++c, ++rd )
+		for ( size_t c = 0; c < N; ++c )
 		{
-			v[ rd ] += u[ r ] * m[ c ][ r ];
+			v[ r ] += u[ r ] * m[ c ][ r ];
 		}
 	}
 	return v;
@@ -300,7 +300,15 @@ Vector<N, T> operator*( const Vector<N, T>& u, const Matrix<M, N, T>& m )
 template< size_t M, size_t N, typename T>
 Vector<N, T> operator*( const Matrix<M, N, T>& m, const Vector<M, T>& u )
 {
-	return u * m;
+	Vector< N, T > v;
+	for ( size_t r = 0; r < M; ++r )
+	{
+		for ( size_t c = 0; c < N; ++c )
+		{
+			v[ r ] += m[ r ][ c ] * u[ c ];
+		}
+	}
+	return v;
 }
 
 

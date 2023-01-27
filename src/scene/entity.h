@@ -28,6 +28,17 @@ public:
 		outline = false;
 	}
 
+	Entity( const Entity& ent )
+	{
+		orientation = ent.orientation;
+		scale = ent.scale;
+		translation = ent.translation;
+		modelHdl = ent.modelHdl;
+		materialHdl = ent.materialHdl;
+		flags = ent.flags;
+		outline = ent.flags;
+	}
+
 	std::string		name;
 	bool			outline;
 	hdl_t			modelHdl;

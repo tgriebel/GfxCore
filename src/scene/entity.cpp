@@ -4,8 +4,8 @@
 
 AABB Entity::GetBounds() const
 {
-	const vec3f min = vec3f( GetMatrix().Transpose() * vec4f( bounds.GetMin(), 1.0f ) );
-	const vec3f max = vec3f( GetMatrix().Transpose() * vec4f( bounds.GetMax(), 1.0f ) );
+	const vec3f min = vec3f( vec4f( bounds.GetMin(), 1.0f ) * GetMatrix() );
+	const vec3f max = vec3f( vec4f( bounds.GetMax(), 1.0f ) * GetMatrix() );
 	return AABB( min, max );
 }
 
