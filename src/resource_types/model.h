@@ -13,6 +13,7 @@ public:
 	hdl_t						materialHdl;
 	std::vector<vertex_t>		vertices;
 	std::vector<uint32_t>		indices;
+	vec3f						centroid;
 
 	void Serialize( Serializer* serializer );
 };
@@ -33,12 +34,13 @@ class Model
 {
 	static const uint32_t Version = 1;
 public:
-	Model() : surfCount( 0 ), uploaded( false ) {}
+	Model() : surfCount( 0 ), uploaded( false )
+	{
+	}
 
-	static const uint32_t		MaxSurfaces = 10;
 	AABB						bounds;
-	Surface						surfs[ MaxSurfaces ];
-	surfaceUpload_t				upload[ MaxSurfaces ];
+	std::vector<Surface>		surfs;
+	std::vector<surfaceUpload_t> upload;
 	uint32_t					surfCount;
 	bool						uploaded;
 
@@ -52,33 +54,16 @@ private:
 	std::string texturePath;
 	std::string modelPath;
 	std::string modelName;
+	std::string modelExt;
 	AssetManager* assets;
 
-	bool Load( Model& model )
-	{
-		return LoadRawModel( *assets, modelName + ".obj", modelPath, texturePath, model );
-	}
+	bool Load( Model& model );
 
 public:
-	void SetTexturePath( const std::string& path )
-	{
-		texturePath = path;
-	}
-
-	void SetModelPath( const std::string& path )
-	{
-		modelPath = path;
-	}
-
-	void SetModelName( const std::string& fileName )
-	{
-		modelName = fileName;
-	}
-
-	void SetAssetRef( AssetManager* assetsPtr )
-	{
-		assets = assetsPtr;
-	}
+	void SetTexturePath( const std::string& path );
+	void SetModelPath( const std::string& path );
+	void SetModelName( const std::string& fileName );
+	void SetAssetRef( AssetManager* assetsPtr );
 };
 
 using loader_t = Asset<Model>::loadHandlerPtr_t;

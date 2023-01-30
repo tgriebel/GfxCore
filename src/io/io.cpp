@@ -216,6 +216,7 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 	//model.surfs[ 0 ].vertices.reserve( attrib.vertices.size() );
 	model.surfCount = 0;
 
+	model.surfs.resize( shapes.size() );
 	for ( const auto& shape : shapes )
 	{
 		std::unordered_map<vertex_t, uint32_t> uniqueVertices{};
@@ -227,6 +228,8 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 			vertex.pos[ 0 ] = attrib.vertices[ 3 * index.vertex_index + 0 ];
 			vertex.pos[ 1 ] = attrib.vertices[ 3 * index.vertex_index + 1 ];
 			vertex.pos[ 2 ] = attrib.vertices[ 3 * index.vertex_index + 2 ];
+
+			model.surfs[ model.surfCount ].centroid += vec3f( vertex.pos );
 
 			model.bounds.Expand( vec3f( vertex.pos[ 0 ], vertex.pos[ 1 ], vertex.pos[ 2 ] ) );
 
@@ -255,7 +258,8 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 				uniqueVertices[ vertex ] = static_cast<uint32_t>( model.surfs[ model.surfCount ].vertices.size() - 1 );
 			}
 
-			model.surfs[ model.surfCount ].indices.push_back( uniqueVertices[ vertex ] );
+			const uint32_t index = uniqueVertices[ vertex ];
+			model.surfs[ model.surfCount ].indices.push_back( index );
 			indexFaceCount[ uniqueVertices[ vertex ] ]++;
 		}
 

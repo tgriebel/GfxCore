@@ -64,6 +64,9 @@
     <ClCompile Include="src\scene\scene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
+    <ClCompile Include="src\resource_types\model.cpp">
+      <Filter>Asset Types</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\math\matrix.h">
