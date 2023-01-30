@@ -3,7 +3,13 @@
 
 bool ModelLoader::Load( Model& model )
 {
-	return LoadRawModel( *assets, modelName + "." + modelExt, modelPath, texturePath, model );
+	if ( modelExt == "obj" ) {
+		return LoadRawModel( *assets, modelName + "." + modelExt, modelPath, texturePath, model );
+	} else if( modelExt == "mdl" ) {
+	//	return LoadModel( *assets, modelName + "." + modelExt, modelPath, texturePath, model );
+	} else {
+		return false;
+	}
 }
 
 

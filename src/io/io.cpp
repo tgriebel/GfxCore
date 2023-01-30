@@ -365,7 +365,7 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 }
 
 
-bool LoadModel( AssetManager& assets, const hdl_t& hdl, const std::string& bakePath, const std::string& modelPath, const std::string& ext )
+bool LoadModel( Model& model, const hdl_t& hdl, const std::string& bakePath, const std::string& modelPath, const std::string& ext )
 {
 	Serializer* s = new Serializer( MB( 8 ), serializeMode_t::LOAD );
 	std::string fileName = bakePath + modelPath + hdl.String() + ext;
@@ -383,21 +383,17 @@ bool LoadModel( AssetManager& assets, const hdl_t& hdl, const std::string& bakeP
 
 	name[ nameLength ] = '2'; // FIXME: test
 
-	hdl_t modelHdl = assets.modelLib.Add( reinterpret_cast<char*>( &name[ 0 ] ), Model() );
-	Model& model = assets.modelLib.Find( modelHdl )->Get();
-
 	model.Serialize( s );
 	return true;
 }
 
 
-bool WriteModel( AssetManager& assets, const std::string& fileName, hdl_t modelHdl )
+bool WriteModel( Asset<Model>* model, const std::string& fileName )
 {
-	Asset<Model>* model = assets.modelLib.Find( modelHdl );
 	if ( model == nullptr ) {
 		return false;
 	}
-	std::string name = assets.modelLib.FindName( modelHdl );
+	std::string name = model->GetName();
 	Serializer* s = new Serializer( MB( 8 ), serializeMode_t::STORE );
 
 	uint8_t buffer[ 256 ];
