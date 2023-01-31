@@ -188,9 +188,10 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 		}
 		
 		Material mat;
-		mat.AddShader( DRAWPASS_SHADOW, AssetLibGpuProgram::Handle( "Shadow" ) );
-		mat.AddShader( DRAWPASS_DEPTH, AssetLibGpuProgram::Handle( "LitDepth" ) );
-		if( material.dissolve == 1.0f ) {
+		if( material.dissolve == 1.0f )
+		{
+			mat.AddShader( DRAWPASS_SHADOW, AssetLibGpuProgram::Handle( "Shadow" ) );
+			mat.AddShader( DRAWPASS_DEPTH, AssetLibGpuProgram::Handle( "LitDepth" ) );
 			mat.AddShader( DRAWPASS_OPAQUE, AssetLibGpuProgram::Handle( "LitOpaque" ) );
 		} else {
 			mat.AddShader( DRAWPASS_TRANS, AssetLibGpuProgram::Handle( "LitTrans" ) );
@@ -219,10 +220,11 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 	uint32_t vertexCnt = 0;
 	//model.surfs[ 0 ].vertices.reserve( attrib.vertices.size() );
 	model.surfCount = 0;
-
 	model.surfs.resize( shapes.size() );
 	for ( const auto& shape : shapes )
 	{
+		bool hasUv = true;
+
 		std::unordered_map<vertex_t, uint32_t> uniqueVertices{};
 		std::unordered_map< uint32_t, uint32_t > indexFaceCount{};
 		for ( const auto& index : shape.mesh.indices )
@@ -245,6 +247,8 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 			{
 				vertex.uv[ 0 ] = attrib.texcoords[ 2 * index.texcoord_index + 0 ];
 				vertex.uv[ 1 ] = 1.0f - attrib.texcoords[ 2 * index.texcoord_index + 1 ];
+			} else {
+				hasUv = false;
 			}
 
 			vertex.normal[ 0 ] = attrib.normals[ 3 * index.normal_index + 0 ];
@@ -289,22 +293,28 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 			vertex_t& v1 = model.surfs[ model.surfCount ].vertices[ indices[ 1 ] ];
 			vertex_t& v2 = model.surfs[ model.surfCount ].vertices[ indices[ 2 ] ];
 
-			const vec2f uvEdgeDt0 = ( v1.uv - v0.uv );
-			const vec2f uvEdgeDt1 = ( v2.uv - v0.uv );
-			float uDt = ( v1.uv[ 0 ] - v0.uv[ 0 ] );
-
-			const float r = 1.0f / ( uvEdgeDt0[ 0 ] * uvEdgeDt1[ 1 ] - uvEdgeDt1[ 0 ] * uvEdgeDt0[ 1 ] );
-
 			const vec3f edge0 = Trunc<4, 1>( v1.pos - v0.pos );
 			const vec3f edge1 = Trunc<4, 1>( v2.pos - v0.pos );
 
 			const vec3f faceNormal = Cross( edge0, edge1 ).Normalize();
-			if ( faceNormal.Length() < 0.001f ) {
-				continue; // TODO: remove?
-			}
+			vec3f faceTangent;
+			vec3f faceBitangent;
 
-			const vec3f faceTangent = ( edge0 * uvEdgeDt1[ 1 ] - edge1 * uvEdgeDt0[ 1 ] ) * r;
-			const vec3f faceBitangent = ( edge1 * uvEdgeDt0[ 0 ] - edge0 * uvEdgeDt1[ 0 ] ) * r;
+			const vec2f uvEdgeDt0 = ( v1.uv - v0.uv );
+			const vec2f uvEdgeDt1 = ( v2.uv - v0.uv );
+
+			if( uvEdgeDt0 != uvEdgeDt1 )
+			{
+				const float r = 1.0f / ( uvEdgeDt0[ 0 ] * uvEdgeDt1[ 1 ] - uvEdgeDt1[ 0 ] * uvEdgeDt0[ 1 ] );
+
+				faceTangent = ( edge0 * uvEdgeDt1[ 1 ] - edge1 * uvEdgeDt0[ 1 ] ) * r;
+				faceBitangent = ( edge1 * uvEdgeDt0[ 0 ] - edge0 * uvEdgeDt1[ 0 ] ) * r;
+			}
+			else
+			{
+				faceTangent = edge0;
+				faceBitangent = edge1;
+			}
 
 			v0.tangent += weights[ 0 ] * faceTangent;
 			v0.bitangent += weights[ 0 ] * faceBitangent;
