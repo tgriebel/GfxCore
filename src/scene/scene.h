@@ -36,6 +36,7 @@ public:
 	light_t						lights[ MaxLights ];
 	float						defaultNear = 0.1f;
 	float						defaultFar = 1000.0f;
+	Entity*						selectedEntity = nullptr;
 
 	virtual void Update( const float dt ) {}
 	virtual void Init() {}
