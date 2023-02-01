@@ -274,6 +274,7 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 		const int indexCount = static_cast<int>( model.surfs[ model.surfCount ].indices.size() );
 		assert( ( indexCount % 3 ) == 0 );
 
+		// Eric Lengyel "Computing Tangent Basis Vectors for an Arbitrary Mesh"
 		for ( int i = 0; i < indexCount; i += 3 ) {
 			int indices[ 3 ];
 			float weights[ 3 ];
@@ -293,40 +294,32 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 			vertex_t& v1 = model.surfs[ model.surfCount ].vertices[ indices[ 1 ] ];
 			vertex_t& v2 = model.surfs[ model.surfCount ].vertices[ indices[ 2 ] ];
 
-			const vec3f edge0 = Trunc<4, 1>( v1.pos - v0.pos );
-			const vec3f edge1 = Trunc<4, 1>( v2.pos - v0.pos );
+			const vec3f edge0 = vec3f( v1.pos - v0.pos );
+			const vec3f edge1 = vec3f( v2.pos - v0.pos );
 
-			const vec3f faceNormal = Cross( edge0, edge1 ).Normalize();
+			const vec3f faceNormal = ( v0.normal + v1.normal + v2.normal ).Normalize();
 			vec3f faceTangent;
 			vec3f faceBitangent;
 
 			const vec2f uvEdgeDt0 = ( v1.uv - v0.uv );
 			const vec2f uvEdgeDt1 = ( v2.uv - v0.uv );
 
-			if( uvEdgeDt0 != uvEdgeDt1 )
+			const float denom = ( uvEdgeDt0[ 0 ] * uvEdgeDt1[ 1 ] - uvEdgeDt1[ 0 ] * uvEdgeDt0[ 1 ] );
+			if( denom != 0.0f )
 			{
-				const float r = 1.0f / ( uvEdgeDt0[ 0 ] * uvEdgeDt1[ 1 ] - uvEdgeDt1[ 0 ] * uvEdgeDt0[ 1 ] );
-
+				const float r = 1.0f / denom;
 				faceTangent = ( edge0 * uvEdgeDt1[ 1 ] - edge1 * uvEdgeDt0[ 1 ] ) * r;
 				faceBitangent = ( edge1 * uvEdgeDt0[ 0 ] - edge0 * uvEdgeDt1[ 0 ] ) * r;
+
+				v0.tangent += weights[ 0 ] * faceTangent;
+				v0.bitangent += weights[ 0 ] * faceBitangent;
+
+				v1.tangent += weights[ 1 ] * faceTangent;
+				v1.bitangent += weights[ 1 ] * faceBitangent;
+
+				v2.tangent += weights[ 2 ] * faceTangent;
+				v2.bitangent += weights[ 2 ] * faceBitangent;
 			}
-			else
-			{
-				faceTangent = edge0;
-				faceBitangent = edge1;
-			}
-
-			v0.tangent += weights[ 0 ] * faceTangent;
-			v0.bitangent += weights[ 0 ] * faceBitangent;
-			v0.normal += weights[ 0 ] * faceNormal;
-
-			v1.tangent += weights[ 1 ] * faceTangent;
-			v1.bitangent += weights[ 1 ] * faceBitangent;
-			v1.normal += weights[ 1 ] * faceNormal;
-
-			v2.tangent += weights[ 2 ] * faceTangent;
-			v2.bitangent += weights[ 2 ] * faceBitangent;
-			v2.normal += weights[ 2 ] * faceNormal;
 		}
 
 		const int vertexCount = static_cast<int>( model.surfs[ model.surfCount ].vertices.size() );
@@ -335,13 +328,14 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 			v.tangent.FlushDenorms();
 			v.bitangent.FlushDenorms();
 			v.normal.FlushDenorms();
-			// Re-orthonormalize
-			// TODO: use graham-schmidt?
-			v.tangent = v.tangent.Normalize();
-			v.bitangent = Cross( v.tangent, v.normal ).Normalize();
-			v.normal = Cross( v.tangent, v.bitangent ).Normalize();
 
-			const uint32_t signBit = ( Dot( Cross( v.tangent, v.bitangent ), v.normal ) > 0.0f ) ? 1 : 0;
+			// Gram-Schmidt orthogonalize
+			v.normal = v.normal.Normalize();
+			v.tangent = v.tangent.Normalize();
+			v.tangent = ( v.tangent - v.normal * Dot( v.normal, v.tangent ) ).Normalize();
+			v.bitangent = v.bitangent.Normalize();
+
+			const uint32_t signBit = ( Dot( Cross( v.tangent, v.bitangent ), v.normal ) > 0.0f ) ? 0 : 1;
 			union tangentBitPack_t {
 				struct {
 					uint32_t signBit : 1;

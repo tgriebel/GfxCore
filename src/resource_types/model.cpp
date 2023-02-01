@@ -6,6 +6,7 @@ bool ModelLoader::Load( Model& model )
 	if ( modelExt == "obj" ) {
 		return LoadRawModel( *assets, modelName + "." + modelExt, modelPath, texturePath, model );
 	} else if( modelExt == "mdl" ) {
+		return false;
 	//	return LoadModel( *assets, modelName + "." + modelExt, modelPath, texturePath, model );
 	} else {
 		return false;
