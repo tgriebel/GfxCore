@@ -65,3 +65,20 @@ Release/matrix.obj
 Release/meshIO.obj
 *.obj
 Test (Debug)/
+Release/bitmap.obj
+Release/color.obj
+Release/GfxCore.Build.CppClean.log
+Release/GfxCore.lib
+Release/GfxCore.log
+Release/GfxCore.obj
+Release/GfxCore.pdb
+Release/GfxCore.tlog/CL.command.1.tlog
+Release/GfxCore.tlog/CL.read.1.tlog
+Release/GfxCore.tlog/CL.write.1.tlog
+Release/GfxCore.tlog/GfxCore.lastbuildstate
+Release/GfxCore.tlog/Lib-link.read.1.tlog
+Release/GfxCore.tlog/Lib-link.write.1.tlog
+Release/GfxCore.tlog/Lib.command.1.tlog
+Release/GfxCore.vcxproj.FileListAbsolute.txt
+Release/matrix.obj
+Release/meshIO.obj
