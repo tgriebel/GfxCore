@@ -43,6 +43,14 @@ public:
 	AssetLibMaterials			materialLib;
 	AssetLibGpuProgram			gpuPrograms;
 
+	void Clear()
+	{
+		modelLib.Clear();
+		textureLib.Clear();
+		materialLib.Clear();
+		gpuPrograms.Clear();
+	}
+
 	inline bool HasPendingLoads()
 	{
 		bool hasItems = false;

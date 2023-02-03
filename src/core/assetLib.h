@@ -63,8 +63,11 @@ public:
 };
 
 template< class AssetType >
-void AssetLib< AssetType >::Clear() {
+void AssetLib< AssetType >::Clear()
+{
+	UnloadAll();
 	assets.clear();
+	pendingLoad.clear();
 }
 
 template< class AssetType >
