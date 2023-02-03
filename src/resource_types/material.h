@@ -76,6 +76,7 @@ enum hgtTextureSlot_t : uint32_t
 enum materialUsage_t : uint32_t
 {
 	MATERIAL_USAGE_UNKNOWN,
+	MATERIAL_USAGE_CODE,
 	MATERIAL_USAGE_GGX,
 	MATERIAL_USAGE_HEIGHT_MAP,
 	MATERIAL_USAGE_CUBE,
