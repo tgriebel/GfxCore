@@ -60,10 +60,11 @@ public:
 	textureInfo_t	info;
 	int				uploadId;
 
-	//Image<Color>	cpuImage;
+	Image<Color>	cpuImage;
 	GpuImage		gpuImage;
 
-	Texture() {
+	Texture()
+	{
 		info.width = 0;
 		info.height = 0;
 		info.channels = 0;
@@ -71,6 +72,17 @@ public:
 		info.type = TEXTURE_TYPE_UNKNOWN;
 		uploadId = -1;
 		bytes = nullptr;
+		sizeBytes = 0;
+	}
+
+	~Texture()
+	{
+		if( bytes != nullptr )
+		{
+			delete[] bytes;
+			sizeBytes = 0;
+			bytes = nullptr;
+		}
 	}
 };
 
