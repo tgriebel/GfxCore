@@ -26,6 +26,8 @@
 #include <unordered_map>
 #include <iterator>
 #include <string>
+#include "handle.h"
+#include "util.h"
 
 template< class AssetType >
 class Asset;
@@ -48,19 +50,29 @@ public:
 protected:
 	std::string					name;
 	std::string					json;
+	hdl_t						handle;
 	AssetType					asset;
 	loadHandlerPtr_t			loader;
 	bool						loaded;
 	bool						isDefault;
 
 public:
-	Asset() : name( "" ), loaded( false ), isDefault( false ), loader( nullptr ) {}
+	Asset() : name( "" ), loaded( false ), isDefault( false ), loader( nullptr ), handle( INVALID_HDL ) {}
+
 	Asset( const AssetType& _asset, const std::string& _name, const bool _loaded = true ) : 
-		name( _name ), asset( _asset ), loaded( _loaded ), isDefault( false ), loader( nullptr ) {}
+		name( _name ), asset( _asset ), loaded( _loaded ), isDefault( false ), loader( nullptr )
+	{
+		handle = Hash( name );
+	}
 
 	inline const std::string& GetName() const
 	{
 		return name;
+	}
+
+	inline hdl_t Handle() const
+	{
+		return handle;
 	}
 
 	inline bool IsLoaded() const

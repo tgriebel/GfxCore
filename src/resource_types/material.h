@@ -82,11 +82,10 @@ enum materialUsage_t : uint32_t
 	MATERIAL_USAGE_CUBE,
 };
 
-// FIXME: Deprecated
-struct material_t
+
+struct materialParms_t
 {
-	static const uint32_t BufferSize = 256;
-	char		name[ BufferSize ];
+	materialParms_t() : Tr( 0.0f ), Ns( 0.0f ), Ni( 0.0f ), d( 1.0f ), illum( 0.0f ) {}
 
 	rgbTuplef_t	Ka;
 	rgbTuplef_t	Ke;
@@ -98,10 +97,6 @@ struct material_t
 	float		Ni;
 	float		d;
 	float		illum;
-
-	bool		textured;
-	int32_t		colorMapId;
-	int32_t		normalMapId;
 };
 
 class Material
@@ -114,18 +109,8 @@ public:
 	bool					dirty;
 	materialUsage_t			usage;
 
-	rgbTuplef_t				Ka;
-	rgbTuplef_t				Ke;
-	rgbTuplef_t				Kd;
-	rgbTuplef_t				Ks;
-	rgbTuplef_t				Tf;
-	float					Tr;
-	float					Ns;
-	float					Ni;
-	float					d;
-	float					illum;
-
 private:
+	materialParms_t			p;
 	uint16_t				textureBitSet;
 	uint16_t				shaderBitSet;
 
@@ -134,15 +119,10 @@ private:
 
 public:
 	Material() :
-		Tr( 0.0f ),
-		Ns( 0.0f ),
-		Ni( 0.0f ),
-		d( 1.0f ),
-		illum( 0.0f ),
 		textureBitSet( 0 ),
 		shaderBitSet( 0 )
 	{
-		Kd = rgbTuplef_t( 1.0f, 1.0f, 1.0f );
+		p.Kd = rgbTuplef_t( 1.0f, 1.0f, 1.0f );
 		for ( int i = 0; i < MaxMaterialTextures; ++i ) {
 			textures[ i ] = INVALID_HDL;
 		}
@@ -152,6 +132,110 @@ public:
 		dirty = true;
 		uploadId = -1;
 		usage = MATERIAL_USAGE_UNKNOWN;
+	}
+
+	inline void SetParms( const materialParms_t& parms )
+	{
+		p = parms;
+	}
+
+	inline const rgbTuplef_t& Kd() const
+	{
+		return p.Kd;
+	}
+
+	inline void Kd( const rgbTuplef_t rgb )
+	{
+		p.Kd = rgb;
+		dirty = true;
+	}
+
+	inline const rgbTuplef_t& Ks() const
+	{
+		return p.Ks;
+	}
+
+	inline void Ks( const rgbTuplef_t rgb )
+	{
+		p.Ks = rgb;
+		dirty = true;
+	}
+
+	inline const rgbTuplef_t& Ke() const
+	{
+		return p.Ke;
+	}
+
+	inline void Ke( const rgbTuplef_t rgb )
+	{
+		p.Ke = rgb;
+		dirty = true;
+	}
+
+	inline const rgbTuplef_t& Ka() const
+	{
+		return p.Ka;
+	}
+
+	inline void Ka( const rgbTuplef_t rgb )
+	{
+		p.Ka = rgb;
+		dirty = true;
+	}
+
+	inline const rgbTuplef_t& Tf() const
+	{
+		return p.Tf;
+	}
+
+	inline void Tf( const rgbTuplef_t rgb )
+	{
+		p.Tf = rgb;
+		dirty = true;
+	}
+
+	inline const float& Tr() const
+	{
+		return p.Tr;
+	}
+
+	inline void Tr( const float rgb )
+	{
+		p.Tr = rgb;
+		dirty = true;
+	}
+
+	inline const float& Ns() const
+	{
+		return p.Ns;
+	}
+
+	inline void Ns( const float rgb )
+	{
+		p.Ns = rgb;
+		dirty = true;
+	}
+
+	inline const float& Ni() const
+	{
+		return p.Ni;
+	}
+
+	inline void Ni( const float rgb )
+	{
+		p.Ni = rgb;
+		dirty = true;
+	}
+
+	inline const float& Illum() const
+	{
+		return p.illum;
+	}
+
+	inline void Illum( const float rgb )
+	{
+		p.illum = rgb;
+		dirty = true;
 	}
 
 	inline bool IsTextured() const
@@ -181,6 +265,7 @@ public:
 		}
 		textures[ slot ] = hdl;
 		textureBitSet |= ( 1 << slot );
+		dirty = true;
 		return true;
 	}
 
@@ -202,6 +287,7 @@ public:
 		}
 		shaders[ slot ] = hdl;
 		shaderBitSet |= ( 1 << slot );
+		dirty = true;
 		return true;
 	}
 
