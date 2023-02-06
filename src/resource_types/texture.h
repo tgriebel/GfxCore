@@ -43,6 +43,20 @@ enum textureType_t
 	TEXTURE_TYPE_CUBE,
 };
 
+enum textureFmt_t
+{
+	TEXTURE_FMT_UNKNOWN,
+	TEXTURE_FMT_R_8,
+	TEXTURE_FMT_R_16,
+	TEXTURE_FMT_RGB_8,
+	TEXTURE_FMT_RGBA_8,
+	TEXTURE_FMT_ABGR_8,
+	TEXTURE_FMT_BGR_8,
+	TEXTURE_FMT_RGB_16,
+	TEXTURE_FMT_RGBA_16,
+	TEXTURE_FMT_R11G11B10,
+};
+
 struct textureInfo_t {
 	uint32_t		width;
 	uint32_t		height;
@@ -50,6 +64,7 @@ struct textureInfo_t {
 	uint32_t		mipLevels;
 	uint32_t		layers;
 	textureType_t	type;
+	textureFmt_t	fmt;
 };
 
 class Texture
@@ -59,6 +74,7 @@ public:
 	uint32_t		sizeBytes;
 	textureInfo_t	info;
 	int				uploadId;
+	bool			dirty;
 
 	Image<Color>	cpuImage;
 	GpuImage		gpuImage;
@@ -70,9 +86,11 @@ public:
 		info.channels = 0;
 		info.mipLevels = 0;
 		info.type = TEXTURE_TYPE_UNKNOWN;
+		info.fmt = TEXTURE_FMT_UNKNOWN;
 		uploadId = -1;
 		bytes = nullptr;
 		sizeBytes = 0;
+		dirty = false;
 	}
 
 	~Texture()
