@@ -54,10 +54,10 @@ bool LoadTextureImage( const char* texturePath, Texture& texture )
 		return false;
 	}
 
-	assert( texChannels == 4 ); // always loaded in as rgba
+	//assert( texChannels == 4 );
 	texture.info.width = static_cast<uint32_t>( texWidth );
 	texture.info.height = static_cast<uint32_t>( texHeight );
-	texture.info.channels = texChannels;
+	texture.info.channels = 4; // always loaded in as rgba
 	texture.info.layers = 1;
 	texture.info.type = TEXTURE_TYPE_2D;
 	texture.info.fmt = TEXTURE_FMT_RGBA_8;
