@@ -262,8 +262,10 @@ T& Vector<D, T>::operator[]( const size_t i )
 template<size_t D, typename T>
 Vector<D, T>& Vector< D, T >::operator=( const Vector<D, T>& vec )
 {
-	for ( size_t i = 0; i < D; ++i ) {
-		data[ i ] = vec.data[ i ];
+	if( this != &vec ) {
+		for ( size_t i = 0; i < D; ++i ) {
+			data[ i ] = vec.data[ i ];
+		}
 	}
 	return *this;
 }

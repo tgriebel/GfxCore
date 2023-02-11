@@ -94,6 +94,7 @@ Bitmap::Bitmap( const uint32_t width, const uint32_t height, const uint32_t colo
 
 Bitmap& Bitmap::operator=( const Bitmap& bitmap )
 {
+	assert(0);
 	return *this;
 }
 
