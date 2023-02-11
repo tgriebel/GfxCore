@@ -24,6 +24,7 @@
 #pragma once
 
 #include <vector>
+#include <chrono>
 
 #include "camera.h"
 #include "../core/common.h"
@@ -61,8 +62,9 @@ public:
 	float						defaultFar = 1000.0f;
 	Entity*						selectedEntity = nullptr;
 
-	virtual void Update( const float dt ) {}
+	virtual void Update( const std::chrono::nanoseconds dt ) {}
 	virtual void Init() {}
+	virtual void Shutdown() {}
 
 	Scene()
 	{
