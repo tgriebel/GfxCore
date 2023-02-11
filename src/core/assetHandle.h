@@ -37,6 +37,11 @@ private:
 	AssetLib<AssetType>*	lib;
 	hdl_t					handle
 public:
+	static AssetHandle<AssetType> Invalid()
+	{
+		return AssetHandle<AssetType>();
+	}
+
 	AssetHandle()
 	{
 		lib = nullptr;
