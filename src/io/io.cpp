@@ -67,23 +67,6 @@ bool LoadTextureImage( const char* texturePath, Texture& texture )
 	texture.bytes = new uint8_t[ texture.sizeBytes ];
 	memcpy( texture.bytes, pixels, texture.sizeBytes );
 
-	//texture.cpuImage.Init( texture.info.width, texture.info.height );
-
-	// images are always loaded with 4 channels
-	// FIXME: Takes a long time, but can make this async (per image)
-#if 0
-	for ( int py = 0; py < texHeight; ++py ) {
-		for ( int px = 0; px < texWidth; ++px ) {
-			RGBA rgba;
-			rgba.r = texture.bytes[ ( py * texture.info.width + px ) * 4 + 0 ];
-			rgba.g = texture.bytes[ ( py * texture.info.width + px ) * 4 + 1 ];
-			rgba.b = texture.bytes[ ( py * texture.info.width + px ) * 4 + 2 ];
-			rgba.a = texture.bytes[ ( py * texture.info.width + px ) * 4 + 3 ];
-			texture.cpuImage.SetPixel( px, py, rgba );
-		}
-	}
-#endif
-
 	stbi_image_free( pixels );
 	return true;
 }
