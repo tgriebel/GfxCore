@@ -150,5 +150,8 @@
     <ClInclude Include="src\scene\assetManager.h">
       <Filter>Scene</Filter>
     </ClInclude>
+    <ClInclude Include="src\core\assetHandle.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

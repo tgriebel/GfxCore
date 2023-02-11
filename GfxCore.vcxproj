@@ -238,6 +238,7 @@
     <ClInclude Include="src\acceleration\aabb.h" />
     <ClInclude Include="src\acceleration\octree.h" />
     <ClInclude Include="src\core\asset.h" />
+    <ClInclude Include="src\core\assetHandle.h" />
     <ClInclude Include="src\core\assetLib.h" />
     <ClInclude Include="src\core\common.h" />
     <ClInclude Include="src\core\handle.h" />
