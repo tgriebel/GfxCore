@@ -54,6 +54,12 @@ extern AssetManager gAssets;
 
 class Scene
 {
+private:
+	using chronoClock_t = std::chrono::high_resolution_clock;
+	chronoClock_t::time_point	prevTime;
+	std::chrono::nanoseconds	dt;
+	std::chrono::nanoseconds	totalTime;
+	uint64_t					frameNumber;
 public:
 	Camera						camera;
 	std::vector<Entity*>		entities;
@@ -62,9 +68,40 @@ public:
 	float						defaultFar = 1000.0f;
 	Entity*						selectedEntity = nullptr;
 
-	virtual void Update( const std::chrono::nanoseconds dt ) {}
+	virtual void Update() {}
 	virtual void Init() {}
 	virtual void Shutdown() {}
+
+	inline void AdvanceFrame()
+	{
+		const chronoClock_t::time_point currentTime = chronoClock_t::now();
+		dt = ( currentTime - prevTime );
+		prevTime = currentTime;
+
+		totalTime += dt;
+
+		++frameNumber;
+	}
+
+	inline float DeltaTime() const
+	{
+		return std::chrono::duration<float, std::chrono::seconds::period>( dt ).count();
+	}
+
+	inline std::chrono::nanoseconds DeltaNano() const
+	{
+		return dt;
+	}
+
+	inline float TotalTimeSeconds() const
+	{
+		return std::chrono::duration<float, std::chrono::seconds::period>( totalTime ).count();
+	}
+
+	inline uint64_t CurrentFrame() const
+	{
+		return frameNumber;
+	}
 
 	Scene()
 	{
@@ -75,6 +112,10 @@ public:
 
 		camera.SetFov( Radians( 90.0f ) );
 		camera.SetAspectRatio( 1.0f );
+
+		prevTime = chronoClock_t::now();
+		dt = std::chrono::nanoseconds( 0 );
+		totalTime = std::chrono::nanoseconds( 0 );
 	}
 
 	void			CreateEntityBounds( const hdl_t modelHdl, Entity& entity );
