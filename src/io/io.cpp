@@ -325,10 +325,21 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 			vec3f faceTangent;
 			vec3f faceBitangent;
 
-			const vec2f uvEdgeDt0 = ( v1.uv - v0.uv );
-			const vec2f uvEdgeDt1 = ( v2.uv - v0.uv );
+			vec2f uvEdgeDt0;
+			vec2f uvEdgeDt1;
 
-			const float denom = ( uvEdgeDt0[ 0 ] * uvEdgeDt1[ 1 ] - uvEdgeDt1[ 0 ] * uvEdgeDt0[ 1 ] );
+			if( hasUv )
+			{
+				uvEdgeDt0 = ( v1.uv - v0.uv );
+				uvEdgeDt1 = ( v2.uv - v0.uv );
+			}
+			else
+			{
+				uvEdgeDt0 = vec2f( 1.0f, 0.0f );
+				uvEdgeDt1 = vec2f( 0.0f, 1.0f );
+			}
+
+			const float denom = ( uvEdgeDt0[ 0 ] * uvEdgeDt1[ 1 ] - uvEdgeDt1[ 0 ] * uvEdgeDt0[ 1 ] ) + 0.00001f;
 			if( denom != 0.0f )
 			{
 				const float r = 1.0f / denom;
@@ -386,7 +397,7 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 		model.surfs[ model.surfCount ].materialHdl = INVALID_HDL;
 		if ( ( materials.size() > 0 ) && ( shape.mesh.material_ids.size() > 0 ) ) {
 			const int shapeMaterial = shape.mesh.material_ids[ 0 ];
-			const hdl_t materialHdl = assets.materialLib.RetrieveHdl( materials[ shapeMaterial ].name.c_str() );
+			const hdl_t materialHdl = AssetLibMaterials::Handle( materials[ shapeMaterial ].name.c_str() );
 			if ( materialHdl.IsValid() ) {
 				model.surfs[ model.surfCount ].materialHdl = materialHdl;
 			}
