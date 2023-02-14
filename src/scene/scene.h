@@ -38,8 +38,6 @@
 #include "entity.h"
 #include "assetManager.h"
 
-const uint32_t MaxLights = 3;
-
 struct light_t
 {
 	vec4f	lightPos;
@@ -63,7 +61,7 @@ private:
 public:
 	Camera						camera;
 	std::vector<Entity*>		entities;
-	light_t						lights[ MaxLights ];
+	std::vector<light_t>		lights;
 	float						defaultNear = 0.1f;
 	float						defaultFar = 1000.0f;
 	Entity*						selectedEntity = nullptr;
