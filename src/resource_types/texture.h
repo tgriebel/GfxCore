@@ -76,16 +76,27 @@ enum textureFmt_t
 	TEXTURE_FMT_R11G11B10,
 };
 
+enum textureSamples_t
+{
+	TEXTURE_SMP_1 = (1 << 0),
+	TEXTURE_SMP_2 = ( 1 << 1 ),
+	TEXTURE_SMP_4 = ( 1 << 2 ),
+	TEXTURE_SMP_8 = ( 1 << 3 ),
+	TEXTURE_SMP_16 = ( 1 << 4 ),
+	TEXTURE_SMP_32 = ( 1 << 5 ),
+	TEXTURE_SMP_64 = ( 1 << 6 ),
+};
+
 struct textureInfo_t {
-	uint32_t		width;
-	uint32_t		height;
-	uint32_t		channels;
-	uint32_t		mipLevels;
-	uint32_t		layers;
-	uint32_t		subsamples;
-	textureType_t	type;
-	textureFmt_t	fmt;
-	textureTiling_t	tiling;
+	uint32_t			width;
+	uint32_t			height;
+	uint32_t			channels;
+	uint32_t			mipLevels;
+	uint32_t			layers;
+	textureSamples_t	subsamples;
+	textureType_t		type;
+	textureFmt_t		fmt;
+	textureTiling_t		tiling;
 };
 
 class Texture
@@ -106,7 +117,7 @@ public:
 		info.height = 0;
 		info.channels = 0;
 		info.mipLevels = 0;
-		info.subsamples = 1;
+		info.subsamples = TEXTURE_SMP_1;
 		info.type = TEXTURE_TYPE_UNKNOWN;
 		info.fmt = TEXTURE_FMT_UNKNOWN;
 		info.tiling = TEXTURE_TILING_LINEAR;
