@@ -61,6 +61,7 @@ bool LoadTextureImage( const char* texturePath, Texture& texture )
 	texture.info.layers = 1;
 	texture.info.type = TEXTURE_TYPE_2D;
 	texture.info.fmt = TEXTURE_FMT_RGBA_8;
+	texture.info.tiling = TEXTURE_TILING_MORTON;
 	texture.uploadId = -1;
 	texture.info.mipLevels = static_cast<uint32_t>( std::floor( std::log2( std::max( texture.info.width, texture.info.height ) ) ) ) + 1;
 	texture.sizeBytes = ( texWidth * texHeight * 4 );
@@ -138,6 +139,8 @@ bool LoadTextureCubeMapImage( const char* textureBasePath, const char* ext, Text
 	texture.info.channels = texChannels;
 	texture.info.layers = 6;
 	texture.info.type = TEXTURE_TYPE_CUBE;
+	texture.info.fmt = TEXTURE_FMT_RGBA_8;
+	texture.info.tiling = TEXTURE_TILING_MORTON;
 	texture.uploadId = -1;
 	texture.info.mipLevels = static_cast<uint32_t>( std::floor( std::log2( std::max( texture.info.width, texture.info.height ) ) ) ) + 1;
 	texture.bytes = bytes;
