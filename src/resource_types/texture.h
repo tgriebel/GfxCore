@@ -27,14 +27,7 @@
 #include "../io/io.h"
 #include "../core/asset.h"
 
-struct GpuImage
-{
-#ifdef USE_VULKAN
-	VkImage			vk_image;
-	VkImageView		vk_view;
-	AllocationVk	allocation;
-#endif
-};
+class GpuImage;
 
 enum textureType_t
 {
@@ -109,7 +102,7 @@ public:
 	bool			dirty;
 
 	Image<Color>	cpuImage;
-	GpuImage		gpuImage;
+	GpuImage*		gpuImage;
 
 	Texture()
 	{
