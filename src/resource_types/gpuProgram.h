@@ -58,7 +58,6 @@ public:
 #endif
 	hdl_t					pipeline;
 	uint32_t				shaderCount;
-	bool					isCompute;
 
 	friend class LoadHandler<GpuProgram>;
 };
@@ -76,10 +75,11 @@ private:
 	{
 		program.shaders[ 0 ].name = vsFileName;
 		program.shaders[ 0 ].blob = ReadFile( basePath + vsFileName );
+		program.shaders[ 0 ].type = shaderType_t::VERTEX;
 		program.shaders[ 1 ].name = psFileName;
 		program.shaders[ 1 ].blob = ReadFile( basePath + psFileName );
+		program.shaders[ 1 ].type = shaderType_t::PIXEL;
 		program.shaderCount = 2;
-		program.isCompute = false;
 		return true;
 	}
 
@@ -87,18 +87,18 @@ private:
 	{
 		program.shaders[ 0 ].name = csFileName;
 		program.shaders[ 0 ].blob = ReadFile( basePath + csFileName );
+		program.shaders[ 0 ].type = shaderType_t::COMPUTE;
 		program.shaderCount = 1;
-		program.isCompute = true;
 		return true;
 	}
 
 	bool Load( GpuProgram& program )
 	{
-		if( ( vsFileName != "" ) && ( psFileName != "" ) )
+		if( ( !vsFileName.empty() ) && ( !psFileName.empty() ) )
 		{
 			return LoadRasterProgram( program );
 		}
-		else if( csFileName != "" )
+		else if( !csFileName.empty() )
 		{
 			return LoadComputeProgram( program );
 		}
@@ -110,13 +110,13 @@ public:
 	GpuProgramLoader( const std::string& path, const std::string& vertexFileName, const std::string& pixelFileName )
 	{
 		SetBasePath( path );
-		AddRasterPath( vertexFileName, pixelFileName );
+		AddFilePaths( vertexFileName, pixelFileName, "" );
 	}
 
 	GpuProgramLoader( const std::string& path, const std::string& computeFileName )
 	{
 		SetBasePath( path );
-		AddComputePath( computeFileName );
+		AddFilePaths( "", "", computeFileName );
 	}
 
 	void SetBasePath( const std::string& path )
@@ -124,18 +124,11 @@ public:
 		basePath = path;
 	}
 
-	void AddRasterPath( const std::string& vertexFileName, const std::string& pixelFileName )
+	void AddFilePaths( const std::string& vertexFileName, const std::string& pixelFileName, const std::string& computeFileName )
 	{
 		vsFileName = vertexFileName;
 		psFileName = pixelFileName;
-		csFileName = "";
-	}
-
-	void AddComputePath( const std::string& name )
-	{
-		vsFileName = "";
-		psFileName = "";
-		csFileName = name;
+		csFileName = computeFileName;
 	}
 };
 
