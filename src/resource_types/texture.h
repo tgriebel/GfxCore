@@ -29,7 +29,7 @@
 
 class GpuImage;
 
-enum textureType_t
+enum textureType_t : uint8_t
 {
 	TEXTURE_TYPE_UNKNOWN,
 	TEXTURE_TYPE_2D,
@@ -43,13 +43,13 @@ enum textureType_t
 	TEXTURE_TYPE_DEPTH_STENCIL,
 };
 
-enum textureTiling_t
+enum textureTiling_t : uint8_t
 {
 	TEXTURE_TILING_LINEAR,
 	TEXTURE_TILING_MORTON,
 };
 
-enum textureFmt_t
+enum textureFmt_t : uint8_t
 {
 	TEXTURE_FMT_UNKNOWN,
 	TEXTURE_FMT_R_8,
@@ -69,7 +69,7 @@ enum textureFmt_t
 	TEXTURE_FMT_R11G11B10,
 };
 
-enum textureSamples_t
+enum textureSamples_t : uint8_t
 {
 	TEXTURE_SMP_1 = (1 << 0),
 	TEXTURE_SMP_2 = ( 1 << 1 ),
@@ -80,7 +80,8 @@ enum textureSamples_t
 	TEXTURE_SMP_64 = ( 1 << 6 ),
 };
 
-struct textureInfo_t {
+struct textureInfo_t
+{
 	uint32_t			width;
 	uint32_t			height;
 	uint32_t			channels;
