@@ -30,6 +30,9 @@
 #include "../io/io.h"
 
 
+class ShaderBindSet;
+
+
 enum shaderType_t : uint32_t
 {
 	UNSPECIFIED = 0,
@@ -56,6 +59,7 @@ public:
 #ifdef USE_VULKAN
 	VkShaderModule			vk_shaders[ MaxShaders ];
 #endif
+	const ShaderBindSet*	bindset; // all shaders currently have the same bindings
 	hdl_t					pipeline;
 	uint32_t				shaderCount;
 
