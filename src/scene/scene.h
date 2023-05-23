@@ -48,7 +48,7 @@ struct light_t
 
 struct Ray;
 
-extern AssetManager gAssets;
+extern AssetManager g_assets;
 
 class Scene
 {

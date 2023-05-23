@@ -27,7 +27,7 @@
 
 void Scene::CreateEntityBounds( const hdl_t modelHdl, Entity& entity )
 {
-	const Model& model = gAssets.modelLib.Find( modelHdl )->Get();
+	const Model& model = g_assets.modelLib.Find( modelHdl )->Get();
 	entity.modelHdl = modelHdl.Get();
 	entity.ExpandBounds( model.bounds );
 }

@@ -43,11 +43,21 @@ enum textureType_t : uint8_t
 	TEXTURE_TYPE_DEPTH_STENCIL,
 };
 
+
+enum textureAspectFlags_t : uint8_t
+{
+	TEXTURE_ASPECT_COLOR_FLAG = ( 1 << 0 ),
+	TEXTURE_ASPECT_DEPTH_FLAG = ( 1 << 1 ),
+	TEXTURE_ASPECT_STENCIL_FLAG = ( 1 << 2 ),
+};
+
+
 enum textureTiling_t : uint8_t
 {
 	TEXTURE_TILING_LINEAR,
 	TEXTURE_TILING_MORTON,
 };
+
 
 enum textureFmt_t : uint8_t
 {
@@ -69,6 +79,7 @@ enum textureFmt_t : uint8_t
 	TEXTURE_FMT_R11G11B10,
 };
 
+
 enum textureSamples_t : uint8_t
 {
 	TEXTURE_SMP_1 = (1 << 0),
@@ -80,18 +91,21 @@ enum textureSamples_t : uint8_t
 	TEXTURE_SMP_64 = ( 1 << 6 ),
 };
 
+
 struct textureInfo_t
 {
-	uint32_t			width;
-	uint32_t			height;
-	uint32_t			channels;
-	uint32_t			mipLevels;
-	uint32_t			layers;
-	textureSamples_t	subsamples;
-	textureType_t		type;
-	textureFmt_t		fmt;
-	textureTiling_t		tiling;
+	uint32_t				width;
+	uint32_t				height;
+	uint32_t				channels;
+	uint32_t				mipLevels;
+	uint32_t				layers;
+	textureSamples_t		subsamples;
+	textureType_t			type;
+	textureFmt_t			fmt;
+	textureAspectFlags_t	aspect;
+	textureTiling_t			tiling;
 };
+
 
 class Texture
 {
@@ -114,6 +128,7 @@ public:
 		info.subsamples = TEXTURE_SMP_1;
 		info.type = TEXTURE_TYPE_UNKNOWN;
 		info.fmt = TEXTURE_FMT_UNKNOWN;
+		info.aspect = TEXTURE_ASPECT_COLOR_FLAG;
 		info.tiling = TEXTURE_TILING_LINEAR;
 		uploadId = -1;
 		bytes = nullptr;
