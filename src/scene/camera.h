@@ -30,10 +30,10 @@
 
 struct viewport_t
 {
-	float x;
-	float y;
-	float width;
-	float height;
+	int32_t		x;
+	int32_t		y;
+	uint32_t	width;
+	uint32_t	height;
 	float near;
 	float far;
 };

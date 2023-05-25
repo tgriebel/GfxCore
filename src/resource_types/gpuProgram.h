@@ -60,7 +60,6 @@ public:
 	VkShaderModule			vk_shaders[ MaxShaders ];
 #endif
 	const ShaderBindSet*	bindset; // all shaders currently have the same bindings
-	hdl_t					pipeline;
 	uint32_t				shaderCount;
 
 	friend class LoadHandler<GpuProgram>;
