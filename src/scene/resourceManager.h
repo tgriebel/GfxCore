@@ -53,7 +53,7 @@ private:
 	std::vector<vertexBuffer_t>	vertexBuffers;
 	std::vector<indexBuffer_t>	indexBuffers;
 	std::vector<ModelSource>	modelBuffer;
-	std::vector< Image<Color> >	imageBuffer;
+	std::vector<CpuImage<Color> >	imageBuffer;
 	std::stack<int32_t>			currentVB;
 	std::stack<int32_t>			currentIB;
 public:
@@ -91,7 +91,7 @@ public:
 		return static_cast<uint32_t>( modelBuffer.size() - 1 );
 	}
 
-	uint32_t StoreImageCopy( const Image<Color>& image )
+	uint32_t StoreImageCopy( const CpuImage<Color>& image )
 	{
 		imageBuffer.push_back( image );
 		return static_cast<uint32_t>( imageBuffer.size() - 1 );
@@ -216,7 +216,7 @@ public:
 		return static_cast<uint32_t>( modelBuffer.size() );
 	}
 
-	const Image<Color>* GetImageRef( const int32_t imageIx ) const
+	const CpuImage<Color>* GetImageRef( const int32_t imageIx ) const
 	{
 		if ( imageIx >= imageBuffer.size() )
 		{

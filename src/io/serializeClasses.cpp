@@ -97,7 +97,7 @@ void AABB::Serialize( Serializer* serializer )
 }
 
 template<typename T>
-void Image<T>::Serialize( Serializer* serializer )
+void CpuImage<T>::Serialize( Serializer* serializer )
 {
 	Serializer* s = reinterpret_cast<Serializer*>( serializer );
 	

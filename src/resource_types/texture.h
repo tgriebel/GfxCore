@@ -116,7 +116,7 @@ public:
 	int				uploadId;
 	bool			dirty;
 
-	Image<Color>	cpuImage;
+	CpuImage<Color>	cpuImage;
 	GpuImage*		gpuImage;
 
 	Texture()

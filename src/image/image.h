@@ -29,7 +29,7 @@
 class Serializer;
 
 template<typename T>
-class Image
+class CpuImage
 {
 private:
 	static const uint32_t Version = 1;
@@ -41,7 +41,7 @@ private:
 
 public:
 
-	Image()
+	CpuImage()
 	{
 		width = 0;
 		height = 0;
@@ -50,12 +50,12 @@ public:
 		buffer = nullptr;
 	}
 
-	Image( const uint32_t _width, const uint32_t _height, const T _default = T(), const char* _name = "" )
+	CpuImage( const uint32_t _width, const uint32_t _height, const T _default = T(), const char* _name = "" )
 	{
 		Init( _width, _height, _default, _name );
 	}
 
-	Image( const Image& _image )
+	CpuImage( const CpuImage& _image )
 	{
 		if ( buffer != nullptr )
 		{
@@ -74,7 +74,7 @@ public:
 		name = _image.name;
 	}
 
-	~Image()
+	~CpuImage()
 	{
 		width = 0;
 		height = 0;
