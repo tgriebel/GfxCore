@@ -23,10 +23,10 @@
 
 #pragma once
 
-#include "../resource_types/texture.h"
-#include "../resource_types/material.h"
-#include "../resource_types/gpuProgram.h"
-#include "../resource_types/model.h"
+#include "../asset_types/texture.h"
+#include "../asset_types/material.h"
+#include "../asset_types/gpuProgram.h"
+#include "../asset_types/model.h"
 #include "../core/assetLib.h"
 #include "../core/asset.h"
 

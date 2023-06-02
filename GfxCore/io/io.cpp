@@ -34,8 +34,8 @@
 
 #include "../scene/scene.h"
 #include "../scene/assetManager.h"
-#include "../resource_types/model.h"
-#include "../resource_types/texture.h"
+#include "../asset_types/model.h"
+#include "../asset_types/texture.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "../../external/tiny_obj_loader.h"

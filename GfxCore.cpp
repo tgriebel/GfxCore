@@ -27,8 +27,8 @@
 #include <thread>
 #include <chrono>
 #include <mutex>
-#include "src/core/common.h"
-#include "src/core/assetLib.h"
+#include "gfxcore/core/common.h"
+#include "gfxcore/core/assetLib.h"
 
 int main()
 {

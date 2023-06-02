@@ -34,124 +34,124 @@
     <ClCompile Include="GfxCore.cpp">
       <Filter>Test Driver</Filter>
     </ClCompile>
-    <ClCompile Include="src\math\matrix.cpp">
+    <ClCompile Include="GfxCore\asset_types\gpuProgram.cpp">
+      <Filter>Asset Types</Filter>
+    </ClCompile>
+    <ClCompile Include="GfxCore\asset_types\model.cpp">
+      <Filter>Asset Types</Filter>
+    </ClCompile>
+    <ClCompile Include="GfxCore\image\bitmap.cpp">
+      <Filter>Image</Filter>
+    </ClCompile>
+    <ClCompile Include="GfxCore\image\color.cpp">
+      <Filter>Image</Filter>
+    </ClCompile>
+    <ClCompile Include="GfxCore\io\io.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="GfxCore\io\meshIO.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="GfxCore\io\serializeClasses.cpp">
+      <Filter>IO</Filter>
+    </ClCompile>
+    <ClCompile Include="GfxCore\math\matrix.cpp">
       <Filter>Math</Filter>
     </ClCompile>
-    <ClCompile Include="src\image\bitmap.cpp">
-      <Filter>Image</Filter>
-    </ClCompile>
-    <ClCompile Include="src\image\color.cpp">
-      <Filter>Image</Filter>
-    </ClCompile>
-    <ClCompile Include="src\scene\entity.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\primitives\geom.cpp">
+    <ClCompile Include="GfxCore\primitives\geom.cpp">
       <Filter>Primitives</Filter>
     </ClCompile>
-    <ClCompile Include="src\io\meshIO.cpp">
-      <Filter>IO</Filter>
-    </ClCompile>
-    <ClCompile Include="src\io\serializeClasses.cpp">
-      <Filter>IO</Filter>
-    </ClCompile>
-    <ClCompile Include="src\io\io.cpp">
-      <Filter>IO</Filter>
-    </ClCompile>
-    <ClCompile Include="src\resource_types\gpuProgram.cpp">
-      <Filter>Asset Types</Filter>
-    </ClCompile>
-    <ClCompile Include="src\scene\scene.cpp">
+    <ClCompile Include="GfxCore\scene\entity.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\resource_types\model.cpp">
-      <Filter>Asset Types</Filter>
+    <ClCompile Include="GfxCore\scene\scene.cpp">
+      <Filter>Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\math\matrix.h">
-      <Filter>Math</Filter>
+    <ClInclude Include="GfxCore\asset_types\gpuProgram.h">
+      <Filter>Asset Types</Filter>
     </ClInclude>
-    <ClInclude Include="src\image\bitmap.h">
+    <ClInclude Include="GfxCore\asset_types\material.h">
+      <Filter>Asset Types</Filter>
+    </ClInclude>
+    <ClInclude Include="GfxCore\asset_types\model.h">
+      <Filter>Asset Types</Filter>
+    </ClInclude>
+    <ClInclude Include="GfxCore\asset_types\texture.h">
+      <Filter>Asset Types</Filter>
+    </ClInclude>
+    <ClInclude Include="GfxCore\core\asset.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="GfxCore\core\assetHandle.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="GfxCore\core\assetLib.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="GfxCore\core\common.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="GfxCore\core\handle.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="GfxCore\core\rasterLib.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="GfxCore\core\util.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="GfxCore\image\bitmap.h">
       <Filter>Image</Filter>
     </ClInclude>
-    <ClInclude Include="src\image\color.h">
+    <ClInclude Include="GfxCore\image\color.h">
       <Filter>Image</Filter>
     </ClInclude>
-    <ClInclude Include="src\image\image.h">
+    <ClInclude Include="GfxCore\image\image.h">
       <Filter>Image</Filter>
     </ClInclude>
-    <ClInclude Include="src\scene\camera.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\scene\entity.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\scene\resourceManager.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\scene\scene.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\primitives\geom.h">
-      <Filter>Primitives</Filter>
-    </ClInclude>
-    <ClInclude Include="src\primitives\ray.h">
-      <Filter>Primitives</Filter>
-    </ClInclude>
-    <ClInclude Include="src\acceleration\aabb.h">
-      <Filter>Acceleration</Filter>
-    </ClInclude>
-    <ClInclude Include="src\acceleration\octree.h">
-      <Filter>Acceleration</Filter>
-    </ClInclude>
-    <ClInclude Include="src\core\rasterLib.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\core\util.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\core\assetLib.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\core\common.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\core\handle.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\io\meshIO.h">
+    <ClInclude Include="GfxCore\io\io.h">
       <Filter>IO</Filter>
     </ClInclude>
-    <ClInclude Include="src\math\quaternion.h">
-      <Filter>Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\math\vector.h">
-      <Filter>Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\io\io.h">
+    <ClInclude Include="GfxCore\io\meshIO.h">
       <Filter>IO</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\asset.h">
-      <Filter>Core</Filter>
+    <ClInclude Include="GfxCore\math\matrix.h">
+      <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\resource_types\gpuProgram.h">
-      <Filter>Asset Types</Filter>
+    <ClInclude Include="GfxCore\math\quaternion.h">
+      <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\resource_types\material.h">
-      <Filter>Asset Types</Filter>
+    <ClInclude Include="GfxCore\math\vector.h">
+      <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="src\resource_types\model.h">
-      <Filter>Asset Types</Filter>
+    <ClInclude Include="GfxCore\primitives\geom.h">
+      <Filter>Primitives</Filter>
     </ClInclude>
-    <ClInclude Include="src\resource_types\texture.h">
-      <Filter>Asset Types</Filter>
+    <ClInclude Include="GfxCore\primitives\ray.h">
+      <Filter>Primitives</Filter>
     </ClInclude>
-    <ClInclude Include="src\scene\assetManager.h">
+    <ClInclude Include="GfxCore\scene\assetManager.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\core\assetHandle.h">
-      <Filter>Core</Filter>
+    <ClInclude Include="GfxCore\scene\camera.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="GfxCore\scene\entity.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="GfxCore\scene\resourceManager.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="GfxCore\scene\scene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="GfxCore\acceleration\aabb.h">
+      <Filter>Acceleration</Filter>
+    </ClInclude>
+    <ClInclude Include="GfxCore\acceleration\octree.h">
+      <Filter>Acceleration</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

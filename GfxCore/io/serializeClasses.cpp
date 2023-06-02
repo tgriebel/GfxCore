@@ -26,8 +26,8 @@
 #include "../primitives/geom.h"
 #include "../image/color.h"
 #include "../image/image.h"
-#include "../resource_types/model.h"
-#include "../resource_types/gpuProgram.h"
+#include "../asset_types/model.h"
+#include "../asset_types/gpuProgram.h"
 #include <serializer.h>
 
 #define SERIALIZE_IMPLEMENTATIONS
