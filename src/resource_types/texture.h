@@ -107,7 +107,7 @@ struct textureInfo_t
 };
 
 
-class Texture
+class Image
 {
 public:
 	uint8_t*		bytes;
@@ -119,7 +119,7 @@ public:
 	CpuImage<Color>	cpuImage;
 	GpuImage*		gpuImage;
 
-	Texture()
+	Image()
 	{
 		info.width = 0;
 		info.height = 0;
@@ -136,7 +136,7 @@ public:
 		dirty = false;
 	}
 
-	~Texture()
+	~Image()
 	{
 		if( bytes != nullptr )
 		{
@@ -148,7 +148,7 @@ public:
 };
 
 
-class TextureLoader : public LoadHandler<Texture>
+class TextureLoader : public LoadHandler<Image>
 {
 private:
 	std::string basePath;
@@ -156,7 +156,7 @@ private:
 	std::string ext;
 	bool cubemap;
 
-	bool Load( Texture& texture )
+	bool Load( Image& texture )
 	{
 		if ( cubemap ) {
 			return LoadTextureCubeMapImage( ( basePath + fileName ).c_str(), ext.c_str(), texture );
@@ -191,4 +191,4 @@ public:
 	}
 };
 
-using pTexLoader_t = Asset<Texture>::loadHandlerPtr_t;
+using pTexLoader_t = Asset<Image>::loadHandlerPtr_t;

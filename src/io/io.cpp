@@ -44,7 +44,7 @@
 #include "../../external/stb_image.h"
 
 
-bool LoadTextureImage( const char* texturePath, Texture& texture )
+bool LoadTextureImage( const char* texturePath, Image& texture )
 {
 	int texWidth, texHeight, texChannels;
 	stbi_uc* pixels = stbi_load( texturePath, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha );
@@ -73,7 +73,7 @@ bool LoadTextureImage( const char* texturePath, Texture& texture )
 }
 
 
-bool LoadTextureCubeMapImage( const char* textureBasePath, const char* ext, Texture& texture )
+bool LoadTextureCubeMapImage( const char* textureBasePath, const char* ext, Image& texture )
 {
 	std::string paths[ 6 ] = {
 		( std::string( textureBasePath ) + "_right." + ext ),
@@ -85,7 +85,7 @@ bool LoadTextureCubeMapImage( const char* textureBasePath, const char* ext, Text
 	};
 
 	int sizeBytes = 0;
-	Texture textures2D[ 6 ];
+	Image textures2D[ 6 ];
 	for ( int i = 0; i < 6; ++i )
 	{
 		if ( LoadTextureImage( paths[ i ].c_str(), textures2D[ i ] ) == false ) {

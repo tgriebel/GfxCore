@@ -31,7 +31,7 @@
 #include "../core/asset.h"
 
 typedef AssetLib< Model >			AssetLibModels;
-typedef AssetLib< Texture >			AssetLibImages;
+typedef AssetLib< Image >			AssetLibImages;
 typedef AssetLib< Material >		AssetLibMaterials;
 typedef AssetLib< GpuProgram >		AssetLibGpuProgram;
 

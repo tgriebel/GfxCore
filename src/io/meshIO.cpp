@@ -388,7 +388,7 @@ namespace MeshIO
 				ss >> v.z;
 				mesh.normals.push_back( v );
 			}
-			else if ( semanticToken.compare( "vt" ) == 0 ) // Texture UVs
+			else if ( semanticToken.compare( "vt" ) == 0 ) // Image UVs
 			{
 				vector_t v;
 				ss >> v.x;
