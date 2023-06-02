@@ -44,7 +44,7 @@
 #include "../../external/stb_image.h"
 
 
-bool LoadTextureImage( const char* texturePath, Image& texture )
+bool LoadImage( const char* texturePath, Image& texture )
 {
 	int texWidth, texHeight, texChannels;
 	stbi_uc* pixels = stbi_load( texturePath, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha );
@@ -59,9 +59,9 @@ bool LoadTextureImage( const char* texturePath, Image& texture )
 	texture.info.height = static_cast<uint32_t>( texHeight );
 	texture.info.channels = 4; // always loaded in as rgba
 	texture.info.layers = 1;
-	texture.info.type = TEXTURE_TYPE_2D;
-	texture.info.fmt = TEXTURE_FMT_RGBA_8;
-	texture.info.tiling = TEXTURE_TILING_MORTON;
+	texture.info.type = IMAGE_TYPE_2D;
+	texture.info.fmt = IMAGE_FMT_RGBA_8;
+	texture.info.tiling = IMAGE_TILING_MORTON;
 	texture.uploadId = -1;
 	texture.info.mipLevels = static_cast<uint32_t>( std::floor( std::log2( std::max( texture.info.width, texture.info.height ) ) ) ) + 1;
 	texture.sizeBytes = ( texWidth * texHeight * 4 );
@@ -73,7 +73,7 @@ bool LoadTextureImage( const char* texturePath, Image& texture )
 }
 
 
-bool LoadTextureCubeMapImage( const char* textureBasePath, const char* ext, Image& texture )
+bool LoadCubeMapImage( const char* textureBasePath, const char* ext, Image& texture )
 {
 	std::string paths[ 6 ] = {
 		( std::string( textureBasePath ) + "_right." + ext ),
@@ -88,7 +88,7 @@ bool LoadTextureCubeMapImage( const char* textureBasePath, const char* ext, Imag
 	Image textures2D[ 6 ];
 	for ( int i = 0; i < 6; ++i )
 	{
-		if ( LoadTextureImage( paths[ i ].c_str(), textures2D[ i ] ) == false ) {
+		if ( LoadImage( paths[ i ].c_str(), textures2D[ i ] ) == false ) {
 			sizeBytes = 0;
 			break;
 		}
@@ -138,9 +138,9 @@ bool LoadTextureCubeMapImage( const char* textureBasePath, const char* ext, Imag
 	texture.info.height = texHeight;
 	texture.info.channels = texChannels;
 	texture.info.layers = 6;
-	texture.info.type = TEXTURE_TYPE_CUBE;
-	texture.info.fmt = TEXTURE_FMT_RGBA_8;
-	texture.info.tiling = TEXTURE_TILING_MORTON;
+	texture.info.type = IMAGE_TYPE_CUBE;
+	texture.info.fmt = IMAGE_FMT_RGBA_8;
+	texture.info.tiling = IMAGE_TILING_MORTON;
 	texture.uploadId = -1;
 	texture.info.mipLevels = static_cast<uint32_t>( std::floor( std::log2( std::max( texture.info.width, texture.info.height ) ) ) ) + 1;
 	texture.bytes = bytes;
@@ -195,7 +195,7 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 			if( name.length() == 0 ) {
 				continue;
 			}
-			assets.textureLib.AddDeferred( name.c_str(), pTexLoader_t( new TextureLoader( texturePath, name ) ) );
+			assets.textureLib.AddDeferred( name.c_str(), pImgLoader_t( new ImageLoader( texturePath, name ) ) );
 		}
 		
 		Material mat;

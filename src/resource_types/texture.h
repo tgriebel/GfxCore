@@ -29,81 +29,81 @@
 
 class GpuImage;
 
-enum textureType_t : uint8_t
+enum imageType_t : uint8_t
 {
-	TEXTURE_TYPE_UNKNOWN,
-	TEXTURE_TYPE_2D,
-	TEXTURE_TYPE_2D_ARRAY,
-	TEXTURE_TYPE_3D,
-	TEXTURE_TYPE_3D_ARRAY,
-	TEXTURE_TYPE_CUBE,
-	TEXTURE_TYPE_CUBE_ARRAY,
-	TEXTURE_TYPE_DEPTH,
-	TEXTURE_TYPE_STENCIL,
-	TEXTURE_TYPE_DEPTH_STENCIL,
+	IMAGE_TYPE_UNKNOWN,
+	IMAGE_TYPE_2D,
+	IMAGE_TYPE_2D_ARRAY,
+	IMAGE_TYPE_3D,
+	IMAGE_TYPE_3D_ARRAY,
+	IMAGE_TYPE_CUBE,
+	IMAGE_TYPE_CUBE_ARRAY,
+	IMAGE_TYPE_DEPTH,
+	IMAGE_TYPE_STENCIL,
+	IMAGE_TYPE_DEPTH_STENCIL,
 };
 
 
-enum textureAspectFlags_t : uint8_t
+enum imageAspectFlags_t : uint8_t
 {
-	TEXTURE_ASPECT_COLOR_FLAG = ( 1 << 0 ),
-	TEXTURE_ASPECT_DEPTH_FLAG = ( 1 << 1 ),
-	TEXTURE_ASPECT_STENCIL_FLAG = ( 1 << 2 ),
+	IMAGE_ASPECT_COLOR_FLAG = ( 1 << 0 ),
+	IMAGE_ASPECT_DEPTH_FLAG = ( 1 << 1 ),
+	IMAGE_ASPECT_STENCIL_FLAG = ( 1 << 2 ),
 };
 
 
-enum textureTiling_t : uint8_t
+enum imageTiling_t : uint8_t
 {
-	TEXTURE_TILING_LINEAR,
-	TEXTURE_TILING_MORTON,
+	IMAGE_TILING_LINEAR,
+	IMAGE_TILING_MORTON,
 };
 
 
-enum textureFmt_t : uint8_t
+enum imageFmt_t : uint8_t
 {
-	TEXTURE_FMT_UNKNOWN,
-	TEXTURE_FMT_R_8,
-	TEXTURE_FMT_R_16,
-	TEXTURE_FMT_R_32,
-	TEXTURE_FMT_D_16,
-	TEXTURE_FMT_D24S8,
-	TEXTURE_FMT_D_32,
-	TEXTURE_FMT_D_32_S8,
-	TEXTURE_FMT_RGB_8,
-	TEXTURE_FMT_RGBA_8,
-	TEXTURE_FMT_ABGR_8,
-	TEXTURE_FMT_BGR_8,
-	TEXTURE_FMT_BGRA_8,
-	TEXTURE_FMT_RGB_16,
-	TEXTURE_FMT_RGBA_16,
-	TEXTURE_FMT_R11G11B10,
+	IMAGE_FMT_UNKNOWN,
+	IMAGE_FMT_R_8,
+	IMAGE_FMT_R_16,
+	IMAGE_FMT_R_32,
+	IMAGE_FMT_D_16,
+	IMAGE_FMT_D24S8,
+	IMAGE_FMT_D_32,
+	IMAGE_FMT_D_32_S8,
+	IMAGE_FMT_RGB_8,
+	IMAGE_FMT_RGBA_8,
+	IMAGE_FMT_ABGR_8,
+	IMAGE_FMT_BGR_8,
+	IMAGE_FMT_BGRA_8,
+	IMAGE_FMT_RGB_16,
+	IMAGE_FMT_RGBA_16,
+	IMAGE_FMT_R11G11B10,
 };
 
 
-enum textureSamples_t : uint8_t
+enum imageSamples_t : uint8_t
 {
-	TEXTURE_SMP_1 = (1 << 0),
-	TEXTURE_SMP_2 = ( 1 << 1 ),
-	TEXTURE_SMP_4 = ( 1 << 2 ),
-	TEXTURE_SMP_8 = ( 1 << 3 ),
-	TEXTURE_SMP_16 = ( 1 << 4 ),
-	TEXTURE_SMP_32 = ( 1 << 5 ),
-	TEXTURE_SMP_64 = ( 1 << 6 ),
+	IMAGE_SMP_1 = (1 << 0),
+	IMAGE_SMP_2 = ( 1 << 1 ),
+	IMAGE_SMP_4 = ( 1 << 2 ),
+	IMAGE_SMP_8 = ( 1 << 3 ),
+	IMAGE_SMP_16 = ( 1 << 4 ),
+	IMAGE_SMP_32 = ( 1 << 5 ),
+	IMAGE_SMP_64 = ( 1 << 6 ),
 };
 
 
-struct textureInfo_t
+struct imageInfo_t
 {
 	uint32_t				width;
 	uint32_t				height;
 	uint32_t				channels;
 	uint32_t				mipLevels;
 	uint32_t				layers;
-	textureSamples_t		subsamples;
-	textureType_t			type;
-	textureFmt_t			fmt;
-	textureAspectFlags_t	aspect;
-	textureTiling_t			tiling;
+	imageSamples_t			subsamples;
+	imageType_t				type;
+	imageFmt_t				fmt;
+	imageAspectFlags_t		aspect;
+	imageTiling_t			tiling;
 };
 
 
@@ -112,7 +112,7 @@ class Image
 public:
 	uint8_t*		bytes;
 	uint32_t		sizeBytes;
-	textureInfo_t	info;
+	imageInfo_t		info;
 	int				uploadId;
 	bool			dirty;
 
@@ -125,11 +125,11 @@ public:
 		info.height = 0;
 		info.channels = 0;
 		info.mipLevels = 0;
-		info.subsamples = TEXTURE_SMP_1;
-		info.type = TEXTURE_TYPE_UNKNOWN;
-		info.fmt = TEXTURE_FMT_UNKNOWN;
-		info.aspect = TEXTURE_ASPECT_COLOR_FLAG;
-		info.tiling = TEXTURE_TILING_LINEAR;
+		info.subsamples = IMAGE_SMP_1;
+		info.type = IMAGE_TYPE_UNKNOWN;
+		info.fmt = IMAGE_FMT_UNKNOWN;
+		info.aspect = IMAGE_ASPECT_COLOR_FLAG;
+		info.tiling = IMAGE_TILING_LINEAR;
 		uploadId = -1;
 		bytes = nullptr;
 		sizeBytes = 0;
@@ -148,7 +148,7 @@ public:
 };
 
 
-class TextureLoader : public LoadHandler<Image>
+class ImageLoader : public LoadHandler<Image>
 {
 private:
 	std::string basePath;
@@ -159,15 +159,15 @@ private:
 	bool Load( Image& texture )
 	{
 		if ( cubemap ) {
-			return LoadTextureCubeMapImage( ( basePath + fileName ).c_str(), ext.c_str(), texture );
+			return LoadCubeMapImage( ( basePath + fileName ).c_str(), ext.c_str(), texture );
 		} else {
-			return LoadTextureImage( ( basePath + fileName + "." + ext ).c_str(), texture );
+			return LoadImage( ( basePath + fileName + "." + ext ).c_str(), texture );
 		}
 	}
 
 public:
-	TextureLoader() : cubemap( false ) {}
-	TextureLoader( const std::string& path, const std::string& file ) : cubemap( false )
+	ImageLoader() : cubemap( false ) {}
+	ImageLoader( const std::string& path, const std::string& file ) : cubemap( false )
 	{
 		SetBasePath( path );
 		SetTextureFile( file );
@@ -191,4 +191,4 @@ public:
 	}
 };
 
-using pTexLoader_t = Asset<Image>::loadHandlerPtr_t;
+using pImgLoader_t = Asset<Image>::loadHandlerPtr_t;
