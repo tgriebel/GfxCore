@@ -57,7 +57,7 @@ DrawLine
 - Optimized bresenham algorithm
 ===================================
 */
-inline void DrawLine( CpuImage<Color>& image, int32_t x0, int32_t y0, int32_t x1, int32_t y1, const Color& color, blendMode_t blendMode = blendMode_t::SRCALPHA )
+inline void DrawLine( ImageBuffer<Color>& image, int32_t x0, int32_t y0, int32_t x1, int32_t y1, const Color& color, blendMode_t blendMode = blendMode_t::SRCALPHA )
 {
 	x0 = Clamp( x0, 0, (int32_t)image.GetWidth() - 1 );
 	y0 = Clamp( y0, 0, (int32_t)image.GetHeight() - 1 );

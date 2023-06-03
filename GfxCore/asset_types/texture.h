@@ -110,14 +110,14 @@ struct imageInfo_t
 class Image
 {
 public:
-	uint8_t*		bytes;
-	uint32_t		sizeBytes;
-	imageInfo_t		info;
-	int				uploadId;
-	bool			dirty;
+	uint8_t*			bytes;
+	uint32_t			sizeBytes;
+	imageInfo_t			info;
+	int					uploadId;
+	bool				dirty;
 
-	CpuImage<Color>	cpuImage;
-	GpuImage*		gpuImage;
+	ImageBuffer<Color>	cpuImage;
+	GpuImage*			gpuImage;
 
 	Image()
 	{
@@ -134,6 +134,8 @@ public:
 		bytes = nullptr;
 		sizeBytes = 0;
 		dirty = false;
+
+		gpuImage = nullptr;
 	}
 
 	~Image()

@@ -101,7 +101,7 @@ inline mat4x4f ComputeScale( const vec3f& scale )
 }
 
 
-static inline void BitmapToImage( const Bitmap& bitmap, CpuImage<Color>& image )
+static inline void BitmapToImage( const Bitmap& bitmap, ImageBuffer<Color>& image )
 {
 	image.Clear( Color::Black );
 
@@ -122,7 +122,7 @@ static inline void BitmapToImage( const Bitmap& bitmap, CpuImage<Color>& image )
 }
 
 
-static inline void ImageToBitmap( const CpuImage<Color>& image, Bitmap& bitmap )
+static inline void ImageToBitmap( const ImageBuffer<Color>& image, Bitmap& bitmap )
 {
 	bitmap.ClearImage( Color::Black );
 
@@ -140,7 +140,7 @@ static inline void ImageToBitmap( const CpuImage<Color>& image, Bitmap& bitmap )
 }
 
 
-static inline void ImageToBitmap( const CpuImage<float>& image, Bitmap& bitmap )
+static inline void ImageToBitmap( const ImageBuffer<float>& image, Bitmap& bitmap )
 {
 	bitmap.ClearImage( Color::Black );
 
