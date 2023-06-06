@@ -131,9 +131,11 @@ public:
 	void		SetAspectRatio( const float aspectRatio );	
 	void		SetFov( const float fieldOfView );
 	void		SetClip( const float nearDistance, const float farDistance );
-	void		SetNearPlane( const float nearDistance );
-	void		SetFarPlane( const float farDistance );
+	void		SetNearClip( const float nearDistance );
+	void		SetFarClip( const float farDistance );
 	float		GetFov() const;
+	float		GetNearClip() const;
+	float		GetFarClip() const;
 	float		GetAspectRatio() const;
 	Ray			GetViewRay( const vec2f& uv ) const;
 	

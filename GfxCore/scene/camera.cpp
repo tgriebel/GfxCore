@@ -29,18 +29,18 @@ void Camera::SetFov( const float fieldOfView )
 
 void Camera::SetClip( const float nearDistance, const float farDistance )
 {
-	SetNearPlane( nearDistance );
-	SetFarPlane( farDistance );
+	SetNearClip( nearDistance );
+	SetFarClip( farDistance );
 }
 
 
-void Camera::SetNearPlane( const float nearDistance )
+void Camera::SetNearClip( const float nearDistance )
 {
 	clipRegion.near = nearDistance;
 }
 
 
-void Camera::SetFarPlane( const float farDistance )
+void Camera::SetFarClip( const float farDistance )
 {
 	clipRegion.far = farDistance;
 	focalLength = farDistance;
@@ -50,6 +50,18 @@ void Camera::SetFarPlane( const float farDistance )
 float Camera::GetFov() const
 {
 	return fov;
+}
+
+
+float Camera::GetNearClip() const
+{
+	return clipRegion.near;
+}
+
+
+float Camera::GetFarClip() const
+{
+	return clipRegion.far;
 }
 
 
