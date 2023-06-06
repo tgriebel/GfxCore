@@ -34,33 +34,56 @@ struct viewport_t
 	int32_t		y;
 	uint32_t	width;
 	uint32_t	height;
-	float near;
-	float far;
+	float		near;
+	float		far;
+
+	viewport_t() :
+		x( 0 ),
+		y( 0 ),
+		width( 1 ),
+		height( 1 ),
+		near( 0 ),
+		far( 1 )
+	{}
+
+	viewport_t( const int32_t x_, const int32_t y_, const uint32_t width_, const uint32_t height_, const float near_, const float far_ ) :
+		x( x_ ),
+		y( y_ ),
+		width( width_ ),
+		height( height_ ),
+		near( near_ ),
+		far( far_ )
+	{}
 };
+
 
 class Camera
 {
 private:
+	struct plane_t
+	{
+		vec4f halfWidth;
+		vec4f halfHeight;
+		vec4f origin;
+	};
+
 	static constexpr float MaxFov = Radians( 120.0f );
 	static constexpr float MinFov = Radians( 30.0f );
 
-	mat4x4f	axis;
-	vec4f	origin;
-	float	yaw;
-	float	pitch;
-	float	aspect;
-	float	viewportWidth;
-	float	viewportHeight;
-	float	fov;
-	float	halfFovX;
-	float	halfFovY;
+	mat4x4f		axis;
+	vec4f		origin;
+	float		yaw;
+	float		pitch;
+	float		aspect;
+	viewport_t	clipRegion;
+	float		viewportWidth;
+	float		viewportHeight;
+	float		fov;
+	float		halfFovX;
+	float		halfFovY;
+	float		focalLength;
 
 public:
-	// FIXME: make private
-	float	near;
-	float	far;
-	float	focalLength;
-
 	void Init( const vec4f& _origin, const mat4x4f& _axis, const float _aspect = 1.0f, const float _fov = 90.0f, const float _near = 1.0f, const float _far = 1000.0f )
 	{
 		float aspectRatio = ( _aspect != 0.0f ) ? _aspect : 1.0f;
@@ -69,8 +92,8 @@ public:
 		axis = _axis;
 
 		fov = Radians( _fov );
-		near = _near;
-		far = _far;
+		clipRegion.near = _near;
+		clipRegion.far = _far;
 		yaw = 0.0f;
 		pitch = 0.0f;
 		focalLength = _far;
@@ -81,7 +104,7 @@ public:
 	Camera()
 	{
 		vec4f origin = vec4f( 0.0f, 0.0f, 0.0f, 0.0f );
-		float axisValues[ 16 ] = { 0.0f, -1.0f, 0.0f, 0.0f,
+		float axisValues[ 16 ] = {	0.0f, -1.0f, 0.0f, 0.0f,
 									0.0f, 0.0f, -1.0f, 0.0f,
 									-1.0f, 0.0f, 0.0f, 0.0f,
 									0.0f, 0.0f, 0.0f, 1.0f };
@@ -125,17 +148,27 @@ public:
 		viewportHeight = 2.0f * halfFovY;
 	}
 
+	void SetClip( const float nearDistance, const float farDistance )
+	{
+		SetNearPlane( nearDistance );
+		SetFarPlane( farDistance );
+	}
+
+	void SetNearPlane( const float nearDistance )
+	{
+		clipRegion.near = nearDistance;
+	}
+
+	void SetFarPlane( const float farDistance )
+	{
+		clipRegion.far = farDistance;
+		focalLength = farDistance;
+	}
+
 	float GetFov() const
 	{
 		return fov;
 	}
-
-	struct plane_t
-	{
-		vec4f halfWidth;
-		vec4f halfHeight;
-		vec4f origin;
-	};
 
 	plane_t GetFocalPlane() const
 	{
@@ -192,29 +225,35 @@ public:
 		proj[ 1 ][ 1 ] = 1.0f / halfFovY;
 		proj[ 2 ][ 3 ] = -1.0f;
 
+		const float n = clipRegion.near;
+		const float f = clipRegion.far;
+
 		if( inverseZ )
 		{
-			proj[ 2 ][ 2 ] = -near / ( far - near );
-			proj[ 3 ][ 2 ] = ( far * near ) / ( far - near );
+			proj[ 2 ][ 2 ] = -n / ( f - n );
+			proj[ 3 ][ 2 ] = ( f * n ) / ( f - n );
 		}
 		else
 		{
-			proj[ 2 ][ 2 ] = far / ( near - far );
-			proj[ 3 ][ 2 ] = -( far * near ) / ( far - near );
+			proj[ 2 ][ 2 ] = f / ( n - f );
+			proj[ 3 ][ 2 ] = -( f * n ) / ( f - n );
 		}
 		return proj;
 	}
 
 	mat4x4f GetOrthogonalMatrix( const float left, const float right, const float top, const float bottom )
 	{
+		const float n = clipRegion.near;
+		const float f = clipRegion.far;
+
 		mat4x4f proj = mat4x4f( 1.0f );
 		proj[ 0 ][ 0 ] = 2.0f / ( right - left );
 		proj[ 1 ][ 1 ] = 2.0f / ( top - bottom );
-		proj[ 2 ][ 2 ] = -2.0f / ( far - near );
+		proj[ 2 ][ 2 ] = -2.0f / ( f - n );
 		proj[ 3 ][ 3 ] = 1.0f;
 		proj[ 3 ][ 0 ] = -( right + left ) / ( right - left );
 		proj[ 3 ][ 1 ] = -( top + bottom ) / ( top - bottom );
-		proj[ 3 ][ 2 ] = -( far + near ) / ( far - near );
+		proj[ 3 ][ 2 ] = -( f + n ) / ( f - n );
 		return proj;
 	}
 

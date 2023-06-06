@@ -38,12 +38,22 @@
 #include "entity.h"
 #include "assetManager.h"
 
+
+enum lightFlags_t
+{
+	LIGHT_FLAGS_NONE = 0,
+	LIGHT_FLAGS_SHADOW = ( 1 << 0 ),
+	LIGHT_FLAGS_ALL = 0XFF,
+};
+
+
 struct light_t
 {
-	vec4f	lightPos;
-	vec4f	intensity;
-	vec4f	lightDir;
-	Color	color;
+	vec4f			lightPos;
+	vec4f			intensity;
+	vec4f			lightDir;
+	Color			color;
+	lightFlags_t	flags;
 };
 
 struct Ray;
@@ -104,10 +114,7 @@ public:
 	Scene()
 	{
 		camera = Camera( vec4f( 0.0f, 1.66f, 1.0f, 0.0f ) );
-		camera.far = defaultFar;
-		camera.near = defaultNear;
-		camera.focalLength = camera.far;
-
+		camera.SetClip( defaultNear, defaultFar );
 		camera.SetFov( Radians( 90.0f ) );
 		camera.SetAspectRatio( 1.0f );
 
