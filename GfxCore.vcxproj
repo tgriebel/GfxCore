@@ -231,6 +231,7 @@
     <ClCompile Include="GfxCore\io\serializeClasses.cpp" />
     <ClCompile Include="GfxCore\math\matrix.cpp" />
     <ClCompile Include="GfxCore\primitives\geom.cpp" />
+    <ClCompile Include="GfxCore\scene\camera.cpp" />
     <ClCompile Include="GfxCore\scene\entity.cpp" />
     <ClCompile Include="GfxCore\scene\scene.cpp" />
   </ItemGroup>

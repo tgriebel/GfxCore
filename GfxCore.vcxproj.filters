@@ -67,6 +67,9 @@
     <ClCompile Include="GfxCore\scene\scene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
+    <ClCompile Include="GfxCore\scene\camera.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GfxCore\asset_types\gpuProgram.h">
