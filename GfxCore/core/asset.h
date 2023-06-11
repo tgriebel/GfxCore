@@ -54,13 +54,14 @@ protected:
 	AssetType					asset;
 	loadHandlerPtr_t			loader;
 	bool						loaded;
+	bool						uploaded;
 	bool						isDefault;
 
 public:
-	Asset() : name( "" ), loaded( false ), isDefault( false ), loader( nullptr ), handle( INVALID_HDL ) {}
+	Asset() : name( "" ), loaded( false ), isDefault( false ), uploaded( false ), loader( nullptr ), handle( INVALID_HDL ) {}
 
 	Asset( const AssetType& _asset, const std::string& _name, const bool _loaded = true ) : 
-		name( _name ), asset( _asset ), loaded( _loaded ), isDefault( false ), loader( nullptr )
+		name( _name ), asset( _asset ), loaded( _loaded ), isDefault( false ), uploaded( false ), loader( nullptr )
 	{
 		handle = Hash( name );
 	}
@@ -83,6 +84,21 @@ public:
 	inline void SetLoaded()
 	{
 		loaded = true;
+	}
+
+	inline void QueueUpload()
+	{
+		uploaded = false;
+	}
+
+	inline void CompleteUpload()
+	{
+		uploaded = true;
+	}
+
+	inline bool IsUploaded() const
+	{
+		return uploaded;
 	}
 
 	inline bool IsDefault() const

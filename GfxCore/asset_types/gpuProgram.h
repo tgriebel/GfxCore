@@ -42,6 +42,15 @@ enum shaderType_t : uint32_t
 };
 
 
+enum class pipelineType_t : uint32_t
+{
+	UNSPECIFIED = 0,
+	RASTER,
+	COMPUTE,
+	RAYTRACING,
+};
+
+
 struct shaderSource_t
 {
 	std::string			name;
@@ -55,6 +64,7 @@ class GpuProgram
 public:
 	static const uint32_t MaxShaders = 2;
 
+	pipelineType_t			type;
 	shaderSource_t			shaders[ MaxShaders ];
 #ifdef USE_VULKAN
 	VkShaderModule			vk_shaders[ MaxShaders ];
@@ -76,22 +86,36 @@ private:
 
 	bool LoadRasterProgram( GpuProgram& program )
 	{
+		program.shaderCount = 2;
+
 		program.shaders[ 0 ].name = vsFileName;
 		program.shaders[ 0 ].blob = ReadFile( basePath + vsFileName );
 		program.shaders[ 0 ].type = shaderType_t::VERTEX;
+
 		program.shaders[ 1 ].name = psFileName;
 		program.shaders[ 1 ].blob = ReadFile( basePath + psFileName );
 		program.shaders[ 1 ].type = shaderType_t::PIXEL;
-		program.shaderCount = 2;
+		
+#ifdef USE_VULKAN
+		program.vk_shaders[ 0 ] = VK_NULL_HANDLE;
+		program.vk_shaders[ 1 ] = VK_NULL_HANDLE;
+#endif
+
 		return true;
 	}
 
 	bool LoadComputeProgram( GpuProgram& program )
 	{
+		program.shaderCount = 1;
 		program.shaders[ 0 ].name = csFileName;
 		program.shaders[ 0 ].blob = ReadFile( basePath + csFileName );
-		program.shaders[ 0 ].type = shaderType_t::COMPUTE;
-		program.shaderCount = 1;
+		program.shaders[ 0 ].type = shaderType_t::COMPUTE;	
+
+#ifdef USE_VULKAN
+		program.vk_shaders[ 0 ] = VK_NULL_HANDLE;
+		program.vk_shaders[ 1 ] = VK_NULL_HANDLE;
+#endif
+
 		return true;
 	}
 

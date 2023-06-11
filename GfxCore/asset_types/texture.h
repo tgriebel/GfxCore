@@ -113,8 +113,6 @@ public:
 	uint8_t*			bytes;
 	uint32_t			sizeBytes;
 	imageInfo_t			info;
-	int					uploadId;
-	bool				dirty;
 
 	ImageBuffer<Color>	cpuImage;
 	GpuImage*			gpuImage;
@@ -130,10 +128,8 @@ public:
 		info.fmt = IMAGE_FMT_UNKNOWN;
 		info.aspect = IMAGE_ASPECT_COLOR_FLAG;
 		info.tiling = IMAGE_TILING_LINEAR;
-		uploadId = -1;
 		bytes = nullptr;
 		sizeBytes = 0;
-		dirty = false;
 
 		gpuImage = nullptr;
 	}

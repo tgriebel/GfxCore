@@ -113,7 +113,6 @@ public:
 	static const uint32_t MaxMaterialShaders = DRAWPASS_COUNT;
 
 	int32_t					uploadId;
-	bool					dirty;
 	materialUsage_t			usage;
 
 private:
@@ -136,7 +135,6 @@ public:
 		for ( int i = 0; i < MaxMaterialShaders; ++i ) {
 			shaders[ i ] = INVALID_HDL;
 		}
-		dirty = true;
 		uploadId = -1;
 		usage = MATERIAL_USAGE_UNKNOWN;
 	}
@@ -154,7 +152,6 @@ public:
 	inline void Kd( const rgbTuplef_t rgb )
 	{
 		p.Kd = rgb;
-		dirty = true;
 	}
 
 	inline const rgbTuplef_t& Ks() const
@@ -165,7 +162,6 @@ public:
 	inline void Ks( const rgbTuplef_t rgb )
 	{
 		p.Ks = rgb;
-		dirty = true;
 	}
 
 	inline const rgbTuplef_t& Ke() const
@@ -176,7 +172,6 @@ public:
 	inline void Ke( const rgbTuplef_t rgb )
 	{
 		p.Ke = rgb;
-		dirty = true;
 	}
 
 	inline const rgbTuplef_t& Ka() const
@@ -187,7 +182,6 @@ public:
 	inline void Ka( const rgbTuplef_t rgb )
 	{
 		p.Ka = rgb;
-		dirty = true;
 	}
 
 	inline const rgbTuplef_t& Tf() const
@@ -198,7 +192,6 @@ public:
 	inline void Tf( const rgbTuplef_t rgb )
 	{
 		p.Tf = rgb;
-		dirty = true;
 	}
 
 	inline const float& Tr() const
@@ -209,7 +202,6 @@ public:
 	inline void Tr( const float rgb )
 	{
 		p.Tr = rgb;
-		dirty = true;
 	}
 
 	inline const float& Ns() const
@@ -220,7 +212,6 @@ public:
 	inline void Ns( const float rgb )
 	{
 		p.Ns = rgb;
-		dirty = true;
 	}
 
 	inline const float& Ni() const
@@ -231,7 +222,6 @@ public:
 	inline void Ni( const float rgb )
 	{
 		p.Ni = rgb;
-		dirty = true;
 	}
 
 	inline const float& Illum() const
@@ -242,7 +232,6 @@ public:
 	inline void Illum( const float rgb )
 	{
 		p.illum = rgb;
-		dirty = true;
 	}
 
 	inline bool IsTextured() const
@@ -272,7 +261,6 @@ public:
 		}
 		textures[ slot ] = hdl;
 		textureBitSet |= ( 1 << slot );
-		dirty = true;
 		return true;
 	}
 
@@ -294,7 +282,6 @@ public:
 		}
 		shaders[ slot ] = hdl;
 		shaderBitSet |= ( 1 << slot );
-		dirty = true;
 		return true;
 	}
 

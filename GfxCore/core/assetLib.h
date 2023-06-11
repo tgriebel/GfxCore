@@ -89,6 +89,7 @@ void AssetLib< AssetType >::LoadAll()
 			} else {
 				++it;
 			}
+			asset->QueueUpload();
 		}
 	}
 }

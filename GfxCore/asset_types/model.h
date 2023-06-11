@@ -57,7 +57,7 @@ class Model
 {
 	static const uint32_t Version = 1;
 public:
-	Model() : surfCount( 0 ), uploaded( false )
+	Model() : surfCount( 0 )
 	{
 	}
 
@@ -65,7 +65,6 @@ public:
 	std::vector<Surface>		surfs;
 	std::vector<surfaceUpload_t> upload;
 	uint32_t					surfCount;
-	bool						uploaded;
 
 	void Serialize( Serializer* serializer );
 };
