@@ -272,8 +272,9 @@ public:
 		return textures[ slot ];
 	}
 
-	inline bool AddShader( const uint32_t slot, const hdl_t hdl )
+	inline bool AddShader( const drawPass_t pass, const hdl_t hdl )
 	{
+		const uint32_t slot = uint32_t( pass );
 		if ( slot >= MaxMaterialShaders ) {
 			return false;
 		}
@@ -285,8 +286,9 @@ public:
 		return true;
 	}
 
-	inline hdl_t GetShader( const uint32_t slot ) const
+	inline hdl_t GetShader( const drawPass_t pass ) const
 	{
+		const uint32_t slot = uint32_t( pass );
 		if ( slot >= MaxMaterialShaders ) {
 			return INVALID_HDL;
 		}
