@@ -41,27 +41,22 @@ private:
 	friend class Asset<AssetType>;
 };
 
-template< class AssetType >
-class Asset
+class AssetInterface
 {
-public:
-	using loadHandlerPtr_t = std::unique_ptr< LoadHandler<AssetType> >;
-
 protected:
 	std::string					name;
 	std::string					json;
 	hdl_t						handle;
-	AssetType					asset;
-	loadHandlerPtr_t			loader;
+
 	bool						loaded;
 	bool						uploaded;
 	bool						isDefault;
 
 public:
-	Asset() : name( "" ), loaded( false ), isDefault( false ), uploaded( false ), loader( nullptr ), handle( INVALID_HDL ) {}
+	AssetInterface() : name( "" ), loaded( false ), isDefault( false ), uploaded( false ), handle( INVALID_HDL ) {}
 
-	Asset( const AssetType& _asset, const std::string& _name, const bool _loaded = true ) : 
-		name( _name ), asset( _asset ), loaded( _loaded ), isDefault( false ), uploaded( false ), loader( nullptr )
+	AssetInterface( const std::string& _name, const bool _loaded ) :
+		name( _name ), loaded( _loaded ), isDefault( false ), uploaded( false )
 	{
 		handle = Hash( name );
 	}
@@ -110,6 +105,29 @@ public:
 	{
 		isDefault = true;
 	}
+};
+
+
+template< class AssetType >
+class Asset : public AssetInterface
+{
+public:
+	using loadHandlerPtr_t = std::unique_ptr< LoadHandler<AssetType> >;
+
+protected:
+	loadHandlerPtr_t			loader;
+	AssetType					asset;
+
+public:
+	Asset() : AssetInterface(), loader( nullptr ) {}
+
+	Asset( const AssetType& _asset, const std::string& _name, const bool _loaded = true ) :
+		AssetInterface( _name, _loaded ), asset( _asset ), loader( nullptr ) {}
+
+	inline void AttachLoader( loadHandlerPtr_t _loader )
+	{
+		loader = std::move( _loader );
+	}
 
 	inline const AssetType& Get() const
 	{
@@ -121,11 +139,6 @@ public:
 		return asset;
 	}
 
-	inline void AttachLoader( loadHandlerPtr_t _loader )
-	{
-		loader = std::move( _loader );
-	}
-
 	inline bool HasLoader() const
 	{
 		return loader ? true : false;
@@ -133,7 +146,7 @@ public:
 
 	inline bool Load()
 	{
-		if( ( loaded == false ) && HasLoader() )
+		if ( ( loaded == false ) && HasLoader() )
 		{
 			loaded = loader->Load( asset );
 			return loaded;
