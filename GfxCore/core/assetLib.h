@@ -31,13 +31,39 @@
 
 #include "asset.h"
 
+class Library
+{
+public:
+	using loadList_t = std::list<uint64_t>;
+
+	loadList_t					pendingLoad;
+
+	static inline hdl_t					Handle( const char* name ) { return Hash( name ); }
+	virtual void						Clear() = 0;
+	virtual AssetInterface*				GetDefault() = 0;
+	virtual const AssetInterface*		GetDefault() const = 0;
+	virtual void						LoadAll() = 0;
+	virtual void						UnloadAll() = 0;
+	virtual bool						HasPendingLoads() const = 0;
+	virtual uint32_t					Count() const = 0;
+	virtual AssetInterface*				Find( const char* name ) = 0;
+	virtual const AssetInterface*		Find( const char* name ) const = 0;
+	virtual AssetInterface*				Find( const uint32_t id ) = 0;
+	virtual const AssetInterface*		Find( const uint32_t id ) const = 0;
+	virtual AssetInterface*				Find( const hdl_t& hdl ) = 0;
+	virtual const AssetInterface*		Find( const hdl_t& hdl ) const = 0;
+	virtual const char*					FindName( const hdl_t& hdl ) const = 0;
+	virtual const char*					FindName( const uint32_t id ) const = 0;
+	virtual hdl_t						RetrieveHdl( const char* name ) const = 0;
+};
+
 template< class AssetType >
-class AssetLib {
+class AssetLib : public Library
+{
 private:
 	using assetMap_t = std::unordered_map< uint64_t, Asset<AssetType> >;
-	using loadList_t = std::list<uint64_t>;
+
 	assetMap_t assets;
-	loadList_t pendingLoad;
 public:
 	static inline hdl_t		Handle( const char* name ) { return Hash( name ); }
 	void					Clear();
@@ -52,7 +78,7 @@ public:
 	void					Remove( const uint32_t id );
 	void					Remove( const hdl_t& hdl );
 	Asset<AssetType>*		Find( const char* name );
-	const Asset<AssetType>* Find( const char* name ) const;
+	const Asset<AssetType>*	Find( const char* name ) const;
 	Asset<AssetType>*		Find( const uint32_t id );
 	const Asset<AssetType>*	Find( const uint32_t id ) const;
 	Asset<AssetType>*		Find( const hdl_t& hdl );

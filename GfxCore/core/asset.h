@@ -61,6 +61,10 @@ public:
 		handle = Hash( name );
 	}
 
+	virtual bool Load() = 0;
+	virtual void Unload() = 0;
+	virtual bool HasLoader() const = 0;
+
 	inline const std::string& GetName() const
 	{
 		return name;
@@ -139,12 +143,12 @@ public:
 		return asset;
 	}
 
-	inline bool HasLoader() const
+	bool HasLoader() const
 	{
 		return loader ? true : false;
 	}
 
-	inline bool Load()
+	bool Load()
 	{
 		if ( ( loaded == false ) && HasLoader() )
 		{
@@ -154,7 +158,7 @@ public:
 		return true;
 	}
 
-	inline void Unload()
+	void Unload()
 	{
 		asset.~AssetType();
 		loaded = false;
