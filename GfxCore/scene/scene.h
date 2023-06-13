@@ -50,10 +50,10 @@ enum lightFlags_t
 
 struct light_t
 {
-	vec4f			lightPos;
-	vec4f			intensity;
-	vec4f			lightDir;
+	vec4f			pos;
+	vec4f			dir;
 	Color			color;
+	float			intensity;
 	lightFlags_t	flags;
 };
 
