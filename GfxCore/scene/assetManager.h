@@ -38,38 +38,54 @@ typedef AssetLib< GpuProgram >		AssetLibGpuProgram;
 class AssetManager
 {
 public:
+	std::vector<Library*>		libraries;
 	AssetLibModels				modelLib;
 	AssetLibImages				textureLib;
 	AssetLibMaterials			materialLib;
 	AssetLibGpuProgram			gpuPrograms;
 
+	AssetManager()
+	{
+		libraries.push_back( &modelLib );
+		libraries.push_back( &textureLib );
+		libraries.push_back( &materialLib );
+		libraries.push_back( &gpuPrograms );
+	}
+
 	void Clear()
 	{
-		modelLib.Clear();
-		textureLib.Clear();
-		materialLib.Clear();
-		gpuPrograms.Clear();
+		for( auto it = libraries.begin(); it != libraries.end(); ++it ) {
+			(*it)->Clear();
+		}
 	}
 
 	inline bool HasPendingLoads()
 	{
-		bool hasItems = false;
-		hasItems = hasItems || gpuPrograms.HasPendingLoads();
-		hasItems = hasItems || modelLib.HasPendingLoads();
-		hasItems = hasItems || textureLib.HasPendingLoads();
-		hasItems = hasItems || materialLib.HasPendingLoads();
-		return hasItems;
+		for ( auto it = libraries.begin(); it != libraries.end(); ++it ) {
+			if( ( *it )->HasPendingLoads() ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	void RunLoadLoop( const uint32_t limit = 12 )
 	{
 		uint32_t i = 0;
-		while ( HasPendingLoads() && ( i < limit ) )
+		while ( i < limit )
 		{
-			gpuPrograms.LoadAll();		
-			textureLib.LoadAll();
-			materialLib.LoadAll();
-			modelLib.LoadAll();
+			bool hasLoads = false;
+			for ( auto it = libraries.begin(); it != libraries.end(); ++it )
+			{
+				if ( ( *it )->HasPendingLoads() )
+				{
+					( *it )->LoadAll();
+					hasLoads = true;
+				}
+			}
+			if( hasLoads == false ) {
+				break;
+			}
 			++i;
 		}
 	}
