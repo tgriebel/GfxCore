@@ -107,6 +107,29 @@ struct imageInfo_t
 };
 
 
+inline bool operator==( const imageInfo_t& info0, const imageInfo_t& info1 )
+{
+	bool equal =
+		( info0.width == info1.width ) &&
+		( info0.height == info1.height ) &&
+		( info0.channels == info1.channels ) &&
+		( info0.mipLevels == info1.mipLevels ) &&
+		( info0.layers == info1.layers ) &&
+		( info0.subsamples == info1.subsamples ) &&
+		( info0.type == info1.type ) &&
+		( info0.fmt == info1.fmt ) &&
+		( info0.aspect == info1.aspect ) &&
+		( info0.tiling == info1.tiling );
+	return equal;
+}
+
+
+inline bool operator!=( const imageInfo_t& info0, const imageInfo_t& info1 )
+{
+	return !( info0 == info1 );
+}
+
+
 class Image
 {
 public:
