@@ -70,10 +70,33 @@ void SerializeStruct( Serializer* s, rgbaTuple_t<float>& rgba )
 }
 
 
-void Color::Serialize( Serializer* serializer )
+void SerializeStruct( Serializer* s, rgbTuple_t<float>& rgb )
 {
-	Serializer* s = reinterpret_cast<Serializer*>( serializer );
+	static_assert( sizeof( rgbTuple_t<float> ) == 12, "Serialization out-of-date" );
+	s->Next( rgb.r );
+	s->Next( rgb.g );
+	s->Next( rgb.b );
+}
 
+
+void SerializeStruct( Serializer* s, materialParms_t& p )
+{
+	static_assert( sizeof( materialParms_t ) == 80, "Serialization out-of-date" );
+	SerializeStruct( s, p.Ka );
+	SerializeStruct( s, p.Ke );
+	SerializeStruct( s, p.Kd );
+	SerializeStruct( s, p.Ks );
+	SerializeStruct( s, p.Tf );
+	s->Next( p.Tr );
+	s->Next( p.Ns );
+	s->Next( p.Ni );
+	s->Next( p.d );
+	s->Next( p.illum );
+}
+
+
+void Color::Serialize( Serializer* s )
+{
 	uint32_t version = Version;
 	s->Next( version );
 	if ( version != Version ) {
@@ -83,10 +106,8 @@ void Color::Serialize( Serializer* serializer )
 }
 
 
-void AABB::Serialize( Serializer* serializer )
+void AABB::Serialize( Serializer* s )
 {
-	Serializer* s = reinterpret_cast<Serializer*>( serializer );
-
 	uint32_t version = Version;
 	s->Next( version );
 	if ( version != Version ) {
@@ -97,10 +118,8 @@ void AABB::Serialize( Serializer* serializer )
 }
 
 template<typename T>
-void ImageBuffer<T>::Serialize( Serializer* serializer )
+void ImageBuffer<T>::Serialize( Serializer* s )
 {
-	Serializer* s = reinterpret_cast<Serializer*>( serializer );
-	
 	uint32_t version = Version;
 	s->Next( version );
 	if( version != Version ) {
@@ -110,6 +129,22 @@ void ImageBuffer<T>::Serialize( Serializer* serializer )
 	s->Next( height );
 	s->Next( length );
 	s->NextArray( buffer, length );
+}
+
+
+void Material::Serialize( Serializer* s )
+{
+	uint32_t version = Version;
+	s->Next( version );
+	if ( version != Version ) {
+		throw std::runtime_error( "Wrong version number." );
+	}
+	SerializeStruct( s, &usage );
+	SerializeStruct( s, p );
+	s->Next( textureBitSet );
+	s->Next( shaderBitSet );
+	SerializeArray( s, textures, MaxMaterialTextures );
+	SerializeArray( s, shaders, MaxMaterialShaders );
 }
 
 
@@ -162,6 +197,10 @@ void Model::Serialize( Serializer* s )
 	bounds.Serialize( s );
 
 	s->Next( surfCount );
+	if ( s->GetMode() == serializeMode_t::LOAD ) {
+		surfs.resize( surfCount );
+	}
+
 	for ( uint32_t i = 0; i < surfCount; ++i ) {
 		surfs[ i ].Serialize( s );
 	}
