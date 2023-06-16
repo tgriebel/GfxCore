@@ -255,6 +255,7 @@
     <ClInclude Include="GfxCore\image\image.h" />
     <ClInclude Include="GfxCore\io\io.h" />
     <ClInclude Include="GfxCore\io\meshIO.h" />
+    <ClInclude Include="GfxCore\io\serializeClasses.h" />
     <ClInclude Include="GfxCore\math\matrix.h" />
     <ClInclude Include="GfxCore\math\quaternion.h" />
     <ClInclude Include="GfxCore\math\vector.h" />

@@ -137,7 +137,7 @@ public:
 	uint32_t			sizeBytes;
 	imageInfo_t			info;
 
-	ImageBuffer<Color>	cpuImage;
+	ImageBuffer<RGBA>	cpuImage;
 	GpuImage*			gpuImage;
 
 	Image()
@@ -165,6 +165,29 @@ public:
 			sizeBytes = 0;
 			bytes = nullptr;
 		}
+	}
+
+	// FIXME: Temp helpers while this class is refactored
+	void InitCpuImage()
+	{
+		cpuImage.Init( info.width, info.height );
+		for ( uint32_t py = 0; py < info.height; ++py )
+		{
+			for ( uint32_t px = 0; px < info.width; ++px )
+			{
+				RGBA rgba;
+				rgba.r = bytes[ ( py * info.width + px ) * 4 + 0 ];
+				rgba.g = bytes[ ( py * info.width + px ) * 4 + 1 ];
+				rgba.b = bytes[ ( py * info.width + px ) * 4 + 2 ];
+				rgba.a = bytes[ ( py * info.width + px ) * 4 + 3 ];
+				cpuImage.SetPixel( px, py, rgba );
+			}
+		}
+	}
+
+	void DestroyCpuImage()
+	{
+		cpuImage.Destroy();
 	}
 };
 

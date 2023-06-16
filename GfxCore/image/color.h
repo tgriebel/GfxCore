@@ -425,6 +425,22 @@ inline Color operator-( const Color& color0, const Color& color1 )
 }
 
 
+static const Color ColorRed = Color::Red;
+static const Color ColorGreen = Color::Green;
+static const Color ColorBlue = Color::Blue;
+static const Color ColorWhite = Color::White;
+static const Color ColorBlack = Color::Black;
+static const Color ColorLGrey = Color::LGrey;
+static const Color ColorDGrey = Color::DGrey;
+static const Color ColorBrown = Color::Brown;
+static const Color ColorCyan = Color::Cyan;
+static const Color ColorYellow = Color::Yellow;
+static const Color ColorPurple = Color::Purple;
+static const Color ColorOrange = Color::Orange;
+static const Color ColorPink = Color::Pink;
+static const Color ColorGold = Color::Gold;
+
+
 Color SrgbTolinear( const Color& color, const float gamma = 2.2f );
 Color LinearToSrgb( const Color& color, const float gamma = 2.2f );
 Color BlendColor( const Color& src, const Color& dest, const blendMode_t blendMode );

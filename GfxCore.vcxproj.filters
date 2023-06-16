@@ -159,5 +159,8 @@
     <ClInclude Include="GfxCore\acceleration\octree.h">
       <Filter>Acceleration</Filter>
     </ClInclude>
+    <ClInclude Include="GfxCore\io\serializeClasses.h">
+      <Filter>IO</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

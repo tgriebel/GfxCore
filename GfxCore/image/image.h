@@ -76,15 +76,7 @@ public:
 
 	~ImageBuffer()
 	{
-		width = 0;
-		height = 0;
-		length = 0;
-		name = "";
-
-		if( buffer == nullptr )
-		{
-			delete[] buffer;
-		}
+		Destroy();
 	}
 
 
@@ -104,6 +96,20 @@ public:
 		buffer = new T[ length ];
 
 		Clear( _default );
+	}
+
+
+	void Destroy()
+	{
+		width = 0;
+		height = 0;
+		length = 0;
+		name = "";
+
+		if ( buffer == nullptr )
+		{
+			delete[] buffer;
+		}
 	}
 
 

@@ -117,20 +117,6 @@ void AABB::Serialize( Serializer* s )
 	max.Serialize( s );
 }
 
-template<typename T>
-void ImageBuffer<T>::Serialize( Serializer* s )
-{
-	uint32_t version = Version;
-	s->Next( version );
-	if( version != Version ) {
-		throw std::runtime_error( "Wrong version number." );
-	}
-	s->Next( width );
-	s->Next( height );
-	s->Next( length );
-	s->NextArray( buffer, length );
-}
-
 
 void Material::Serialize( Serializer* s )
 {
@@ -139,7 +125,7 @@ void Material::Serialize( Serializer* s )
 	if ( version != Version ) {
 		throw std::runtime_error( "Wrong version number." );
 	}
-	SerializeStruct( s, &usage );
+	SerializeStruct( s, usage );
 	SerializeStruct( s, p );
 	s->Next( textureBitSet );
 	s->Next( shaderBitSet );
