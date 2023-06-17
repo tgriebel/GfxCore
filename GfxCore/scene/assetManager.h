@@ -39,10 +39,10 @@ class AssetManager
 {
 public:
 	std::vector<Library*>		libraries;
-	AssetLibModels				modelLib;
-	AssetLibImages				textureLib;
-	AssetLibMaterials			materialLib;
-	AssetLibGpuProgram			gpuPrograms;
+	AssetLibModels				modelLib = AssetLibModels( "Model" );
+	AssetLibImages				textureLib = AssetLibImages( "Image" );
+	AssetLibMaterials			materialLib = AssetLibMaterials( "Material" );
+	AssetLibGpuProgram			gpuPrograms = AssetLibGpuProgram( "Gpu Program" );
 
 	AssetManager()
 	{
