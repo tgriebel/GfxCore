@@ -28,6 +28,30 @@
 #include "../core/assetLib.h"
 #include "../io/serializeClasses.h"
 
+void Image::InitCpuImage()
+{
+	cpuImage.Init( info.width, info.height );
+	for ( uint32_t py = 0; py < info.height; ++py )
+	{
+		for ( uint32_t px = 0; px < info.width; ++px )
+		{
+			RGBA rgba;
+			rgba.r = bytes[ ( py * info.width + px ) * 4 + 0 ];
+			rgba.g = bytes[ ( py * info.width + px ) * 4 + 1 ];
+			rgba.b = bytes[ ( py * info.width + px ) * 4 + 2 ];
+			rgba.a = bytes[ ( py * info.width + px ) * 4 + 3 ];
+			cpuImage.SetPixel( px, py, rgba );
+		}
+	}
+}
+
+
+void Image::DestroyCpuImage()
+{
+	cpuImage.Destroy();
+}
+
+
 void Image::Serialize( Serializer* s )
 {
 	uint32_t version = Version;
@@ -45,7 +69,16 @@ void Image::Serialize( Serializer* s )
 		sizeBytes = cpuImage.GetByteCount();
 		bytes = new uint8_t[ sizeBytes ];
 
-		memcpy( bytes, cpuImage.Ptr(), sizeBytes );
+		uint32_t pixelIx = 0;
+		for( uint32_t i = 0; i < sizeBytes; i += 4 )
+		{
+			const RGBA& rgba = cpuImage.Ptr()[ pixelIx ];
+			bytes[ i + 0 ] = rgba.r;
+			bytes[ i + 1 ] = rgba.g;
+			bytes[ i + 2 ] = rgba.b;
+			bytes[ i + 3 ] = rgba.a;
+			++pixelIx;
+		}
 	}
 }
 

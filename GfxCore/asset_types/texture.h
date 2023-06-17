@@ -170,29 +170,10 @@ public:
 	}
 
 	// FIXME: Temp helpers while this class is refactored
-	void InitCpuImage()
-	{
-		cpuImage.Init( info.width, info.height );
-		for ( uint32_t py = 0; py < info.height; ++py )
-		{
-			for ( uint32_t px = 0; px < info.width; ++px )
-			{
-				RGBA rgba;
-				rgba.r = bytes[ ( py * info.width + px ) * 4 + 0 ];
-				rgba.g = bytes[ ( py * info.width + px ) * 4 + 1 ];
-				rgba.b = bytes[ ( py * info.width + px ) * 4 + 2 ];
-				rgba.a = bytes[ ( py * info.width + px ) * 4 + 3 ];
-				cpuImage.SetPixel( px, py, rgba );
-			}
-		}
-	}
+	void	InitCpuImage();
+	void	DestroyCpuImage();
 
-	void DestroyCpuImage()
-	{
-		cpuImage.Destroy();
-	}
-
-	void Serialize( Serializer* serializer );
+	void	Serialize( Serializer* serializer );
 };
 
 
