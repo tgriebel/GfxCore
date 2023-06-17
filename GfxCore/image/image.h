@@ -192,7 +192,7 @@ public:
 		}
 	}
 
-	inline const T* const GetRawBuffer() const
+	inline const T* const Ptr() const
 	{
 		return &buffer[ 0 ];
 	}

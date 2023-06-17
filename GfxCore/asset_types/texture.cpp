@@ -44,6 +44,8 @@ void Image::Serialize( Serializer* s )
 	{
 		sizeBytes = cpuImage.GetByteCount();
 		bytes = new uint8_t[ sizeBytes ];
+
+		memcpy( bytes, cpuImage.Ptr(), sizeBytes );
 	}
 }
 
