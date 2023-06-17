@@ -32,7 +32,7 @@
 
 int main()
 {
-    AssetLib<int> lib;
+    AssetLib<int> lib( "test" );
     //lib.Add( "One", 1 );
     //lib.Add( "Two", 2 );
     std::cout << "Lib count:" << lib.Count() << std::endl;

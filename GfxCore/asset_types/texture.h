@@ -132,6 +132,8 @@ inline bool operator!=( const imageInfo_t& info0, const imageInfo_t& info1 )
 
 class Image
 {
+private:
+	static const uint32_t Version = 1;
 public:
 	uint8_t*			bytes;
 	uint32_t			sizeBytes;
@@ -189,6 +191,8 @@ public:
 	{
 		cpuImage.Destroy();
 	}
+
+	void Serialize( Serializer* serializer );
 };
 
 
@@ -200,14 +204,7 @@ private:
 	std::string ext;
 	bool cubemap;
 
-	bool Load( Image& texture )
-	{
-		if ( cubemap ) {
-			return LoadCubeMapImage( ( basePath + fileName ).c_str(), ext.c_str(), texture );
-		} else {
-			return LoadImage( ( basePath + fileName + "." + ext ).c_str(), texture );
-		}
-	}
+	bool Load( Image& texture );
 
 public:
 	ImageLoader() : cubemap( false ) {}
@@ -217,22 +214,9 @@ public:
 		SetTextureFile( file );
 	}
 
-	void SetBasePath( const std::string& path )
-	{
-		basePath = path;
-	}
-
-	void SetTextureFile( const std::string& file )
-	{
-		const size_t extIndex = file.find_last_of( "." );
-		ext = file.substr( extIndex + 1 );
-		fileName = file.substr( 0, extIndex );
-	}
-
-	void LoadAsCubemap( const bool isCubemap )
-	{
-		cubemap = isCubemap;
-	}
+	void SetBasePath( const std::string& path );
+	void SetTextureFile( const std::string& file );
+	void LoadAsCubemap( const bool isCubemap );
 };
 
 using pImgLoader_t = Asset<Image>::loadHandlerPtr_t;

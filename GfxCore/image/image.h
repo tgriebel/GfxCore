@@ -39,6 +39,20 @@ private:
 	T*			buffer = nullptr;
 	const char*	name;
 
+	void _Init( const uint32_t _width, const uint32_t _height )
+	{
+		if ( buffer != nullptr )
+		{
+			delete[] buffer;
+			buffer = nullptr;
+		}
+
+		width = _width;
+		height = _height;
+		length = width * height;
+		buffer = new T[ length ];
+	}
+
 public:
 
 	ImageBuffer()
@@ -80,20 +94,22 @@ public:
 	}
 
 
-	void Init( const uint32_t _width, const uint32_t _height, const T _default = T(), const char* _name = "" )
+	void Init( const uint32_t _width, const uint32_t _height, const char* _name = "", const bool clear = false )
 	{
-		if( buffer != nullptr )
-		{
-			delete[] buffer;
-			buffer = nullptr;
-		}
-
+		_Init( _width, _height );
 		name = _name;
 
-		width = _width;
-		height = _height;
-		length = width * height;
-		buffer = new T[ length ];
+		if( clear ) {
+			Clear( T() );
+		}
+	}
+
+
+	void Init( const uint32_t _width, const uint32_t _height, const T& _default, const char* _name = "" )
+	{
+		_Init( _width, _height );
+
+		name = _name;
 
 		Clear( _default );
 	}
@@ -191,7 +207,7 @@ public:
 		return height;
 	}
 
-	inline uint32_t GetByteCnt() const
+	inline uint32_t GetByteCount() const
 	{
 		return length * sizeof( T );
 	}

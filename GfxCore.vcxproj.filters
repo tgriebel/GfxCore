@@ -73,6 +73,9 @@
     <ClCompile Include="GfxCore\asset_types\material.cpp">
       <Filter>Asset Types</Filter>
     </ClCompile>
+    <ClCompile Include="GfxCore\asset_types\texture.cpp">
+      <Filter>Asset Types</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GfxCore\asset_types\gpuProgram.h">

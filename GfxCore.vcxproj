@@ -225,6 +225,7 @@
     <ClCompile Include="GfxCore\asset_types\gpuProgram.cpp" />
     <ClCompile Include="GfxCore\asset_types\material.cpp" />
     <ClCompile Include="GfxCore\asset_types\model.cpp" />
+    <ClCompile Include="GfxCore\asset_types\texture.cpp" />
     <ClCompile Include="GfxCore\image\bitmap.cpp" />
     <ClCompile Include="GfxCore\image\color.cpp" />
     <ClCompile Include="GfxCore\io\io.cpp" />

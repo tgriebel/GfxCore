@@ -34,11 +34,8 @@
 class Library
 {
 public:
-	using loadList_t = std::list<uint64_t>;
-
-	loadList_t					pendingLoad;
-
 	static inline hdl_t					Handle( const char* name ) { return Hash( name ); }
+	virtual const char*					AssetTypeName() const = 0;
 	virtual void						Clear() = 0;
 	virtual AssetInterface*				GetDefault() = 0;
 	virtual const AssetInterface*		GetDefault() const = 0;
@@ -61,32 +58,49 @@ template< class AssetType >
 class AssetLib : public Library
 {
 private:
+	using loadList_t = std::list<uint64_t>;
 	using assetMap_t = std::unordered_map< uint64_t, Asset<AssetType> >;
 
-	assetMap_t assets;
+	std::string	typeName;
+	loadList_t	pendingLoad;
+	assetMap_t	assets;
 public:
-	static inline hdl_t		Handle( const char* name ) { return Hash( name ); }
-	void					Clear();
-	Asset<AssetType>*		GetDefault() { return ( assets.size() > 0 ) ? &assets.begin()->second : nullptr; };
-	const Asset<AssetType>*	GetDefault() const { return ( assets.size() > 0 ) ? &assets.begin()->second : nullptr; };
-	void					LoadAll();
-	void					UnloadAll();
-	bool					HasPendingLoads() const { return ( pendingLoad.size() > 0 ); }
-	uint32_t				Count() const { return static_cast<uint32_t>( assets.size() ); }
-	hdl_t					Add( const char* name, const AssetType& asset, const bool replaceIfFound = false );
-	hdl_t					AddDeferred( const char* name, std::unique_ptr< LoadHandler<AssetType> > loader = std::unique_ptr< LoadHandler<AssetType> >() );
-	void					Remove( const uint32_t id );
-	void					Remove( const hdl_t& hdl );
-	Asset<AssetType>*		Find( const char* name );
-	const Asset<AssetType>*	Find( const char* name ) const;
-	Asset<AssetType>*		Find( const uint32_t id );
-	const Asset<AssetType>*	Find( const uint32_t id ) const;
-	Asset<AssetType>*		Find( const hdl_t& hdl );
-	const Asset<AssetType>*	Find( const hdl_t& hdl ) const;
-	const char*				FindName( const hdl_t& hdl ) const;
-	const char*				FindName( const uint32_t id ) const;
-	hdl_t					RetrieveHdl( const char* name ) const;
+	AssetLib()
+	{}
+
+	AssetLib( const char* assetTypeName )
+	{
+		typeName = assetTypeName;
+	}
+
+	const char* AssetTypeName() const
+	{
+		return typeName.c_str();
+	}
+
+	static inline hdl_t			Handle( const char* name ) { return Hash( name ); }
+	void						Clear();
+	Asset<AssetType>*			GetDefault() { return ( assets.size() > 0 ) ? &assets.begin()->second : nullptr; };
+	const Asset<AssetType>*		GetDefault() const { return ( assets.size() > 0 ) ? &assets.begin()->second : nullptr; };
+	void						LoadAll();
+	void						UnloadAll();
+	bool						HasPendingLoads() const { return ( pendingLoad.size() > 0 ); }
+	uint32_t					Count() const { return static_cast<uint32_t>( assets.size() ); }
+	hdl_t						Add( const char* name, const AssetType& asset, const bool replaceIfFound = false );
+	hdl_t						AddDeferred( const char* name, std::unique_ptr< LoadHandler<AssetType> > loader = std::unique_ptr< LoadHandler<AssetType> >() );
+	void						Remove( const uint32_t id );
+	void						Remove( const hdl_t& hdl );
+	Asset<AssetType>*			Find( const char* name );
+	const Asset<AssetType>*		Find( const char* name ) const;
+	Asset<AssetType>*			Find( const uint32_t id );
+	const Asset<AssetType>*		Find( const uint32_t id ) const;
+	Asset<AssetType>*			Find( const hdl_t& hdl );
+	const Asset<AssetType>*		Find( const hdl_t& hdl ) const;
+	const char*					FindName( const hdl_t& hdl ) const;
+	const char*					FindName( const uint32_t id ) const;
+	hdl_t						RetrieveHdl( const char* name ) const;
 };
+
 
 template< class AssetType >
 void AssetLib< AssetType >::Clear()

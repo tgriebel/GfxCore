@@ -13,5 +13,11 @@ void ImageBuffer<T>::Serialize( Serializer* s )
 	s->Next( width );
 	s->Next( height );
 	s->Next( length );
+
+	if( s->GetMode() == serializeMode_t::LOAD ) {
+		_Init( width, height );
+	}
+	
+	assert( buffer != nullptr );
 	SerializeArray( s, buffer, length );
 }
