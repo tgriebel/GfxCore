@@ -23,14 +23,24 @@
 
 #include "model.h"
 #include <systemUtils.h>
+#include <serializer.h>
+#include "../io/serializeClasses.h"
 
 bool ModelLoader::Load( Model& model )
 {
+	const std::string fileName = modelName + "." + modelExt;
+	//const bool loadedBaked = LoadBaked( model, modelPath, modelName, "mdl.bin" );
+	//if ( loadedBaked )
+	//{
+	//	// load materials
+	//	// load textures
+	//	return true;
+	//}
+
+	std::cout << "Loading raw model:" << fileName << std::endl;
+
 	if ( modelExt == "obj" ) {
-		return LoadRawModel( *assets, modelName + "." + modelExt, modelPath, texturePath, model );
-	} else if( modelExt == "mdl" ) {
-		return false;
-	//	return LoadModel( *assets, modelName + "." + modelExt, modelPath, texturePath, model );
+		return LoadRawModel( *assets, fileName, modelPath, texturePath, model );
 	} else {
 		return false;
 	}

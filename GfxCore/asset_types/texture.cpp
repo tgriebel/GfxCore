@@ -85,19 +85,12 @@ void Image::Serialize( Serializer* s )
 
 bool ImageLoader::Load( Image& texture )
 {
-	const hdl_t handle = Library::Handle( ( fileName + "." + ext ).c_str() );
-	const std::string hash = handle.String();
-	const std::string bakedPath = ".\\baked\\" + basePath + hash + ".img.bin";
-	if ( FileExists( bakedPath ) )
-	{
-		Serializer* s = new Serializer( MB( 128 ), serializeMode_t::LOAD );
-		s->ReadFile( bakedPath );
-		texture.Serialize( s );
-		const bool loaded = ( s->Status() == serializeStatus_t::OK );
-		assert( loaded );
-		delete s;
-		return loaded;
+	const bool loadedBaked = LoadBaked( texture, basePath, fileName + "." + ext, "img.bin" );
+	if ( loadedBaked ) {
+		return true;
 	}
+
+	std::cout << "Loading raw texture:" << fileName << std::endl;
 
 	if ( cubemap ) {
 		return LoadCubeMapImage( ( basePath + fileName ).c_str(), ext.c_str(), texture );
