@@ -4,16 +4,37 @@
 #include "../core/assetLib.h"
 #include <common.h>
 
-template<class T>
-bool LoadBaked( T& asset, const std::string& dir, const std::string& fileName, const std::string& ext )
+static const bool g_supportBaked = true;
+
+struct bakedAssetInfo_t
 {
-	const hdl_t handle = Library::Handle( fileName.c_str() );
+	std::string		name;
+	std::string		hash;
+	std::string		type;
+	std::string		date;
+	uint32_t		sizeBytes;
+};
+
+template<class T>
+bool LoadBaked( T& asset, const hdl_t& handle, bakedAssetInfo_t& info, const std::string& dir, const std::string& ext )
+{
+	if( g_supportBaked == false ) {
+		return false;
+	}
+
 	const std::string hash = handle.String();
 	const std::string bakedPath = ".\\baked\\" + dir + hash + "." + ext;
 	if ( FileExists( bakedPath ) )
 	{
 		Serializer* s = new Serializer( MB( 32 ), serializeMode_t::LOAD );
 		s->ReadFile( bakedPath );
+
+		s->NextString( info.name );
+		s->NextString( info.type );
+		s->NextString( info.date );
+		info.sizeBytes = s->CurrentSize();
+		info.hash = Library::Handle( info.name.c_str() ).String();
+
 		asset.Serialize( s );
 		const bool loaded = ( s->Status() == serializeStatus_t::OK );
 		assert( loaded );

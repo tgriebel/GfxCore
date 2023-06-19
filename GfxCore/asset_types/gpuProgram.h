@@ -119,8 +119,9 @@ private:
 		return true;
 	}
 
-	bool Load( GpuProgram& program )
+	bool Load( Asset<GpuProgram>& programAsset )
 	{
+		GpuProgram& program = programAsset.Get();
 		if( ( !vsFileName.empty() ) && ( !psFileName.empty() ) )
 		{
 			return LoadRasterProgram( program );

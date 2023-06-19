@@ -36,7 +36,7 @@ template< class AssetType >
 class LoadHandler
 {
 private:
-	virtual bool Load( AssetType& asset ) = 0;
+	virtual bool Load( Asset<AssetType>& asset ) = 0;
 
 	friend class Asset<AssetType>;
 };
@@ -44,21 +44,24 @@ private:
 class AssetInterface
 {
 protected:
-	std::string					name;
-	std::string					json;
-	hdl_t						handle;
+	std::string					m_name;
+	std::string					m_json;
+	hdl_t						m_handle;
 
-	bool						loaded;
-	bool						uploaded;
-	bool						isDefault;
+	bool						m_loaded;
+	bool						m_uploaded;
+	bool						m_isDefault;
 
 public:
-	AssetInterface() : name( "" ), loaded( false ), isDefault( false ), uploaded( false ), handle( INVALID_HDL ) {}
+	AssetInterface() : m_name( "" ), m_loaded( false ), m_isDefault( false ), m_uploaded( false ), m_handle( INVALID_HDL ) {}
+
+	AssetInterface( const hdl_t hdl ) : m_handle( hdl ), m_loaded( false ), m_isDefault( false ), m_uploaded( false )
+	{}
 
 	AssetInterface( const std::string& _name, const bool _loaded ) :
-		name( _name ), loaded( _loaded ), isDefault( false ), uploaded( false )
+		m_name( _name ), m_loaded( _loaded ), m_isDefault( false ), m_uploaded( false )
 	{
-		handle = Hash( name );
+		m_handle = Hash( m_name );
 	}
 
 	virtual bool Load() = 0;
@@ -67,47 +70,58 @@ public:
 
 	inline const std::string& GetName() const
 	{
-		return name;
+		return m_name;
+	}
+
+	inline const bool SetName( std::string name )
+	{
+		const uint64_t hash = Hash( name );
+		if( hash == m_handle.Get() )
+		{
+			m_name = name;
+			return true;
+		}
+		return false;
 	}
 
 	inline hdl_t Handle() const
 	{
-		return handle;
+		return m_handle;
 	}
 
 	inline bool IsLoaded() const
 	{
-		return loaded;
+		return m_loaded;
 	}
 
 	inline void SetLoaded()
 	{
-		loaded = true;
+		m_loaded = true;
 	}
 
 	inline void QueueUpload()
 	{
-		uploaded = false;
+		m_uploaded = false;
 	}
 
 	inline void CompleteUpload()
 	{
-		uploaded = true;
+		m_uploaded = true;
 	}
 
 	inline bool IsUploaded() const
 	{
-		return uploaded;
+		return m_uploaded;
 	}
 
 	inline bool IsDefault() const
 	{
-		return isDefault;
+		return m_isDefault;
 	}
 
 	inline void SetDefault()
 	{
-		isDefault = true;
+		m_isDefault = true;
 	}
 };
 
@@ -116,51 +130,54 @@ template< class AssetType >
 class Asset : public AssetInterface
 {
 public:
-	using loadHandlerPtr_t = std::unique_ptr< LoadHandler<AssetType> >;
+	friend class LoadHandler<AssetType>;
+	using loadHandlerPtr_t = std::unique_ptr< LoadHandler<AssetType> >;	
 
 protected:
-	loadHandlerPtr_t			loader;
-	AssetType					asset;
+	loadHandlerPtr_t			m_loader;
+	AssetType					m_asset;
 
 public:
-	Asset() : AssetInterface(), loader( nullptr ) {}
+	Asset() : AssetInterface(), m_loader( nullptr ) {}
+
+	Asset( const hdl_t hdl ) : AssetInterface( hdl ), m_loader( nullptr ) {}
 
 	Asset( const AssetType& _asset, const std::string& _name, const bool _loaded = true ) :
-		AssetInterface( _name, _loaded ), asset( _asset ), loader( nullptr ) {}
+		AssetInterface( _name, _loaded ), m_asset( _asset ), m_loader( nullptr ) {}
 
 	inline void AttachLoader( loadHandlerPtr_t _loader )
 	{
-		loader = std::move( _loader );
+		m_loader = std::move( _loader );
 	}
 
 	inline const AssetType& Get() const
 	{
-		return asset;
+		return m_asset;
 	}
 
 	inline AssetType& Get()
 	{
-		return asset;
+		return m_asset;
 	}
 
 	bool HasLoader() const
 	{
-		return loader ? true : false;
+		return m_loader ? true : false;
 	}
 
 	bool Load()
 	{
-		if ( ( loaded == false ) && HasLoader() )
+		if ( ( m_loaded == false ) && HasLoader() )
 		{
-			loaded = loader->Load( asset );
-			return loaded;
+			m_loaded = m_loader->Load( *this );
+			return m_loaded;
 		}
 		return true;
 	}
 
 	void Unload()
 	{
-		asset.~AssetType();
-		loaded = false;
+		m_asset.~AssetType();
+		m_loaded = false;
 	}
 };

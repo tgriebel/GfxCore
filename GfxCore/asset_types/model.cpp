@@ -25,17 +25,38 @@
 #include <systemUtils.h>
 #include <serializer.h>
 #include "../io/serializeClasses.h"
+#include "../scene/assetManager.h"
 
-bool ModelLoader::Load( Model& model )
+bool ModelLoader::Load( Asset<Model>& modelAsset )
 {
+	Model& model = modelAsset.Get();
+
 	const std::string fileName = modelName + "." + modelExt;
-	//const bool loadedBaked = LoadBaked( model, modelPath, modelName, "mdl.bin" );
-	//if ( loadedBaked )
-	//{
-	//	// load materials
-	//	// load textures
-	//	return true;
-	//}
+
+	bakedAssetInfo_t modelInfo = {};
+	const bool loadedBakedModel = LoadBaked( model, modelAsset.Handle(), modelInfo, modelPath, "mdl.bin" );
+	if ( loadedBakedModel )
+	{
+		const uint32_t surfCount = static_cast<uint32_t>( model.surfs.size() );
+		for ( uint32_t surfIx = 0; surfIx < surfCount; ++surfIx )
+		{
+			Material material;
+
+			bakedAssetInfo_t materialInfo = {};
+			const bool loadedBakedMaterial = LoadBaked( material, model.surfs[ surfIx ].materialHdl, materialInfo, ".\\materials\\", "mtl.bin" );
+			if ( loadedBakedMaterial ) {
+				assets->materialLib.Add( materialInfo.name.c_str(), material );
+			}
+
+			const uint32_t imgCount = material.TextureCount();
+			for ( uint32_t imageIx = 0; imageIx < imgCount; ++imageIx )
+			{
+				const hdl_t imgHandle = material.GetTexture( imageIx );
+				assets->textureLib.AddDeferred( imgHandle, pImgLoader_t( new BakedImageLoader( ".\\textures\\", "img.bin" ) ) );
+			}
+		}
+		return true;
+	}
 
 	std::cout << "Loading raw model:" << fileName << std::endl;
 

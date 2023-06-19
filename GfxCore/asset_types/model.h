@@ -79,7 +79,7 @@ private:
 	std::string modelExt;
 	AssetManager* assets;
 
-	bool Load( Model& model );
+	bool Load( Asset<Model>& modelAsset );
 
 public:
 	void SetTexturePath( const std::string& path );

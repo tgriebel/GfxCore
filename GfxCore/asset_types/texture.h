@@ -161,6 +161,7 @@ public:
 
 	~Image()
 	{
+		DestroyCpuImage(); // FIXME
 		if( bytes != nullptr )
 		{
 			delete[] bytes;
@@ -168,6 +169,8 @@ public:
 			bytes = nullptr;
 		}
 	}
+
+	//Image( Image& ) = delete; // FIXME: unsafe copy
 
 	// FIXME: Temp helpers while this class is refactored
 	void	InitCpuImage();
@@ -180,16 +183,16 @@ public:
 class ImageLoader : public LoadHandler<Image>
 {
 private:
-	std::string basePath;
-	std::string fileName;
-	std::string ext;
-	bool cubemap;
+	std::string	m_basePath;
+	std::string	m_fileName;
+	std::string	m_ext;
+	bool		m_cubemap;
 
-	bool Load( Image& texture );
+	bool Load( Asset<Image>& texture );
 
 public:
-	ImageLoader() : cubemap( false ) {}
-	ImageLoader( const std::string& path, const std::string& file ) : cubemap( false )
+	ImageLoader() : m_cubemap( false ) {}
+	ImageLoader( const std::string& path, const std::string& file ) : m_cubemap( false )
 	{
 		SetBasePath( path );
 		SetTextureFile( file );
@@ -198,6 +201,27 @@ public:
 	void SetBasePath( const std::string& path );
 	void SetTextureFile( const std::string& file );
 	void LoadAsCubemap( const bool isCubemap );
+};
+
+class BakedImageLoader : public LoadHandler<Image>
+{
+private:
+	std::string m_basePath;
+	std::string m_fileName;
+	std::string m_ext;
+
+	bool Load( Asset<Image>& texture );
+
+public:
+	BakedImageLoader() {}
+	BakedImageLoader( const std::string& path, const std::string& ext )
+	{
+		SetBasePath( path );
+		SetFileExt( ext );
+	}
+
+	void SetBasePath( const std::string& path );
+	void SetFileExt( const std::string& ext );
 };
 
 using pImgLoader_t = Asset<Image>::loadHandlerPtr_t;

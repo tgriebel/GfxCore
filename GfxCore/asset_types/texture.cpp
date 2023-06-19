@@ -83,38 +83,68 @@ void Image::Serialize( Serializer* s )
 }
 
 
-bool ImageLoader::Load( Image& texture )
+bool ImageLoader::Load( Asset<Image>& imageAsset )
 {
-	const bool loadedBaked = LoadBaked( texture, basePath, fileName + "." + ext, "img.bin" );
+	Image& image = imageAsset.Get();
+
+	bakedAssetInfo_t info = {};
+	const bool loadedBaked = LoadBaked( image, imageAsset.Handle(), info, m_basePath, "img.bin" );
 	if ( loadedBaked ) {
 		return true;
 	}
 
-	std::cout << "Loading raw texture:" << fileName << std::endl;
+	std::cout << "Loading raw texture:" << m_fileName << std::endl;
 
-	if ( cubemap ) {
-		return LoadCubeMapImage( ( basePath + fileName ).c_str(), ext.c_str(), texture );
+	if ( m_cubemap ) {
+		return LoadCubeMapImage( ( m_basePath + m_fileName ).c_str(), m_ext.c_str(), image );
 	} else {
-		return LoadImage( ( basePath + fileName + "." + ext ).c_str(), texture );
+		return LoadImage( ( m_basePath + m_fileName + "." + m_ext ).c_str(), image );
 	}
 }
 
 
 void ImageLoader::SetBasePath( const std::string& path )
 {
-	basePath = path;
+	m_basePath = path;
 }
 
 
 void ImageLoader::SetTextureFile( const std::string& file )
 {
 	const size_t extIndex = file.find_last_of( "." );
-	ext = file.substr( extIndex + 1 );
-	fileName = file.substr( 0, extIndex );
+	m_ext = file.substr( extIndex + 1 );
+	m_fileName = file.substr( 0, extIndex );
 }
 
 
 void ImageLoader::LoadAsCubemap( const bool isCubemap )
 {
-	cubemap = isCubemap;
+	m_cubemap = isCubemap;
+}
+
+
+bool BakedImageLoader::Load( Asset<Image>& imageAsset )
+{
+	Image& image = imageAsset.Get();
+
+	bakedAssetInfo_t info = {};
+	const bool loadedBaked = LoadBaked( image, imageAsset.Handle(), info, m_basePath, m_ext );
+	if ( loadedBaked )
+	{
+		imageAsset.SetName( info.name );
+		return true;
+	}
+	return false;
+}
+
+
+void BakedImageLoader::SetBasePath( const std::string& path )
+{
+	m_basePath = path;
+}
+
+
+void BakedImageLoader::SetFileExt( const std::string& ext )
+{
+	m_ext = ext;
 }
