@@ -28,6 +28,7 @@
 #include <unordered_map>
 #include <iterator>
 #include <sstream>
+#include <thread>
 
 #include "asset.h"
 
@@ -111,28 +112,39 @@ void AssetLib< AssetType >::Clear()
 	pendingLoad.clear();
 }
 
+
+static inline void ThreadLoad( AssetInterface* asset )
+{
+	asset->Load();
+}
+
 template< class AssetType >
 void AssetLib< AssetType >::LoadAll()
 {
-	for ( auto it = pendingLoad.begin(); it != pendingLoad.end(); ) {
-		hdl_t handle = *it;
+	std::vector< std::thread > threadPool;
+	threadPool.reserve( pendingLoad.size() );
+
+	for ( hdl_t handle : pendingLoad )
+	{
 		Asset<AssetType>* asset = Find( handle );
-		if( asset->Load() == false )
-		{
-			// Assume this is a bad asset, path, or loader
-			Remove( handle );
-			it = pendingLoad.erase( it );
-		}
-		else 
-		{
-			if ( asset->IsLoaded() ) {
-				it = pendingLoad.erase( it );
-			} else {
-				++it;
-			}
+		threadPool.push_back( std::thread( ThreadLoad, asset ) );
+	}
+
+	for ( auto& thread : threadPool )
+	{
+		thread.join();
+	}
+
+	for ( hdl_t handle : pendingLoad )
+	{
+		Asset<AssetType>* asset = Find( handle );
+		if( asset->IsLoaded() == false ) {
+			Remove( handle ); // Assume this is a bad asset, path, or loader
+		} else {		
 			asset->QueueUpload();
 		}
 	}
+	pendingLoad.clear();
 }
 
 template< class AssetType >

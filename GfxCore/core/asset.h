@@ -162,12 +162,12 @@ public:
 		return m_asset;
 	}
 
-	bool HasLoader() const
+	bool HasLoader() const override
 	{
 		return m_loader ? true : false;
 	}
 
-	bool Load()
+	bool Load() override
 	{
 		if ( ( m_loaded == false ) && HasLoader() )
 		{
@@ -177,7 +177,7 @@ public:
 		return true;
 	}
 
-	void Unload()
+	void Unload() override
 	{
 		m_asset.~AssetType();
 		m_loaded = false;
