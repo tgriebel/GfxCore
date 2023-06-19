@@ -190,7 +190,7 @@ hdl_t AssetLib< AssetType >::AddDeferred( const char* name, std::unique_ptr< Loa
 	const uint64_t hash = Hash( name );
 	auto it = assets.find( hash );
 	if ( it == assets.end() ) {
-		assets[ hash ] = Asset<AssetType>( AssetType(), assetName, false );
+		assets[ hash ] = Asset<AssetType>( assetName );
 		pendingLoad.push_back( hash );
 	}
 
