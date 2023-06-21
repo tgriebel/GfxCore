@@ -132,6 +132,13 @@ public:
 		Clear( _default );
 	}
 
+	void Init( const uint32_t _width, const uint32_t _height, const uint32_t _layers, const uint8_t* _bytes, const char* _name = "" )
+	{
+		_Init( _width, _height, _layers );
+		name = _name;
+
+		memcpy( buffer, _bytes, length );
+	}
 
 	void Init( const uint32_t _width, const uint32_t _height, const T& _default, const char* _name = "" )
 	{
@@ -245,9 +252,14 @@ public:
 		}
 	}
 
-	inline const T* const Ptr() const
+	inline const uint8_t* const Ptr() const
 	{
-		return &buffer[ 0 ];
+		return reinterpret_cast<const uint8_t*>( &buffer[ 0 ] );
+	}
+
+	inline uint8_t* const Ptr()
+	{
+		return reinterpret_cast<uint8_t*>( &buffer[ 0 ] );
 	}
 
 	inline uint32_t GetWidth() const

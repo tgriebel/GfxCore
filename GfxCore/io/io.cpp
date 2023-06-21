@@ -63,9 +63,8 @@ bool LoadImage( const char* texturePath, Image& texture )
 	texture.info.fmt = IMAGE_FMT_RGBA_8;
 	texture.info.tiling = IMAGE_TILING_MORTON;
 	texture.info.mipLevels = static_cast<uint32_t>( std::floor( std::log2( std::max( texture.info.width, texture.info.height ) ) ) ) + 1;
-	texture.sizeBytes = ( texWidth * texHeight * 4 );
-	texture.bytes = new uint8_t[ texture.sizeBytes ];
-	memcpy( texture.bytes, pixels, texture.sizeBytes );
+
+	texture.cpuImage.Init( texture.info.width, texture.info.height, texture.info.layers, pixels, "" );
 
 	stbi_image_free( pixels );
 	return true;
@@ -91,15 +90,13 @@ bool LoadCubeMapImage( const char* textureBasePath, const char* ext, Image& text
 			sizeBytes = 0;
 			break;
 		}
-		assert( textures2D[ i ].sizeBytes > 0 );
-		sizeBytes += textures2D[ i ].sizeBytes;
+		assert( textures2D[ i ].cpuImage.GetByteCount() > 0 );
+		sizeBytes += textures2D[ i ].cpuImage.GetByteCount();
 	}
 
 	if ( sizeBytes == 0 ) {
 		for ( int i = 0; i < 6; ++i ) {
-			if ( textures2D[ i ].bytes == nullptr ) {
-				delete[] textures2D[ i ].bytes;
-			}
+			textures2D[ i ].cpuImage.Destroy();
 		}
 		return false;
 	}
@@ -121,15 +118,13 @@ bool LoadCubeMapImage( const char* textureBasePath, const char* ext, Image& text
 				delete[] bytes;
 			}
 			for ( int j = 0; j < 6; ++j ) {
-				if ( textures2D[ j ].bytes == nullptr ) {
-					delete[] textures2D[ j ].bytes;
-				}
+				textures2D[ i ].cpuImage.Destroy();
 			}
 			return false;
 		}
 
-		memcpy( bytes + byteOffset, textures2D[ i ].bytes, textures2D[ i ].sizeBytes );
-		byteOffset += textures2D[ i ].sizeBytes;
+		memcpy( bytes + byteOffset, textures2D[ i ].cpuImage.Ptr(), textures2D[ i ].cpuImage.GetByteCount() );
+		byteOffset += textures2D[ i ].cpuImage.GetByteCount();
 	}
 
 	assert( sizeBytes == byteOffset );
@@ -141,8 +136,10 @@ bool LoadCubeMapImage( const char* textureBasePath, const char* ext, Image& text
 	texture.info.fmt = IMAGE_FMT_RGBA_8;
 	texture.info.tiling = IMAGE_TILING_MORTON;
 	texture.info.mipLevels = static_cast<uint32_t>( std::floor( std::log2( std::max( texture.info.width, texture.info.height ) ) ) ) + 1;
-	texture.bytes = bytes;
-	texture.sizeBytes = sizeBytes;
+	texture.cpuImage.Init( texture.info.width, texture.info.height, texture.info.layers, bytes, "" );
+
+	delete[] bytes;
+
 	return true;
 }
 

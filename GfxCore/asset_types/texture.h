@@ -135,8 +135,6 @@ class Image
 private:
 	static const uint32_t Version = 1;
 public:
-	uint8_t*			bytes;
-	uint32_t			sizeBytes;
 	imageInfo_t			info;
 
 	ImageBuffer<RGBA>	cpuImage;
@@ -153,28 +151,14 @@ public:
 		info.fmt = IMAGE_FMT_UNKNOWN;
 		info.aspect = IMAGE_ASPECT_COLOR_FLAG;
 		info.tiling = IMAGE_TILING_LINEAR;
-		bytes = nullptr;
-		sizeBytes = 0;
 
 		gpuImage = nullptr;
 	}
 
 	~Image()
 	{
-		DestroyCpuImage(); // FIXME
-		if( bytes != nullptr )
-		{
-			delete[] bytes;
-			sizeBytes = 0;
-			bytes = nullptr;
-		}
+		cpuImage.Destroy();
 	}
-
-	//Image( Image& ) = delete; // FIXME: unsafe copy
-
-	// FIXME: Temp helpers while this class is refactored
-	void	InitCpuImage();
-	void	DestroyCpuImage();
 
 	void	Serialize( Serializer* serializer );
 };
