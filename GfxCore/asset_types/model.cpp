@@ -22,8 +22,8 @@
 */
 
 #include "model.h"
-#include <systemUtils.h>
-#include <serializer.h>
+#include <syscore/systemUtils.h>
+#include <syscore/serializer.h>
 #include "../io/serializeClasses.h"
 #include "../scene/assetManager.h"
 

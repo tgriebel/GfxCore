@@ -29,8 +29,8 @@
 #include <sstream>
 #include <unordered_map>
 
-#include <serializer.h>
-#include <common.h>
+#include <syscore/serializer.h>
+#include <syscore/common.h>
 
 #include "../scene/scene.h"
 #include "../scene/assetManager.h"

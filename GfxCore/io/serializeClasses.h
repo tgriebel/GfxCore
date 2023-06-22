@@ -2,7 +2,7 @@
 
 #include "../image/image.h"
 #include "../core/assetLib.h"
-#include <common.h>
+#include <syscore/common.h>
 
 static const bool g_supportBaked = true;
 

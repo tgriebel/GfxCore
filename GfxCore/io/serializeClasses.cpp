@@ -28,7 +28,7 @@
 #include "../image/image.h"
 #include "../asset_types/model.h"
 #include "../asset_types/gpuProgram.h"
-#include <serializer.h>
+#include <syscore/serializer.h>
 
 #define SERIALIZE_IMPLEMENTATIONS
 

@@ -22,9 +22,9 @@
 */
 
 #include "texture.h"
-#include <systemUtils.h>
-#include <serializer.h>
-#include <common.h>
+#include <syscore/systemUtils.h>
+#include <syscore/serializer.h>
+#include <syscore/common.h>
 #include "../core/assetLib.h"
 #include "../io/serializeClasses.h"
 
