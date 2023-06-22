@@ -4,7 +4,7 @@
 #include "../core/assetLib.h"
 #include <syscore/common.h>
 
-static const bool g_supportBaked = false;
+static const bool g_supportBaked = true;
 
 struct bakedAssetInfo_t
 {
@@ -27,23 +27,37 @@ bool LoadBaked( Asset<T>& asset, bakedAssetInfo_t& info, const std::string& dir,
 	const std::string bakedPath = dir + hash + "." + ext;
 	if ( FileExists( bakedPath ) )
 	{
-		Serializer* s = new Serializer( MB( 32 ), serializeMode_t::LOAD );
-		s->ReadFile( bakedPath );
+		Serializer s( MB( 32 ), serializeMode_t::LOAD );
+		s.ReadFile( bakedPath );
 
-		s->SetPosition( 0 );
-		s->NextString( info.name );
-		s->NextString( info.type );
-		s->NextString( info.date );
+		s.SetPosition( 0 );
+		s.NextString( info.name );
+		s.NextString( info.type );
+		s.NextString( info.date );
 
-		asset.Serialize( s );
+		asset.Serialize( &s );
 		asset.SetName( info.name.c_str() );
 
-		info.sizeBytes = s->CurrentSize();
+		info.sizeBytes = s.CurrentSize();
 		info.hash = Library::Handle( info.name.c_str() ).String();
 
-		const bool loaded = ( s->Status() == serializeStatus_t::OK );
+		const uint32_t currentHash = s.Hash();
+
+		uint32_t byteCount;
+		uint32_t dataHash;
+		s.Next( byteCount );
+		s.Next( dataHash );
+
+		if( currentHash != dataHash ) {
+			return false;
+		}
+
+		if ( info.sizeBytes != byteCount ) {
+			return false;
+		}
+
+		const bool loaded = ( s.Status() == serializeStatus_t::OK );
 		assert( loaded );
-		delete s;
 		return loaded;
 	}
 	return false;
@@ -62,8 +76,11 @@ void ImageBuffer<T>::Serialize( Serializer* s )
 	s->Next( layers );
 	s->Next( length );
 
-	if( s->GetMode() == serializeMode_t::LOAD ) {
+	if( s->GetMode() == serializeMode_t::LOAD )
+	{
+		const uint32_t storedLength = length;
 		_Init( width, height, layers );
+		assert( storedLength == length );
 	}
 	
 	assert( buffer != nullptr );

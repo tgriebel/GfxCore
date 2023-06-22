@@ -47,14 +47,13 @@ bool ImageLoader::Load( Asset<Image>& imageAsset )
 {
 	Image& image = imageAsset.Get();
 
-	// FIXME: seems to cause heap corruption
-	//bakedAssetInfo_t info = {};
-	//const bool loadedBaked = LoadBaked( imageAsset, info, m_basePath, "img.bin" );
-	//if ( loadedBaked ) {
-	//	return true;
-	//}
+	bakedAssetInfo_t info = {};
+	const bool loadedBaked = LoadBaked( imageAsset, info, m_basePath, "img.bin" );
+	if ( loadedBaked ) {
+		return true;
+	}
 
-	//std::cout << "Loading raw texture:" << m_fileName << std::endl;
+	std::cout << "Loading raw texture:" << m_fileName << std::endl;
 
 	if ( m_cubemap ) {
 		return LoadCubeMapImage( ( m_basePath + m_fileName ).c_str(), m_ext.c_str(), image );

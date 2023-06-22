@@ -14,8 +14,8 @@
 #include "../core/assetLib.h"
 #include "../io/serializeClasses.h"
 
-std::vector<bakedAssetInfo_t> assetInfo;
-Serializer* s;
+static std::vector<bakedAssetInfo_t> assetInfo;
+static Serializer* s;
 
 template<class T>
 static void BakeLibraryAssets( AssetLib<T>& lib, const std::string& path, const std::string& ext )
@@ -39,12 +39,18 @@ static void BakeLibraryAssets( AssetLib<T>& lib, const std::string& path, const 
 		info.date = std::string( dateCStr );
 
 		s->Clear( false );
+		s->SetPosition( 0 );
 		s->NextString( info.name );
 		s->NextString( info.type );
 		s->NextString( info.date );
 		asset->Serialize( s );
 
 		info.sizeBytes = s->CurrentSize();
+
+		uint32_t byteCount = info.sizeBytes;
+		uint32_t dataHash = s->Hash();
+		s->Next( byteCount );
+		s->Next( dataHash );
 
 		s->WriteFile( path + asset->Handle().String() + ext );
 
@@ -86,19 +92,32 @@ void AssetBaker::AddBakeDirectory( const std::string path )
 void AssetBaker::Bake()
 {
 	s = new Serializer( MB( 128 ), serializeMode_t::STORE );
-	assetInfo.reserve( m_imageLib->Count() + m_materialLib->Count() + m_modelLib->Count() );
+	assetInfo.reserve(	m_imageLib ? m_imageLib->Count() : 0 +
+						m_materialLib ? m_materialLib->Count() : 0 +
+						m_modelLib ? m_modelLib->Count() : 0 );
 
-	MakeDirectory( m_bakePath );
-	MakeDirectory( m_bakePath + m_imagePath );
-	MakeDirectory( m_bakePath + m_materialPath );
-	MakeDirectory( m_bakePath + m_modelPath );
+	MakeDirectory( m_bakePath );	
 
-	BakeLibraryAssets( *m_imageLib, m_bakePath + m_imagePath, m_imageExt );
-	BakeLibraryAssets( *m_materialLib, m_bakePath + m_materialPath, m_materialExt );
-	BakeLibraryAssets( *m_modelLib, m_bakePath + m_modelPath, m_modelExt );
+	if( m_imageLib != nullptr )
+	{
+		MakeDirectory( m_bakePath + m_imagePath );
+		BakeLibraryAssets( *m_imageLib, m_bakePath + m_imagePath, m_imageExt );
+	}
+
+	if ( m_materialLib != nullptr )
+	{
+		MakeDirectory( m_bakePath + m_materialPath );
+		BakeLibraryAssets( *m_materialLib, m_bakePath + m_materialPath, m_materialExt );
+	}
+
+	if ( m_modelLib != nullptr )
+	{
+		MakeDirectory( m_bakePath + m_modelPath );
+		BakeLibraryAssets( *m_modelLib, m_bakePath + m_modelPath, m_modelExt );
+	}
 
 	std::ofstream assetFile( m_bakePath + "asset_info.csv", std::ios::out | std::ios::trunc );
-	assetFile << "Name,Type,Hash,Data,Size\n";
+	assetFile << "Name,Type,Asset Hash,Size,Date\n";
 	for ( auto it = assetInfo.begin(); it != assetInfo.end(); ++it )
 	{
 		const bakedAssetInfo_t& asset = *it;
