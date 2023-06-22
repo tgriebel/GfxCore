@@ -29,6 +29,7 @@
 #include "../math/matrix.h"
 #include "../image/color.h"
 #include "../core/handle.h"
+#include "../core/asset.h"
 
 class Serializer;
 
@@ -259,3 +260,31 @@ float SmithGGXCorrelated( float NoV, float NoL, float roughness );
 vec3f Schlick( float u, vec3f f0 );
 float Lambert();
 vec3f BrdfGGX( const vec3f& n, const vec3f& v, const vec3f& l, const Material& m );
+
+class AssetManager;
+
+class BakedMaterialLoader : public LoadHandler<Material>
+{
+private:
+	std::string		m_basePath;
+	std::string		m_fileName;
+	std::string		m_ext;
+	AssetManager*	m_assets;
+
+	bool Load( Asset<Material>& texture );
+
+public:
+	BakedMaterialLoader() {}
+	BakedMaterialLoader( AssetManager* assets, const std::string& path, const std::string& ext )
+	{
+		SetAssetRef( assets );
+		SetBasePath( path );
+		SetExtName( ext );
+	}
+
+	void SetBasePath( const std::string& path );
+	void SetExtName( const std::string& file );
+	void SetAssetRef( AssetManager* assetsPtr );
+};
+
+using pMatLoader_t = Asset<Material>::loadHandlerPtr_t;

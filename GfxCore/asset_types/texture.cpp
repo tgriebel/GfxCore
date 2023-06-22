@@ -48,7 +48,7 @@ bool ImageLoader::Load( Asset<Image>& imageAsset )
 	Image& image = imageAsset.Get();
 
 	bakedAssetInfo_t info = {};
-	const bool loadedBaked = LoadBaked( image, imageAsset.Handle(), info, m_basePath, "img.bin" );
+	const bool loadedBaked = LoadBaked( imageAsset, info, m_basePath, "img.bin" );
 	if ( loadedBaked ) {
 		return true;
 	}
@@ -88,10 +88,8 @@ bool BakedImageLoader::Load( Asset<Image>& imageAsset )
 	Image& image = imageAsset.Get();
 
 	bakedAssetInfo_t info = {};
-	const bool loadedBaked = LoadBaked( image, imageAsset.Handle(), info, m_basePath, m_ext );
-	if ( loadedBaked )
-	{
-		imageAsset.SetName( info.name );
+	const bool loadedBaked = LoadBaked( imageAsset, info, m_basePath, m_ext );
+	if ( loadedBaked ) {
 		return true;
 	}
 	return false;

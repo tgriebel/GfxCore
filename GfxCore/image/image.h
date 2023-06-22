@@ -37,7 +37,7 @@ template<typename T>
 class ImageBuffer
 {
 private:
-	static const uint32_t Version = 1;
+	static const uint32_t Version = 2;
 	uint32_t	width;				// Width of image (highest mip)
 	uint32_t	height;				// Height of image (highest mip)
 	uint32_t	length;				// Number of elements in buffer
@@ -137,7 +137,7 @@ public:
 		_Init( _width, _height, _layers );
 		name = _name;
 
-		memcpy( buffer, _bytes, length );
+		memcpy( buffer, _bytes, GetByteCount() );
 	}
 
 	void Init( const uint32_t _width, const uint32_t _height, const T& _default, const char* _name = "" )

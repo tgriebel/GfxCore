@@ -142,7 +142,7 @@ public:
 
 	Asset( const hdl_t hdl ) : AssetInterface( hdl ), m_loader( nullptr ) {}
 
-	Asset( const std::string& _name  ) : AssetInterface( Hash( _name ) ), m_loader( nullptr ) {}
+	Asset( const std::string& _name  ) : AssetInterface( _name, false ), m_loader( nullptr ) {}
 
 	Asset( const AssetType& _asset, const std::string& _name, const bool _loaded = true ) :
 		AssetInterface( _name, _loaded ), m_asset( _asset ), m_loader( nullptr ) {}

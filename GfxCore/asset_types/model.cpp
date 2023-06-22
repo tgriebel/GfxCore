@@ -34,26 +34,12 @@ bool ModelLoader::Load( Asset<Model>& modelAsset )
 	const std::string fileName = modelName + "." + modelExt;
 
 	bakedAssetInfo_t modelInfo = {};
-	const bool loadedBakedModel = LoadBaked( model, modelAsset.Handle(), modelInfo, modelPath, "mdl.bin" );
+	const bool loadedBakedModel = LoadBaked( modelAsset, modelInfo, modelPath, "mdl.bin" );
 	if ( loadedBakedModel )
 	{
 		const uint32_t surfCount = static_cast<uint32_t>( model.surfs.size() );
-		for ( uint32_t surfIx = 0; surfIx < surfCount; ++surfIx )
-		{
-			Material material;
-
-			bakedAssetInfo_t materialInfo = {};
-			const bool loadedBakedMaterial = LoadBaked( material, model.surfs[ surfIx ].materialHdl, materialInfo, ".\\materials\\", "mtl.bin" );
-			if ( loadedBakedMaterial ) {
-				assets->materialLib.Add( materialInfo.name.c_str(), material );
-			}
-
-			const uint32_t imgCount = material.TextureCount();
-			for ( uint32_t imageIx = 0; imageIx < imgCount; ++imageIx )
-			{
-				const hdl_t imgHandle = material.GetTexture( imageIx );
-				assets->textureLib.AddDeferred( imgHandle, pImgLoader_t( new BakedImageLoader( ".\\textures\\", "img.bin" ) ) );
-			}
+		for ( uint32_t surfIx = 0; surfIx < surfCount; ++surfIx ) {
+			assets->materialLib.AddDeferred( model.surfs[ surfIx ].materialHdl, pMatLoader_t( new BakedMaterialLoader( assets, ".\\materials\\", "mtl.bin" ) ) );
 		}
 		return true;
 	}

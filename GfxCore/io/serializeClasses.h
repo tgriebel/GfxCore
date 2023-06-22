@@ -16,12 +16,13 @@ struct bakedAssetInfo_t
 };
 
 template<class T>
-bool LoadBaked( T& asset, const hdl_t& handle, bakedAssetInfo_t& info, const std::string& dir, const std::string& ext )
+bool LoadBaked( Asset<T>& asset, bakedAssetInfo_t& info, const std::string& dir, const std::string& ext )
 {
 	if( g_supportBaked == false ) {
 		return false;
 	}
 
+	const hdl_t handle = asset.Handle();
 	const std::string hash = handle.String();
 	const std::string bakedPath = ".\\baked\\" + dir + hash + "." + ext;
 	if ( FileExists( bakedPath ) )
@@ -35,7 +36,9 @@ bool LoadBaked( T& asset, const hdl_t& handle, bakedAssetInfo_t& info, const std
 		info.sizeBytes = s->CurrentSize();
 		info.hash = Library::Handle( info.name.c_str() ).String();
 
-		asset.Serialize( s );
+		asset.Get().Serialize( s );
+		asset.SetName( info.name.c_str() );
+
 		const bool loaded = ( s->Status() == serializeStatus_t::OK );
 		assert( loaded );
 		delete s;
@@ -54,10 +57,11 @@ void ImageBuffer<T>::Serialize( Serializer* s )
 	}
 	s->Next( width );
 	s->Next( height );
+	s->Next( layers );
 	s->Next( length );
 
 	if( s->GetMode() == serializeMode_t::LOAD ) {
-		_Init( width, height );
+		_Init( width, height, layers );
 	}
 	
 	assert( buffer != nullptr );

@@ -22,6 +22,10 @@
 */
 
 #include "material.h"
+#include <serializer.h>
+#include <systemUtils.h>
+#include "../io/serializeClasses.h"
+#include "../scene/assetManager.h"
 
 bool Material::AddTexture( const uint32_t slot, const hdl_t hdl )
 {
@@ -96,6 +100,44 @@ uint32_t Material::ShaderCount() const
 	return count;
 }
 
+
+bool BakedMaterialLoader::Load( Asset<Material>& materialAsset )
+{
+	Material& material = materialAsset.Get();
+
+	bakedAssetInfo_t info = {};
+	const bool loadedBaked = LoadBaked( materialAsset, info, m_basePath, "mtl.bin" );
+	if ( loadedBaked )
+	{
+		assert( m_assets != nullptr );
+		const uint32_t imgCount = material.TextureCount();
+		for ( uint32_t imageIx = 0; imageIx < imgCount; ++imageIx )
+		{
+			const hdl_t imgHandle = material.GetTexture( imageIx );
+			m_assets->textureLib.AddDeferred( imgHandle, pImgLoader_t( new BakedImageLoader( ".\\textures\\", "img.bin" ) ) );
+		}
+		return true;
+	}
+	return false;
+}
+
+
+void BakedMaterialLoader::SetBasePath( const std::string& path )
+{
+	m_basePath = path;
+}
+
+
+void BakedMaterialLoader::SetExtName( const std::string& ext )
+{
+	m_ext = ext;
+}
+
+
+void BakedMaterialLoader::SetAssetRef( AssetManager* assetsPtr )
+{
+	m_assets = assetsPtr;
+}
 
 // BRDF functions are adapted from "https://google.github.io/filament/Filament.md.html#overview/physicallybasedrendering"
 float GGX( float NoH, float roughness )
