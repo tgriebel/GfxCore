@@ -76,6 +76,9 @@
     <ClCompile Include="GfxCore\asset_types\texture.cpp">
       <Filter>Asset Types</Filter>
     </ClCompile>
+    <ClCompile Include="GfxCore\scene\assetBaker.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GfxCore\asset_types\gpuProgram.h">
@@ -164,6 +167,9 @@
     </ClInclude>
     <ClInclude Include="GfxCore\io\serializeClasses.h">
       <Filter>IO</Filter>
+    </ClInclude>
+    <ClInclude Include="GfxCore\scene\assetBaker.h">
+      <Filter>Scene</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

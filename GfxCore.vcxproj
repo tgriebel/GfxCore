@@ -233,6 +233,7 @@
     <ClCompile Include="GfxCore\io\serializeClasses.cpp" />
     <ClCompile Include="GfxCore\math\matrix.cpp" />
     <ClCompile Include="GfxCore\primitives\geom.cpp" />
+    <ClCompile Include="GfxCore\scene\assetBaker.cpp" />
     <ClCompile Include="GfxCore\scene\camera.cpp" />
     <ClCompile Include="GfxCore\scene\entity.cpp" />
     <ClCompile Include="GfxCore\scene\scene.cpp" />
@@ -262,6 +263,7 @@
     <ClInclude Include="GfxCore\math\vector.h" />
     <ClInclude Include="GfxCore\primitives\geom.h" />
     <ClInclude Include="GfxCore\primitives\ray.h" />
+    <ClInclude Include="GfxCore\scene\assetBaker.h" />
     <ClInclude Include="GfxCore\scene\assetManager.h" />
     <ClInclude Include="GfxCore\scene\camera.h" />
     <ClInclude Include="GfxCore\scene\entity.h" />
