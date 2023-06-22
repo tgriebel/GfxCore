@@ -31,6 +31,7 @@
 
 
 class ShaderBindSet;
+class Serializer;
 
 
 enum shaderType_t : uint32_t
@@ -73,6 +74,10 @@ public:
 	uint32_t				shaderCount;
 
 	friend class LoadHandler<GpuProgram>;
+
+	void Serialize( Serializer* s )
+	{
+	}
 };
 
 
@@ -160,4 +165,4 @@ public:
 	}
 };
 
-using pShaderLoader_t = Asset<GpuProgramLoader>::loadHandlerPtr_t;
+using pShaderLoader_t = Asset<GpuProgram>::loadHandlerPtr_t;

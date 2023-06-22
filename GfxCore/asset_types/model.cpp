@@ -31,10 +31,10 @@ bool ModelLoader::Load( Asset<Model>& modelAsset )
 {
 	Model& model = modelAsset.Get();
 
-	const std::string fileName = modelName + "." + modelExt;
+	const std::string fileName = m_modelName + "." + m_modelExt;
 
 	bakedAssetInfo_t modelInfo = {};
-	const bool loadedBakedModel = LoadBaked( modelAsset, modelInfo, modelPath, "mdl.bin" );
+	const bool loadedBakedModel = LoadBaked( modelAsset, modelInfo, ".\\baked\\" + m_modelPath, "mdl.bin" );
 	if ( loadedBakedModel )
 	{
 		const uint32_t surfCount = static_cast<uint32_t>( model.surfs.size() );
@@ -46,8 +46,8 @@ bool ModelLoader::Load( Asset<Model>& modelAsset )
 
 	std::cout << "Loading raw model:" << fileName << std::endl;
 
-	if ( modelExt == "obj" ) {
-		return LoadRawModel( *assets, fileName, modelPath, texturePath, model );
+	if ( m_modelExt == "obj" ) {
+		return LoadRawModel( *assets, fileName, m_modelPath, m_texturePath, model );
 	} else {
 		return false;
 	}
@@ -56,19 +56,19 @@ bool ModelLoader::Load( Asset<Model>& modelAsset )
 
 void ModelLoader::SetTexturePath( const std::string& path )
 {
-	texturePath = path;
+	m_texturePath = path;
 }
 
 
 void ModelLoader::SetModelPath( const std::string& path )
 {
-	modelPath = path;
+	m_modelPath = path;
 }
 
 
 void ModelLoader::SetModelName( const std::string& fileName )
 {
-	SplitFileName( fileName, modelName, modelExt );
+	SplitFileName( fileName, m_modelName, m_modelExt );
 }
 
 

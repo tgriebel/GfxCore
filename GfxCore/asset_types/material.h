@@ -266,7 +266,9 @@ class AssetManager;
 class BakedMaterialLoader : public LoadHandler<Material>
 {
 private:
-	std::string		m_basePath;
+	std::string		m_assetDir;
+	std::string		m_textureDir;
+	std::string		m_bakedDir;
 	std::string		m_fileName;
 	std::string		m_ext;
 	AssetManager*	m_assets;
@@ -278,11 +280,11 @@ public:
 	BakedMaterialLoader( AssetManager* assets, const std::string& path, const std::string& ext )
 	{
 		SetAssetRef( assets );
-		SetBasePath( path );
+		SetAssetPath( path );
 		SetExtName( ext );
 	}
 
-	void SetBasePath( const std::string& path );
+	void SetAssetPath( const std::string& path );
 	void SetExtName( const std::string& file );
 	void SetAssetRef( AssetManager* assetsPtr );
 };

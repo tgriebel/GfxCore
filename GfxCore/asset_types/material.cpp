@@ -106,7 +106,7 @@ bool BakedMaterialLoader::Load( Asset<Material>& materialAsset )
 	Material& material = materialAsset.Get();
 
 	bakedAssetInfo_t info = {};
-	const bool loadedBaked = LoadBaked( materialAsset, info, m_basePath, "mtl.bin" );
+	const bool loadedBaked = LoadBaked( materialAsset, info, ".\\baked\\" + m_assetDir, "mtl.bin" );
 	if ( loadedBaked )
 	{
 		assert( m_assets != nullptr );
@@ -114,7 +114,7 @@ bool BakedMaterialLoader::Load( Asset<Material>& materialAsset )
 		for ( uint32_t imageIx = 0; imageIx < imgCount; ++imageIx )
 		{
 			const hdl_t imgHandle = material.GetTexture( imageIx );
-			m_assets->textureLib.AddDeferred( imgHandle, pImgLoader_t( new BakedImageLoader( ".\\textures\\", "img.bin" ) ) );
+			m_assets->textureLib.AddDeferred( imgHandle, pImgLoader_t( new BakedImageLoader( ".\\baked\\textures\\", "img.bin" ) ) );
 		}
 		return true;
 	}
@@ -122,9 +122,9 @@ bool BakedMaterialLoader::Load( Asset<Material>& materialAsset )
 }
 
 
-void BakedMaterialLoader::SetBasePath( const std::string& path )
+void BakedMaterialLoader::SetAssetPath( const std::string& path )
 {
-	m_basePath = path;
+	m_assetDir = path;
 }
 
 

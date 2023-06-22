@@ -4,7 +4,7 @@
 #include "../core/assetLib.h"
 #include <syscore/common.h>
 
-static const bool g_supportBaked = true;
+static const bool g_supportBaked = false;
 
 struct bakedAssetInfo_t
 {
@@ -24,20 +24,22 @@ bool LoadBaked( Asset<T>& asset, bakedAssetInfo_t& info, const std::string& dir,
 
 	const hdl_t handle = asset.Handle();
 	const std::string hash = handle.String();
-	const std::string bakedPath = ".\\baked\\" + dir + hash + "." + ext;
+	const std::string bakedPath = dir + hash + "." + ext;
 	if ( FileExists( bakedPath ) )
 	{
 		Serializer* s = new Serializer( MB( 32 ), serializeMode_t::LOAD );
 		s->ReadFile( bakedPath );
 
+		s->SetPosition( 0 );
 		s->NextString( info.name );
 		s->NextString( info.type );
 		s->NextString( info.date );
+
+		asset.Serialize( s );
+		asset.SetName( info.name.c_str() );
+
 		info.sizeBytes = s->CurrentSize();
 		info.hash = Library::Handle( info.name.c_str() ).String();
-
-		asset.Get().Serialize( s );
-		asset.SetName( info.name.c_str() );
 
 		const bool loaded = ( s->Status() == serializeStatus_t::OK );
 		assert( loaded );

@@ -73,11 +73,14 @@ public:
 class ModelLoader : public LoadHandler<Model>
 {
 private:
-	std::string texturePath;
-	std::string modelPath;
-	std::string modelName;
-	std::string modelExt;
-	AssetManager* assets;
+	std::string		m_texturePath;
+	std::string		m_modelPath;
+	std::string		m_modelName;
+	std::string		m_modelExt;
+	std::string		m_materialDir;
+	std::string		m_materialExt;
+	std::string		m_bakedDir;
+	AssetManager*	assets;
 
 	bool Load( Asset<Model>& modelAsset );
 

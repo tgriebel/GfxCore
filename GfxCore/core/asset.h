@@ -67,6 +67,7 @@ public:
 	virtual bool Load() = 0;
 	virtual void Unload() = 0;
 	virtual bool HasLoader() const = 0;
+	virtual void Serialize( Serializer* s ) = 0;
 
 	inline const std::string& GetName() const
 	{
@@ -181,5 +182,10 @@ public:
 	{
 		m_asset.~AssetType();
 		m_loaded = false;
+	}
+
+	void Serialize( Serializer* s )
+	{
+		m_asset.Serialize( s );
 	}
 };

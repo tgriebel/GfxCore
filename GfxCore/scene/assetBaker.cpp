@@ -43,7 +43,7 @@ static void BakeLibraryAssets( AssetLib<T>& lib, const std::string& path, const 
 		s->NextString( info.name );
 		s->NextString( info.type );
 		s->NextString( info.date );
-		asset->Get().Serialize( s );
+		asset->Serialize( s );
 		s->WriteFile( path + asset->Handle().String() + ext );
 
 		assetInfo.push_back( info );
