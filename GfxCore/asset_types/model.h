@@ -57,13 +57,13 @@ class Model
 {
 	static const uint32_t Version = 1;
 public:
-	Model() : surfCount( 0 )
+	Model() : surfCount( 0 ), uploadId( -1 )
 	{
 	}
 
 	AABB						bounds;
 	std::vector<Surface>		surfs;
-	std::vector<surfaceUpload_t> upload;
+	int32_t						uploadId;
 	uint32_t					surfCount;
 
 	void Serialize( Serializer* serializer );
