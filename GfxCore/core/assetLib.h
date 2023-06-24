@@ -29,6 +29,7 @@
 #include <iterator>
 #include <sstream>
 #include <thread>
+#include <mutex> 
 
 #include "asset.h"
 
@@ -54,6 +55,8 @@ public:
 	virtual const char*					FindName( const uint32_t id ) const = 0;
 	virtual hdl_t						RetrieveHdl( const char* name ) const = 0;
 };
+
+static std::mutex mtx;
 
 template< class AssetType >
 class AssetLib : public Library
@@ -121,13 +124,20 @@ static inline void ThreadLoad( AssetInterface* asset )
 template< class AssetType >
 void AssetLib< AssetType >::LoadAll()
 {
+	static bool useThreading = true;
+
 	std::vector< std::thread > threadPool;
 	threadPool.reserve( pendingLoad.size() );
 
 	for ( hdl_t handle : pendingLoad )
 	{
 		Asset<AssetType>* asset = Find( handle );
-		threadPool.push_back( std::thread( ThreadLoad, asset ) );
+		
+		if( useThreading ) {
+			threadPool.push_back( std::thread( ThreadLoad, asset ) );
+		} else {
+			ThreadLoad( asset );
+		}
 	}
 
 	for ( auto& thread : threadPool )
@@ -171,6 +181,9 @@ hdl_t AssetLib< AssetType >::Add( const char* name, const AssetType& asset, cons
 	
 	uint64_t hash = Hash( assetName.c_str() );
 	
+	std::unique_lock<std::mutex> lock( mtx, std::defer_lock );
+	lock.lock();
+
 	if( replaceIfFound == false )
 	{
 		uint64_t instance = 0;
@@ -186,8 +199,10 @@ hdl_t AssetLib< AssetType >::Add( const char* name, const AssetType& asset, cons
 			it = assets.find( hash );
 		}
 	}
-
 	assets[ hash ] = Asset<AssetType>( asset, assetName );
+
+	lock.unlock();
+
 	return Handle( name );
 }
 
@@ -199,12 +214,17 @@ hdl_t AssetLib< AssetType >::AddDeferred( const char* name, std::unique_ptr< Loa
 		return INVALID_HDL;
 	}
 
+	std::unique_lock<std::mutex> lock( mtx, std::defer_lock );
+	lock.lock();
+
 	const uint64_t hash = Hash( name );
 	auto it = assets.find( hash );
 	if ( it == assets.end() ) {
 		assets[ hash ] = Asset<AssetType>( assetName );
 		pendingLoad.push_back( hash );
 	}
+
+	lock.unlock();
 
 	Asset<AssetType>& asset = assets[ hash ];
 	if( loader ) {
@@ -221,12 +241,17 @@ bool AssetLib<AssetType>::AddDeferred( const hdl_t hdl, std::unique_ptr< LoadHan
 		return false;
 	}
 
+	std::unique_lock<std::mutex> lock( mtx, std::defer_lock );
+	lock.lock();
+
 	const uint64_t hash = hdl.Get();
 	auto it = assets.find( hash );
 	if ( it == assets.end() ) {
 		assets[ hash ] = Asset<AssetType>( hdl );
 		pendingLoad.push_back( hash );
 	}
+
+	lock.unlock();
 
 	Asset<AssetType>& asset = assets[ hash ];
 	if ( loader ) {
@@ -239,15 +264,25 @@ bool AssetLib<AssetType>::AddDeferred( const hdl_t hdl, std::unique_ptr< LoadHan
 template< class AssetType >
 void AssetLib<AssetType>::Remove( const uint32_t id )
 {
+	std::unique_lock<std::mutex> lock( mtx, std::defer_lock );
+	lock.lock();
+
 	auto it = assets.begin();
 	std::advance( it, id );
 	assets.erase( it );
+
+	lock.unlock();
 }
 
 template< class AssetType >
 void AssetLib<AssetType>::Remove( const hdl_t& hdl )
 {
+	std::unique_lock<std::mutex> lock( mtx, std::defer_lock );
+	lock.lock();
+
 	assets.erase( hdl.Get() );
+
+	lock.unlock();
 }
 
 template< class AssetType >

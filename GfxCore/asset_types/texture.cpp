@@ -53,8 +53,6 @@ bool ImageLoader::Load( Asset<Image>& imageAsset )
 		return true;
 	}
 
-	std::cout << "Loading raw texture:" << m_fileName << std::endl;
-
 	if ( m_cubemap ) {
 		return LoadCubeMapImage( ( m_basePath + m_fileName ).c_str(), m_ext.c_str(), image );
 	} else {
