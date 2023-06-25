@@ -29,6 +29,12 @@
     <Filter Include="Asset Types">
       <UniqueIdentifier>{16ce3163-cb91-45a6-936e-6ea6b2a06912}</UniqueIdentifier>
     </Filter>
+    <Filter Include="External">
+      <UniqueIdentifier>{cf387978-e3e5-45d3-bfb3-5c119db3b54c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\MikkTSpace">
+      <UniqueIdentifier>{c162d6d0-a26c-4cea-aa60-0fa4a17d4da3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GfxCore.cpp">
@@ -78,6 +84,9 @@
     </ClCompile>
     <ClCompile Include="GfxCore\scene\assetBaker.cpp">
       <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="external\MikkTSpace\mikktspace.c">
+      <Filter>External\MikkTSpace</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -170,6 +179,15 @@
     </ClInclude>
     <ClInclude Include="GfxCore\scene\assetBaker.h">
       <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="external\stb_image.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="external\tiny_obj_loader.h">
+      <Filter>External</Filter>
+    </ClInclude>
+    <ClInclude Include="external\MikkTSpace\mikktspace.h">
+      <Filter>External\MikkTSpace</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
