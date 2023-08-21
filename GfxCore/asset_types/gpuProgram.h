@@ -71,6 +71,7 @@ public:
 	VkShaderModule			vk_shaders[ MaxShaders ];
 #endif
 	const ShaderBindSet*	bindset; // all shaders currently have the same bindings
+	uint64_t				bindHash;
 	uint32_t				shaderCount;
 
 	friend class LoadHandler<GpuProgram>;
@@ -87,7 +88,8 @@ private:
 	std::string basePath;
 	std::string vsFileName;
 	std::string psFileName;
-	std::string csFileName;
+	std::string	csFileName;
+	uint64_t	bindHash;
 
 	bool LoadRasterProgram( GpuProgram& program )
 	{
@@ -127,6 +129,9 @@ private:
 	bool Load( Asset<GpuProgram>& programAsset )
 	{
 		GpuProgram& program = programAsset.Get();
+
+		program.bindHash = bindHash;
+
 		if( ( !vsFileName.empty() ) && ( !psFileName.empty() ) )
 		{
 			return LoadRasterProgram( program );
@@ -142,12 +147,14 @@ public:
 	GpuProgramLoader() {}
 	GpuProgramLoader( const std::string& path, const std::string& vertexFileName, const std::string& pixelFileName )
 	{
+		SetBindSet( 0 );
 		SetBasePath( path );
 		AddFilePaths( vertexFileName, pixelFileName, "" );
 	}
 
 	GpuProgramLoader( const std::string& path, const std::string& computeFileName )
 	{
+		SetBindSet( 0 );
 		SetBasePath( path );
 		AddFilePaths( "", "", computeFileName );
 	}
@@ -155,6 +162,11 @@ public:
 	void SetBasePath( const std::string& path )
 	{
 		basePath = path;
+	}
+
+	void SetBindSet( const std::string& setName )
+	{
+		bindHash = Hash( setName );
 	}
 
 	void AddFilePaths( const std::string& vertexFileName, const std::string& pixelFileName, const std::string& computeFileName )
