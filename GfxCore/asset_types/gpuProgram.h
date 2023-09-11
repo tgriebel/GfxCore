@@ -60,6 +60,13 @@ struct shaderSource_t
 };
 
 
+enum shaderFlags_t : uint32_t
+{
+	SHADER_FLAG_NONE			= 0,
+	SHADER_FLAG_USE_SAMPLING_MS	= ( 1 << 0 ),
+};
+
+
 class GpuProgram
 {
 public:
@@ -73,6 +80,7 @@ public:
 	const ShaderBindSet*	bindset; // all shaders currently have the same bindings
 	uint64_t				bindHash;
 	uint32_t				shaderCount;
+	shaderFlags_t			flags;
 
 	friend class LoadHandler<GpuProgram>;
 
