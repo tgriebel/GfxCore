@@ -31,6 +31,20 @@ inline uint32_t MipCount( const uint32_t width, const uint32_t height )
 	return static_cast<uint32_t>( std::floor( std::log2( std::max( width, height ) ) ) ) + 1;
 }
 
+
+inline void MipDimensions( const uint32_t level, const uint32_t baseWidth, const uint32_t baseHeight, uint32_t* levelWidth, uint32_t* levelHeight )
+{
+	if( ( levelWidth == nullptr ) || ( levelHeight == nullptr ) ) {
+		return;
+	}
+
+	*levelWidth = ( baseWidth >> level );
+	*levelHeight = ( baseHeight >> level );
+
+	*levelWidth = ( *levelWidth == 0 ) ? 1 : *levelWidth;
+	*levelHeight = ( *levelHeight == 0 ) ? 1 : *levelHeight;
+}
+
 class Serializer;
 
 template<typename T>
