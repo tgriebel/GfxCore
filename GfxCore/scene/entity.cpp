@@ -27,8 +27,8 @@
 
 AABB Entity::GetBounds() const
 {
-	const vec3f min = vec3f( vec4f( bounds.GetMin(), 1.0f ) * GetMatrix() );
-	const vec3f max = vec3f( vec4f( bounds.GetMax(), 1.0f ) * GetMatrix() );
+	const vec3f min = vec3f( GetMatrix() * vec4f( bounds.GetMin(), 1.0f ) );
+	const vec3f max = vec3f( GetMatrix() * vec4f( bounds.GetMax(), 1.0f ) );
 	return AABB( min, max );
 }
 
@@ -85,9 +85,9 @@ mat4x4f Entity::GetMatrix() const
 {
 	mat4x4f result;
 	result = scale * orientation;
-	result[ 3 ][ 0 ] = translation[ 0 ];
-	result[ 3 ][ 1 ] = translation[ 1 ];
-	result[ 3 ][ 2 ] = translation[ 2 ];
+	result[ 0 ][ 3 ] = translation[ 0 ];
+	result[ 1 ][ 3 ] = translation[ 1 ];
+	result[ 2 ][ 3 ] = translation[ 2 ];
 	result[ 3 ][ 3 ] = 1.0f;
 	return result;
 }

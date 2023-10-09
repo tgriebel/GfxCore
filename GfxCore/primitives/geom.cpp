@@ -208,7 +208,7 @@ void CreateRayTraceModel( ResourceManager& rm, const uint32_t modelIx, const mat
 void CreateRayTraceModel( AssetManager& assets, Entity* ent, RtModel* outInstance, const hdl_t overrideMaterial )
 {
 	vec4f centroid = vec4f( 0.0f, 0.0f, 0.0f, 0.0f );
-	outInstance->transform = ent->GetMatrix().Transpose();
+	outInstance->transform = ent->GetMatrix();
 
 	Model& model = assets.modelLib.Find( ent->modelHdl )->Get();
 	for( uint32_t surfId = 0; surfId < model.surfCount; ++surfId )
