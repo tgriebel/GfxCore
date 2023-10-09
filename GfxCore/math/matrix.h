@@ -499,6 +499,57 @@ Matrix<3, 3, T> CreateMatrix3x3(	T m00, T m01, T m02,
 	return m;
 }
 
+
+template< typename T >
+Matrix<3, 3, T> CreateMatrix3x3( const Vector<3, T>& X, const Vector<3, T>& Y, const Vector<3, T>& Z )
+{
+	Matrix<3, 3, T> m;
+
+	m[ 0 ][ 0 ] = X[ 0 ];
+	m[ 0 ][ 1 ] = Y[ 0 ];
+	m[ 0 ][ 2 ] = Z[ 0 ];
+
+	m[ 1 ][ 0 ] = X[ 1 ];
+	m[ 1 ][ 1 ] = Y[ 1 ];
+	m[ 1 ][ 2 ] = Z[ 1 ];
+
+	m[ 2 ][ 0 ] = X[ 2 ];
+	m[ 2 ][ 1 ] = Y[ 2 ];
+	m[ 2 ][ 2 ] = Z[ 2 ];
+
+	return m;
+}
+
+
+template< typename T >
+Matrix<4, 4, T> CreateMatrix4x4( const Vector<4, T>& X, const Vector<4, T>& Y, const Vector<4, T>& Z, const Vector<4, T>& W )
+{
+	Matrix<4, 4, T> m;
+
+	m[ 0 ][ 0 ] = X[ 0 ];
+	m[ 0 ][ 1 ] = Y[ 0 ];
+	m[ 0 ][ 2 ] = Z[ 0 ];
+	m[ 0 ][ 3 ] = W[ 0 ];
+
+	m[ 1 ][ 0 ] = X[ 1 ];
+	m[ 1 ][ 1 ] = Y[ 1 ];
+	m[ 1 ][ 2 ] = Z[ 1 ];
+	m[ 1 ][ 3 ] = W[ 1 ];
+
+	m[ 2 ][ 0 ] = X[ 2 ];
+	m[ 2 ][ 1 ] = Y[ 2 ];
+	m[ 2 ][ 2 ] = Z[ 2 ];
+	m[ 2 ][ 3 ] = W[ 2 ];
+
+	m[ 3 ][ 0 ] = X[ 3 ];
+	m[ 3 ][ 1 ] = Y[ 3 ];
+	m[ 3 ][ 2 ] = Z[ 3 ];
+	m[ 3 ][ 3 ] = W[ 3 ];
+
+	return m;
+}
+
+
 template< typename T >
 Matrix<4, 4, T> CreateMatrix4x4(	T m00, T m01, T m02, T m03,
 									T m10, T m11, T m12, T m13,
