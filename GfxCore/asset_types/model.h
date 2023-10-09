@@ -42,17 +42,6 @@ public:
 };
 
 
-struct surfaceUpload_t
-{
-	surfaceUpload_t() : vertexCount( 0 ), indexCount( 0 ), vertexOffset( 0 ), firstIndex( 0 ) {}
-
-	uint32_t					vertexCount;
-	uint32_t					indexCount;
-	uint32_t					vertexOffset;
-	uint32_t					firstIndex;
-};
-
-
 class Model
 {
 	static const uint32_t Version = 1;
