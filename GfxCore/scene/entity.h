@@ -67,7 +67,7 @@ public:
 	hdl_t			modelHdl;
 	hdl_t			materialHdl;
 
-	AABB			GetBounds() const;
+	AABB			GetLocalBounds() const;
 	void			ExpandBounds( const AABB& bounds );
 	vec3f			GetOrigin() const;
 	void			SetOrigin( const vec3f& origin );

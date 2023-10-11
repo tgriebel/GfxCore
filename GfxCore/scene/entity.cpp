@@ -25,11 +25,9 @@
 #include "../core/util.h"
 #include "../primitives/geom.h"
 
-AABB Entity::GetBounds() const
+AABB Entity::GetLocalBounds() const
 {
-	const vec3f min = vec3f( GetMatrix() * vec4f( bounds.GetMin(), 1.0f ) );
-	const vec3f max = vec3f( GetMatrix() * vec4f( bounds.GetMax(), 1.0f ) );
-	return AABB( min, max );
+	return bounds;
 }
 
 
@@ -84,7 +82,7 @@ void Entity::SetRotation( const vec3f& xyzDegrees )
 mat4x4f Entity::GetMatrix() const
 {
 	mat4x4f result;
-	result = scale * orientation;
+	result = orientation * scale;
 	result[ 0 ][ 3 ] = translation[ 0 ];
 	result[ 1 ][ 3 ] = translation[ 1 ];
 	result[ 2 ][ 3 ] = translation[ 2 ];

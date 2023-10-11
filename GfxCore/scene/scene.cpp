@@ -45,7 +45,13 @@ Entity* Scene::GetTracedEntity( const Ray& ray )
 			continue;
 		}
 		float t0, t1;
-		if ( ent->GetBounds().Intersect( ray, t0, t1 ) ) {
+		
+		const vec3f min = vec3f( ent->GetMatrix() * vec4f( ent->GetLocalBounds().GetMin(), 1.0f ) );
+		const vec3f max = vec3f( ent->GetMatrix() * vec4f( ent->GetLocalBounds().GetMax(), 1.0f ) );
+
+		const AABB bounds = AABB( min, max );
+
+		if ( bounds.Intersect( ray, t0, t1 ) ) {
 			if ( t0 < closestT ) {
 				closestT = t0;
 				closestEnt = ent;
