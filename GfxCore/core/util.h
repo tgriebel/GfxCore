@@ -237,7 +237,8 @@ static inline void RandPlanePoint( vec2f& outPoint )
 
 // Fowler–Noll–Vo Hash - fnv1a - 32bits
 // https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
-static inline uint32_t Hash( const uint8_t* bytes, const uint32_t sizeBytes ) {
+static inline uint32_t Hash( const uint8_t* bytes, const uint32_t sizeBytes )
+{
 	uint32_t result = 2166136261;
 	const uint32_t prime = 16777619;
 	for ( uint32_t i = 0; i < sizeBytes; ++i ) {
@@ -246,19 +247,26 @@ static inline uint32_t Hash( const uint8_t* bytes, const uint32_t sizeBytes ) {
 	return result;
 }
 
+
 // Polynomial Rolling hash
-static inline uint64_t Hash( const std::string& s ) {
+static constexpr inline uint64_t Hash( const char* s, const int length )
+{
 	const int p = 31;
 	const int m = static_cast<int>( 1e9 + 9 );
 	uint64_t hash = 0;
 	uint64_t pN = 1;
-	const int stringLen = static_cast<int>( s.size() );
-	for ( int i = 0; i < stringLen; ++i )
+	for ( int i = 0; i < length; ++i )
 	{
 		hash = ( hash + ( s[ i ] - (uint64_t)'a' + 1ull ) * pN ) % m;
 		pN = ( pN * p ) % m;
 	}
 	return hash;
+}
+
+
+static inline uint64_t Hash( const std::string& s )
+{
+	return Hash( s.c_str(), static_cast<int>( s.length() ) );
 }
 
 static inline vec3f RandomVector( float r = 1.0f )
