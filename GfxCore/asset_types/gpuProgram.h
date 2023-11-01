@@ -64,6 +64,7 @@ enum shaderFlags_t : uint32_t
 {
 	SHADER_FLAG_NONE			= 0,
 	SHADER_FLAG_USE_SAMPLING_MS	= ( 1 << 0 ),
+	SHADER_FLAG_IMAGE_SHADER	= ( 1 << 1 ),
 };
 
 
@@ -93,14 +94,16 @@ public:
 class GpuProgramLoader : public LoadHandler<GpuProgram>
 {
 private:
-	std::string basePath;
-	std::string vsFileName;
-	std::string psFileName;
-	std::string	csFileName;
-	uint64_t	bindHash;
+	std::string		basePath;
+	std::string		vsFileName;
+	std::string		psFileName;
+	std::string		csFileName;
+	uint64_t		bindHash;
+	shaderFlags_t	flags;
 
 	bool LoadRasterProgram( GpuProgram& program )
 	{
+		program.type = pipelineType_t::RASTER;
 		program.shaderCount = 2;
 
 		program.shaders[ 0 ].name = vsFileName;
@@ -121,7 +124,9 @@ private:
 
 	bool LoadComputeProgram( GpuProgram& program )
 	{
+		program.type = pipelineType_t::COMPUTE;
 		program.shaderCount = 1;
+
 		program.shaders[ 0 ].name = csFileName;
 		program.shaders[ 0 ].blob = ReadFile( basePath + csFileName );
 		program.shaders[ 0 ].type = shaderType_t::COMPUTE;	
@@ -139,6 +144,7 @@ private:
 		GpuProgram& program = programAsset.Get();
 
 		program.bindHash = bindHash;
+		program.flags = flags;
 
 		if( ( !vsFileName.empty() ) && ( !psFileName.empty() ) )
 		{
@@ -155,14 +161,16 @@ public:
 	GpuProgramLoader() {}
 	GpuProgramLoader( const std::string& path, const std::string& vertexFileName, const std::string& pixelFileName )
 	{
-		SetBindSet( 0 );
+		flags = SHADER_FLAG_NONE;
+		bindHash = 0;
 		SetBasePath( path );
 		AddFilePaths( vertexFileName, pixelFileName, "" );
 	}
 
 	GpuProgramLoader( const std::string& path, const std::string& computeFileName )
 	{
-		SetBindSet( 0 );
+		flags = SHADER_FLAG_NONE;
+		bindHash = 0;
 		SetBasePath( path );
 		AddFilePaths( "", "", computeFileName );
 	}
@@ -175,6 +183,11 @@ public:
 	void SetBindSet( const std::string& setName )
 	{
 		bindHash = Hash( setName );
+	}
+
+	void SetFlags( const shaderFlags_t shaderFlags )
+	{
+		flags = shaderFlags;
 	}
 
 	void AddFilePaths( const std::string& vertexFileName, const std::string& pixelFileName, const std::string& computeFileName )
