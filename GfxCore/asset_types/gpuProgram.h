@@ -72,15 +72,17 @@ class GpuProgram
 {
 public:
 	static const uint32_t MaxShaders = 2;
+	static const uint32_t MaxBindSets = 5;
 
 	pipelineType_t			type;
 	shaderSource_t			shaders[ MaxShaders ];
 #ifdef USE_VULKAN
 	VkShaderModule			vk_shaders[ MaxShaders ];
 #endif
-	const ShaderBindSet*	bindset; // all shaders currently have the same bindings
-	uint64_t				bindHash;
+	const ShaderBindSet*	bindsets[ MaxBindSets ];
+	uint64_t				bindHash; // Only one bindset is specified in the shader right now
 	uint32_t				shaderCount;
+	uint32_t				bindsetCount;
 	shaderFlags_t			flags;
 
 	friend class LoadHandler<GpuProgram>;
@@ -105,6 +107,7 @@ private:
 	{
 		program.type = pipelineType_t::RASTER;
 		program.shaderCount = 2;
+		program.bindsetCount = 0;
 
 		program.shaders[ 0 ].name = vsFileName;
 		program.shaders[ 0 ].blob = ReadFile( basePath + vsFileName );
@@ -126,6 +129,7 @@ private:
 	{
 		program.type = pipelineType_t::COMPUTE;
 		program.shaderCount = 1;
+		program.bindsetCount = 0;
 
 		program.shaders[ 0 ].name = csFileName;
 		program.shaders[ 0 ].blob = ReadFile( basePath + csFileName );
