@@ -39,12 +39,16 @@ public:
 	static inline hdl_t					Handle( const char* name ) { return Hash( name ); }
 	virtual const char*					AssetTypeName() const = 0;
 	virtual void						Clear() = 0;
+	virtual bool						SetDefault( const hdl_t& hdl ) = 0;
+	virtual bool						SetDefault( const char* name ) = 0;
 	virtual AssetInterface*				GetDefault() = 0;
 	virtual const AssetInterface*		GetDefault() const = 0;
 	virtual void						LoadAll() = 0;
 	virtual void						UnloadAll() = 0;
 	virtual bool						HasPendingLoads() const = 0;
 	virtual uint32_t					Count() const = 0;
+	virtual bool						Exists( const char* name ) const = 0;
+	virtual bool						Exists( const hdl_t& hdl ) const = 0;
 	virtual AssetInterface*				Find( const char* name ) = 0;
 	virtual const AssetInterface*		Find( const char* name ) const = 0;
 	virtual AssetInterface*				Find( const uint32_t id ) = 0;
@@ -68,6 +72,7 @@ private:
 	std::string	typeName;
 	loadList_t	pendingLoad;
 	assetMap_t	assets;
+	hdl_t		defaultHdl;
 public:
 	AssetLib()
 	{}
@@ -75,6 +80,9 @@ public:
 	AssetLib( const char* assetTypeName )
 	{
 		typeName = assetTypeName;
+		defaultHdl = INVALID_HDL;
+		assets.clear();
+		pendingLoad.clear();
 	}
 
 	const char* AssetTypeName() const
@@ -84,8 +92,10 @@ public:
 
 	static inline hdl_t			Handle( const char* name ) { return Hash( name ); }
 	void						Clear();
-	Asset<AssetType>*			GetDefault() { return ( assets.size() > 0 ) ? &assets.begin()->second : nullptr; };
-	const Asset<AssetType>*		GetDefault() const { return ( assets.size() > 0 ) ? &assets.begin()->second : nullptr; };
+	bool						SetDefault( const hdl_t& hdl );
+	bool						SetDefault( const char* name );
+	Asset<AssetType>*			GetDefault() { return ( defaultHdl != INVALID_HDL ) ? Find( defaultHdl ) : nullptr; };
+	const Asset<AssetType>*		GetDefault() const { return ( defaultHdl != INVALID_HDL ) ? Find( defaultHdl ) : nullptr; };
 	void						LoadAll();
 	void						UnloadAll();
 	bool						HasPendingLoads() const { return ( pendingLoad.size() > 0 ); }
@@ -95,6 +105,8 @@ public:
 	bool						AddDeferred( const hdl_t hdl, std::unique_ptr< LoadHandler<AssetType> > loader = std::unique_ptr< LoadHandler<AssetType> >() );
 	void						Remove( const uint32_t id );
 	void						Remove( const hdl_t& hdl );
+	bool						Exists( const char* name ) const;
+	bool						Exists( const hdl_t& hdl ) const;
 	Asset<AssetType>*			Find( const char* name );
 	const Asset<AssetType>*		Find( const char* name ) const;
 	Asset<AssetType>*			Find( const uint32_t id );
@@ -283,6 +295,37 @@ void AssetLib<AssetType>::Remove( const hdl_t& hdl )
 	assets.erase( hdl.Get() );
 
 	lock.unlock();
+}
+
+template< class AssetType >
+bool AssetLib< AssetType >::SetDefault( const hdl_t& hdl )
+{
+	if( Exists( hdl ) )
+	{
+		defaultHdl = hdl;
+		return true;
+	}
+	return false;
+}
+
+template< class AssetType >
+bool AssetLib< AssetType >::SetDefault( const char* name )
+{
+	return SetDefault( Handle( name ) );
+}
+
+template< class AssetType >
+bool AssetLib< AssetType >::Exists( const hdl_t& hdl ) const
+{
+	auto it = assets.find( hdl.Get() );
+	return ( it != assets.end() );
+}
+
+template< class AssetType >
+bool AssetLib< AssetType >::Exists( const char* name ) const
+{
+	auto it = assets.find( Hash( name ) );
+	return ( it != assets.end() );
 }
 
 template< class AssetType >
