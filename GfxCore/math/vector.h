@@ -31,7 +31,7 @@
 
 class Serializer;
 
-static float trap[8] = {};
+static float _vector_trap[8] = {};
 
 template <size_t D, typename T>
 class Vector
@@ -241,7 +241,7 @@ const T& Vector<D, T>::operator[]( const size_t i ) const
 	if ( i >= D )
 	{
 		assert( false );
-		return *reinterpret_cast<T*>( &trap[ 0 ] );
+		return *reinterpret_cast<T*>( &_vector_trap[ 0 ] );
 	}
 	return data[ i ];
 }
@@ -253,7 +253,7 @@ T& Vector<D, T>::operator[]( const size_t i )
 	if ( i >= D )
 	{
 		assert( false );
-		return *reinterpret_cast<T*>( &trap[ 0 ] );
+		return *reinterpret_cast<T*>( &_vector_trap[ 0 ] );
 	}
 	return data[ i ];
 }

@@ -29,6 +29,8 @@
 
 #include "../core/common.h"
 
+static uint8_t _pixel_trap;
+
 class Serializer;
 
 template<typename T>
@@ -77,11 +79,27 @@ public:
 		if ( i >= 4 )
 		{
 			assert( false );
-			return vec[ 0 ];
+			return _pixel_trap;
 		}
 
 		return vec[ 3 - i ];
 	}
+};
+
+enum rgbaChannel_t : uint32_t
+{
+	RGBA_R = 3,
+	RGBA_G = 2,
+	RGBA_B = 1,
+	RGBA_A = 0,
+};
+
+
+enum rgbChannel_t : uint32_t
+{
+	RGB_R = 2,
+	RGB_G = 1,
+	RGB_B = 0,
 };
 
 
@@ -106,6 +124,39 @@ enum class blendMode_t : uint32_t
 	COUNT,
 };
 
+template<typename T>
+inline rgbaTuple_t<T> Swizzle( const rgbaTuple_t<T>& rgba, rgbaChannel_t r, rgbaChannel_t g, rgbaChannel_t b, rgbaChannel_t a )
+{
+	union {
+		T v[4];
+		rgbaTuple_t<T> rgba;
+	} px;
+	px.rgba = rgba;
+
+	rgbaTuple_t<T> swizzle;
+	swizzle.r = px.v[ r ];
+	swizzle.g = px.v[ g ];
+	swizzle.b = px.v[ b ];
+	swizzle.a = px.v[ a ];
+	return swizzle;
+}
+
+
+template<typename T>
+inline rgbTuple_t<T> Swizzle( const rgbTuple_t<T>& rgb, rgbChannel_t r, rgbChannel_t g, rgbChannel_t b )
+{
+	union {
+		T v[ 3 ];
+		rgbTuple_t<T> rgb;
+	} px;
+	px.rgb = rgb;
+
+	rgbTuple_t<T> swizzle;
+	swizzle.r = px.v[ r ];
+	swizzle.g = px.v[ g ];
+	swizzle.b = px.v[ b ];
+	return swizzle;
+}
 
 class Color
 {
