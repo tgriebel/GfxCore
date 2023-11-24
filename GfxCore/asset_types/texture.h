@@ -108,6 +108,15 @@ struct imageInfo_t
 };
 
 
+struct imageSubResourceView_t
+{
+	uint32_t baseMip;
+	uint32_t mipLevels;
+	uint32_t baseArray;
+	uint32_t arrayCount;
+};
+
+
 inline bool operator==( const imageInfo_t& info0, const imageInfo_t& info1 )
 {
 	bool equal =
@@ -136,10 +145,11 @@ class Image
 private:
 	static const uint32_t Version = 1;
 public:
-	imageInfo_t			info;
+	imageInfo_t				info;
+	imageSubResourceView_t	subResourceView;
 
-	ImageBuffer<RGBA>	cpuImage;
-	GpuImage*			gpuImage;
+	ImageBuffer<RGBA>		cpuImage;
+	GpuImage*				gpuImage;
 
 	Image()
 	{
