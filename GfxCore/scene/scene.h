@@ -70,7 +70,8 @@ private:
 	std::chrono::nanoseconds	totalTime;
 	uint64_t					frameNumber;
 public:
-	Camera						camera;
+	Camera*						mainCamera;
+	Camera						cameras[ 7 ];
 	std::vector<Entity*>		entities;
 	std::vector<light_t>		lights;
 	float						defaultNear = 0.1f;
@@ -114,10 +115,14 @@ public:
 
 	Scene()
 	{
-		camera = Camera( vec4f( 0.0f, 1.66f, 1.0f, 0.0f ) );
-		camera.SetClip( defaultNear, defaultFar );
-		camera.SetFov( Radians( 90.0f ) );
-		camera.SetAspectRatio( 1.0f );
+		for( uint32_t i = 0; i < 6; ++i )
+		{
+			cameras[ i ] = Camera( vec4f( 0.0f, 1.66f, 1.0f, 0.0f ) );
+			cameras[ i ].SetClip( defaultNear, defaultFar );
+			cameras[ i ].SetFov( Radians( 90.0f ) );
+			cameras[ i ].SetAspectRatio( 1.0f );
+		}
+		mainCamera = &cameras[ 0 ];
 
 		prevTime = chronoClock_t::now();
 		dt = std::chrono::nanoseconds( 0 );
