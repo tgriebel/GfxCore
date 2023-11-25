@@ -115,7 +115,7 @@ public:
 
 	Scene()
 	{
-		for( uint32_t i = 0; i < 6; ++i )
+		for( uint32_t i = 0; i < 7; ++i )
 		{
 			cameras[ i ] = Camera( vec4f( 0.0f, 1.66f, 1.0f, 0.0f ) );
 			cameras[ i ].SetClip( defaultNear, defaultFar );
@@ -129,7 +129,7 @@ public:
 		cameras[ 5 ].AdjustPitch( -0.5f * PI );
 		cameras[ 5 ].AdjustRoll( 0.5f * PI );
 		cameras[ 6 ].AdjustPitch( 0.5f * PI );
-		cameras[ 6 ].AdjustRoll( 0.5f * PI );
+		cameras[ 6 ].AdjustRoll( -0.5f * PI );
 
 		mainCamera = &cameras[ 0 ];
 
