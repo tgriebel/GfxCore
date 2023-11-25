@@ -74,6 +74,7 @@ private:
 	vec4f		origin;
 	float		yaw;
 	float		pitch;
+	float		roll;
 	float		aspect;
 	viewport_t	clipRegion;
 	float		viewportWidth;
@@ -98,6 +99,7 @@ public:
 		clipRegion.far = _far;
 		yaw = 0.0f;
 		pitch = 0.0f;
+		roll = 0.0f;
 		focalLength = _far;
 
 		SetAspectRatio( aspectRatio );
@@ -153,6 +155,7 @@ public:
 	void		Translate( vec4f offset );
 	void		AdjustYaw( const float delta );
 	void		AdjustPitch( const float delta );
+	void		AdjustRoll( const float delta );
 	void		MoveForward( const float delta );
 	void		MoveRight( const float delta );
 	void		MoveUp( const float delta );

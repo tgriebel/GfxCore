@@ -97,6 +97,7 @@ mat4x4f Camera::GetAxis() const
 {
 	mat4x4f view = ( ComputeRotationY( Degrees( -yaw ) ) * axis ); // TODO: check if rotation mat is right direction. Just flipped the sign for now
 	view = ( ComputeRotationX( Degrees( -pitch ) ) * view );
+	view = ( ComputeRotationZ( Degrees( -roll ) ) * view );
 	return view;
 }
 
@@ -195,6 +196,12 @@ void Camera::AdjustYaw( const float delta )
 void Camera::AdjustPitch( const float delta )
 {
 	pitch += delta;
+}
+
+
+void Camera::AdjustRoll( const float delta )
+{
+	roll += delta;
 }
 
 
