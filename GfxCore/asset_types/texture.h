@@ -46,6 +46,7 @@ enum imageType_t : uint8_t
 
 enum imageAspectFlags_t : uint8_t
 {
+	IMAGE_ASPECT_NONE = 0,
 	IMAGE_ASPECT_COLOR_FLAG = ( 1 << 0 ),
 	IMAGE_ASPECT_DEPTH_FLAG = ( 1 << 1 ),
 	IMAGE_ASPECT_STENCIL_FLAG = ( 1 << 2 ),
@@ -71,6 +72,7 @@ enum imageFmt_t : uint8_t
 	IMAGE_FMT_D_32_S8,
 	IMAGE_FMT_RGB_8,
 	IMAGE_FMT_RGBA_8,
+	IMAGE_FMT_RGBA_8_UNORM,
 	IMAGE_FMT_ABGR_8,
 	IMAGE_FMT_BGR_8,
 	IMAGE_FMT_BGRA_8,
