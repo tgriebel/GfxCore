@@ -63,7 +63,7 @@ bool LoadImage( const char* texturePath, Image& texture )
 	texture.info.fmt = IMAGE_FMT_RGBA_8;
 	texture.info.tiling = IMAGE_TILING_MORTON;
 	texture.info.mipLevels = MipCount( texture.info.width, texture.info.height );
-	texture.cpuImage.Init( texture.info.width, texture.info.height, texture.info.layers, pixels, "" );
+	texture.cpuImage.Init( texture.info.width, texture.info.height, texture.info.layers, reinterpret_cast<RGBA*>( pixels ), "" );
 
 	stbi_image_free( pixels );
 	return true;
@@ -135,7 +135,7 @@ bool LoadCubeMapImage( const char* textureBasePath, const char* ext, Image& text
 	texture.info.fmt = IMAGE_FMT_RGBA_8;
 	texture.info.tiling = IMAGE_TILING_MORTON;
 	texture.info.mipLevels = MipCount( texture.info.width, texture.info.height );
-	texture.cpuImage.Init( texture.info.width, texture.info.height, texture.info.layers, bytes, "" );
+	texture.cpuImage.Init( texture.info.width, texture.info.height, texture.info.layers, reinterpret_cast<RGBA*>( bytes ), "" );
 
 	delete[] bytes;
 

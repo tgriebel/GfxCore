@@ -146,12 +146,12 @@ public:
 		Clear( _default );
 	}
 
-	void Init( const uint32_t _width, const uint32_t _height, const uint32_t _layers, const uint8_t* _bytes, const char* _name = "" )
+	void Init( const uint32_t _width, const uint32_t _height, const uint32_t _layers, const T* data, const char* _name = "" )
 	{
 		_Init( _width, _height, _layers );
 		name = _name;
 
-		memcpy( buffer, _bytes, GetByteCount() );
+		memcpy( buffer, data, GetByteCount() );
 	}
 
 	void Init( const uint32_t _width, const uint32_t _height, const T& _default, const char* _name = "" )
