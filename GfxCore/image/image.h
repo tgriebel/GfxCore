@@ -58,7 +58,8 @@ private:
 	uint32_t	height;				// Height of image (highest mip)
 	uint32_t	length;				// Number of elements in buffer
 	uint32_t	layers;				// Depth for 3D volumes, sides for cubemaps, 1 normally
-	T*			buffer = nullptr;
+	uint32_t	bpp;				// Bytes per pixel
+	uint8_t*	buffer = nullptr;
 	const char*	name;
 
 	void _Init( const uint32_t _width, const uint32_t _height, const uint32_t _layers = 1 )
@@ -72,8 +73,9 @@ private:
 		width = _width;
 		height = _height;
 		layers = _layers;
+		bpp = sizeof( T );
 		length = width * height * layers;
-		buffer = new T[ length ];
+		buffer = new uint8_t[ bpp * length ];
 	}
 
 public:
@@ -99,9 +101,10 @@ public:
 		{
 			delete[] buffer;
 		}
-		buffer = new T[ _image.length ];
+		buffer = new uint8_t[ _image.bpp * _image.length ];
 
-		for ( uint32_t i = 0; i < _image.length; ++i )
+		const uint32_t byteCount = _image.GetByteCount();
+		for ( uint32_t i = 0; i < byteCount; ++i )
 		{
 			buffer[ i ] = _image.buffer[ i ];
 		}
@@ -110,6 +113,7 @@ public:
 		height = _image.height;
 		length = _image.length;
 		layers = _image.layers;
+		bpp = _image.bpp;
 		name = _image.name;
 	}
 
@@ -205,7 +209,7 @@ public:
 			return false;
 		}
 
-		buffer[ index ] = pixel;
+		RawBuffer()[ index ] = pixel;
 		return true;
 	}
 
@@ -230,7 +234,7 @@ public:
 			return T();
 		}
 
-		return buffer[ index ];
+		return RawBuffer()[ index ];
 	}
 
 	inline bool SetPixelUV( const float u, const float v, const T& pixel )
@@ -264,18 +268,28 @@ public:
 	{
 		for ( uint32_t i = 0; i < length; ++i )
 		{
-			buffer[ i ] = fill;
+			RawBuffer()[ i ] = fill;
 		}
 	}
 
 	inline const uint8_t* const Ptr() const
 	{
-		return reinterpret_cast<const uint8_t*>( &buffer[ 0 ] );
+		return buffer;
 	}
 
 	inline uint8_t* const Ptr()
 	{
-		return reinterpret_cast<uint8_t*>( &buffer[ 0 ] );
+		return buffer;
+	}
+
+	inline const T* const RawBuffer() const
+	{
+		return reinterpret_cast<const T* const>( buffer );
+	}
+
+	inline T* const RawBuffer()
+	{
+		return reinterpret_cast<T*>( buffer );
 	}
 
 	inline uint32_t GetWidth() const
@@ -293,9 +307,19 @@ public:
 		return height;
 	}
 
+	inline uint32_t GetBpp() const
+	{
+		return bpp;
+	}
+
+	inline uint32_t GetPixelCount() const
+	{
+		return length;
+	}
+
 	inline uint32_t GetByteCount() const
 	{
-		return length * sizeof( T );
+		return length * bpp;
 	}
 
 	inline const char* GetName() const

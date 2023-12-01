@@ -84,5 +84,5 @@ void ImageBuffer<T>::Serialize( Serializer* s )
 	}
 	
 	assert( buffer != nullptr );
-	SerializeArray( s, buffer, length );
+	SerializeArray( s, buffer, bpp * length );
 }
