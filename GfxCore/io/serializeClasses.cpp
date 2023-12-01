@@ -50,7 +50,7 @@ void Vector<D, T>::Serialize( Serializer* serializer )
 
 void SerializeStruct( Serializer* s, vertex_t& v )
 {
-	static_assert( sizeof( vertex_t ) == 88, "Serialization out-of-date" );
+	static_assert( sizeof( vertex_t ) == 84, "Serialization out-of-date" );
 	v.pos.Serialize( s );
 	v.normal.Serialize( s );
 	v.tangent.Serialize( s );

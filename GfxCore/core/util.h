@@ -122,6 +122,24 @@ static inline void BitmapToImage( const Bitmap& bitmap, ImageBuffer<Color>& imag
 }
 
 
+static inline void ImageToBitmap( const ImageBuffer<RGBA>& image, Bitmap& bitmap )
+{
+	bitmap.ClearImage( Color::Black );
+
+	const int32_t width = static_cast<int32_t>( std::min( image.GetWidth(), bitmap.GetWidth() ) );
+	const int32_t height = static_cast<int32_t>( std::min( image.GetHeight(), bitmap.GetHeight() ) );
+
+	for ( int32_t y = 0; y < height; ++y )
+	{
+		for ( int32_t x = 0; x < width; ++x )
+		{
+			RGBA color = image.GetPixel( x, y );
+			bitmap.SetPixel( x, y, Pixel( color ).r8g8b8a8 );
+		}
+	}
+}
+
+
 static inline void ImageToBitmap( const ImageBuffer<Color>& image, Bitmap& bitmap )
 {
 	bitmap.ClearImage( Color::Black );

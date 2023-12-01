@@ -158,13 +158,15 @@ inline rgbTuple_t<T> Swizzle( const rgbTuple_t<T>& rgb, rgbChannel_t r, rgbChann
 	return swizzle;
 }
 
+static float _color_trap;
+
 class Color
 {
 private:
 	static const uint32_t Version = 1;
 	union color_t
 	{
-		float				vec[ 5 ];
+		float				vec[ 4 ];
 		rgbaTuple_t<float>	rgba;
 	} u;
 
@@ -256,7 +258,7 @@ public:
 		if ( i >= 4 )
 		{
 			assert( false );
-			return u.vec[ 4 ];
+			return _color_trap;
 		}
 
 		return u.vec[ 3 - i ];
@@ -267,7 +269,7 @@ public:
 		if ( i >= 4 )
 		{
 			assert( false );
-			return u.vec[ 4 ];
+			return _color_trap;
 		}
 
 		return u.vec[ 3 - i ];

@@ -50,6 +50,7 @@ enum imageAspectFlags_t : uint8_t
 	IMAGE_ASPECT_COLOR_FLAG = ( 1 << 0 ),
 	IMAGE_ASPECT_DEPTH_FLAG = ( 1 << 1 ),
 	IMAGE_ASPECT_STENCIL_FLAG = ( 1 << 2 ),
+	IMAGE_ASPECT_ALL = ( 1 << 3 ) - 1
 };
 
 
