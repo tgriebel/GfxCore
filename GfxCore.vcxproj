@@ -229,6 +229,7 @@
     <ClCompile Include="GfxCore\asset_types\texture.cpp" />
     <ClCompile Include="GfxCore\image\bitmap.cpp" />
     <ClCompile Include="GfxCore\image\color.cpp" />
+    <ClCompile Include="GfxCore\image\image.cpp" />
     <ClCompile Include="GfxCore\io\io.cpp" />
     <ClCompile Include="GfxCore\io\meshIO.cpp" />
     <ClCompile Include="GfxCore\io\serializeClasses.cpp" />

@@ -24,6 +24,8 @@
 #pragma once
 
 #include <assert.h>
+#include <cstdint>
+#include <algorithm>
 #include "../core/common.h"
 
 inline uint32_t MipCount( const uint32_t width, const uint32_t height )
@@ -320,3 +322,6 @@ public:
 
 	void Serialize( Serializer* serializer );
 };
+
+template<class SourceType, class DestType>
+void ImageAdaptor( const ImageBuffer<SourceType>& from, ImageBuffer<DestType>& to );

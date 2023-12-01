@@ -88,6 +88,9 @@
     <ClCompile Include="external\MikkTSpace\mikktspace.c">
       <Filter>External\MikkTSpace</Filter>
     </ClCompile>
+    <ClCompile Include="GfxCore\image\image.cpp">
+      <Filter>Image</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GfxCore\asset_types\gpuProgram.h">
