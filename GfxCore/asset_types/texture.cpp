@@ -37,7 +37,10 @@ void Image::Serialize( Serializer* s )
 		throw std::runtime_error( "Wrong version number." );
 	}
 
-	cpuImage.Serialize( s );
+	if( cpuImage == nullptr ) {
+		cpuImage = new ImageBuffer<RGBA>();
+	}
+	cpuImage->Serialize( s );
 
 	SerializeStruct( s, info );
 }

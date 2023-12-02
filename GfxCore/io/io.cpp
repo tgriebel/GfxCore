@@ -63,7 +63,13 @@ bool LoadImage( const char* texturePath, Image& texture )
 	texture.info.fmt = IMAGE_FMT_RGBA_8;
 	texture.info.tiling = IMAGE_TILING_MORTON;
 	texture.info.mipLevels = MipCount( texture.info.width, texture.info.height );
-	texture.cpuImage.Init( texture.info.width, texture.info.height, texture.info.layers, reinterpret_cast<RGBA*>( pixels ), "" );
+
+	assert( texture.cpuImage == nullptr );
+
+	ImageBuffer<RGBA>* imageBuffer = new ImageBuffer<RGBA>();
+	imageBuffer->Init( texture.info.width, texture.info.height, texture.info.layers, reinterpret_cast<RGBA*>( pixels ), "" );
+
+	texture.cpuImage = imageBuffer;
 
 	stbi_image_free( pixels );
 	return true;
@@ -89,13 +95,16 @@ bool LoadCubeMapImage( const char* textureBasePath, const char* ext, Image& text
 			sizeBytes = 0;
 			break;
 		}
-		assert( textures2D[ i ].cpuImage.GetByteCount() > 0 );
-		sizeBytes += textures2D[ i ].cpuImage.GetByteCount();
+		assert( textures2D[ i ].cpuImage != nullptr );
+		assert( textures2D[ i ].cpuImage->GetByteCount() > 0 );
+		sizeBytes += textures2D[ i ].cpuImage->GetByteCount();
 	}
 
 	if ( sizeBytes == 0 ) {
-		for ( int i = 0; i < 6; ++i ) {
-			textures2D[ i ].cpuImage.Destroy();
+		for ( int i = 0; i < 6; ++i )
+		{
+			delete textures2D[ i ].cpuImage;
+			textures2D[ i ].cpuImage = nullptr;
 		}
 		return false;
 	}
@@ -116,14 +125,16 @@ bool LoadCubeMapImage( const char* textureBasePath, const char* ext, Image& text
 			if ( bytes != nullptr ) {
 				delete[] bytes;
 			}
-			for ( int j = 0; j < 6; ++j ) {
-				textures2D[ i ].cpuImage.Destroy();
+			for ( int j = 0; j < 6; ++j )
+			{
+				delete textures2D[ i ].cpuImage;
+				textures2D[ i ].cpuImage = nullptr;
 			}
 			return false;
 		}
 
-		memcpy( bytes + byteOffset, textures2D[ i ].cpuImage.Ptr(), textures2D[ i ].cpuImage.GetByteCount() );
-		byteOffset += textures2D[ i ].cpuImage.GetByteCount();
+		memcpy( bytes + byteOffset, textures2D[ i ].cpuImage->Ptr(), textures2D[ i ].cpuImage->GetByteCount() );
+		byteOffset += textures2D[ i ].cpuImage->GetByteCount();
 	}
 
 	assert( sizeBytes == byteOffset );
@@ -135,7 +146,12 @@ bool LoadCubeMapImage( const char* textureBasePath, const char* ext, Image& text
 	texture.info.fmt = IMAGE_FMT_RGBA_8;
 	texture.info.tiling = IMAGE_TILING_MORTON;
 	texture.info.mipLevels = MipCount( texture.info.width, texture.info.height );
-	texture.cpuImage.Init( texture.info.width, texture.info.height, texture.info.layers, reinterpret_cast<RGBA*>( bytes ), "" );
+
+	assert( texture.cpuImage == nullptr );
+
+	ImageBuffer<RGBA>* imageBuffer = new ImageBuffer<RGBA>();
+	imageBuffer->Init( texture.info.width, texture.info.height, texture.info.layers, reinterpret_cast<RGBA*>( bytes ), "" );
+	texture.cpuImage = imageBuffer;
 
 	delete[] bytes;
 

@@ -151,7 +151,7 @@ public:
 	imageInfo_t				info;
 	imageSubResourceView_t	subResourceView;
 
-	ImageBuffer<RGBA>		cpuImage;
+	ImageBufferInterface*	cpuImage;
 	GpuImage*				gpuImage;
 
 	Image()
@@ -166,12 +166,17 @@ public:
 		info.aspect = IMAGE_ASPECT_COLOR_FLAG;
 		info.tiling = IMAGE_TILING_LINEAR;
 
+		cpuImage = nullptr;
 		gpuImage = nullptr;
 	}
 
 	~Image()
 	{
-		cpuImage.Destroy();
+		if ( cpuImage != nullptr )
+		{
+			delete cpuImage;
+			cpuImage = nullptr;
+		}
 	}
 
 	void	Serialize( Serializer* serializer );
