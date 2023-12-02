@@ -38,6 +38,7 @@ class Asset;
 
 std::vector<char> ReadFile( const std::string& filename );
 bool LoadImage( const char* texturePath, Image& texture );
+bool LoadImageHDR( const char* texturePath, Image& texture );
 bool LoadCubeMapImage( const char* textureBasePath, const char* ext, Image& texture );
 bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std::string& modelPath, const std::string& texturePath, Model& model );
 bool LoadModel( AssetManager& assets, const hdl_t& hdl, const std::string& bakePath, const std::string& modelPath, const std::string& ext );

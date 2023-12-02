@@ -59,7 +59,11 @@ bool ImageLoader::Load( Asset<Image>& imageAsset )
 	if ( m_cubemap ) {
 		return LoadCubeMapImage( ( m_basePath + m_fileName ).c_str(), m_ext.c_str(), image );
 	} else {
-		return LoadImage( ( m_basePath + m_fileName + "." + m_ext ).c_str(), image );
+		if( m_hdr ) {
+			return LoadImageHDR( ( m_basePath + m_fileName + "." + m_ext ).c_str(), image );			
+		} else {
+			return LoadImage( ( m_basePath + m_fileName + "." + m_ext ).c_str(), image );
+		}
 	}
 }
 
@@ -72,9 +76,11 @@ void ImageLoader::SetBasePath( const std::string& path )
 
 void ImageLoader::SetTextureFile( const std::string& file )
 {
-	const size_t extIndex = file.find_last_of( "." );
-	m_ext = file.substr( extIndex + 1 );
-	m_fileName = file.substr( 0, extIndex );
+	SplitFileName( file, m_fileName, m_ext );
+
+	if( m_ext == "hdr" ) {
+		m_hdr = true;
+	}
 }
 
 

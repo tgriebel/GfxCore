@@ -189,13 +189,14 @@ private:
 	std::string	m_basePath;
 	std::string	m_fileName;
 	std::string	m_ext;
+	bool		m_hdr;
 	bool		m_cubemap;
 
 	bool Load( Asset<Image>& texture );
 
 public:
-	ImageLoader() : m_cubemap( false ) {}
-	ImageLoader( const std::string& path, const std::string& file ) : m_cubemap( false )
+	ImageLoader() : m_cubemap( false ), m_hdr( false ) {}
+	ImageLoader( const std::string& path, const std::string& file ) : m_cubemap( false ), m_hdr( false )
 	{
 		SetBasePath( path );
 		SetTextureFile( file );

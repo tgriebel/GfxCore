@@ -42,6 +42,9 @@ struct rgbaTuple_t
 	T	r;
 };
 using RGBA = rgbaTuple_t<uint8_t>;
+using rgbaTupleh_t = rgbaTuple_t<uint16_t>;
+using rgbaTuplef_t = rgbaTuple_t<float>;
+using rgbaTupled_t = rgbaTuple_t<double>;
 
 template<typename T>
 struct rgbTuple_t
@@ -59,6 +62,7 @@ struct rgbTuple_t
 };
 using RGB = rgbTuple_t<uint8_t>;
 
+using rgbTupleh_t = rgbTuple_t<uint16_t>;
 using rgbTuplef_t = rgbTuple_t<float>;
 using rgbTupled_t = rgbTuple_t<double>;
 
