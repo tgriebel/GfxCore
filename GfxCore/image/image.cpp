@@ -3,14 +3,15 @@
 #include "image.h"
 #include "color.h"
 
-inline void ImageAdaptPixel( const Color& src, RGBA& dst )
+
+inline void ImageConvertPixel( const Color& src, RGBA& dst )
 {
 	dst = src.AsRGBA();
 }
 
 
 template<class SourceType, class DestType>
-void ImageAdaptor( const ImageBuffer<SourceType>& from, ImageBuffer<DestType>& to )
+void ImageConvert( const ImageBuffer<SourceType>& from, ImageBuffer<DestType>& to )
 {
 	const char* name = to.GetName();
 	to.Destroy();

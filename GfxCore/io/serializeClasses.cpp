@@ -118,6 +118,31 @@ void AABB::Serialize( Serializer* s )
 }
 
 
+void ImageBufferInterface::Serialize( Serializer* s )
+{
+	uint32_t version = Version;
+	s->Next( version );
+	if ( version != Version ) {
+		throw std::runtime_error( "Wrong version number." );
+	}
+	s->Next( width );
+	s->Next( height );
+	s->Next( layers );
+	s->Next( length );
+	s->Next( bpp );
+
+	if ( s->GetMode() == serializeMode_t::LOAD )
+	{
+		const uint32_t storedLength = length;
+		_Init( width, height, layers, bpp );
+		assert( storedLength == length );
+	}
+
+	assert( buffer != nullptr );
+	SerializeArray( s, buffer, bpp * length );
+}
+
+
 void Material::Serialize( Serializer* s )
 {
 	uint32_t version = Version;
