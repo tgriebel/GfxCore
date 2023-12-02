@@ -28,6 +28,9 @@
 #include <algorithm>
 #include "../core/common.h"
 
+void WrapUV( float& u, float& v );
+void WrapUV( float& u, float& v, float& w );
+
 inline uint32_t MipCount( const uint32_t width, const uint32_t height )
 {
 	return static_cast<uint32_t>( std::floor( std::log2( std::max( width, height ) ) ) ) + 1;
@@ -300,14 +303,14 @@ public:
 		return RawBuffer()[ index ];
 	}
 
-	inline bool SetPixelUV( const float u, const float v, const T& pixel )
+	inline bool SetPixelUV( float u, float v, const T& pixel )
 	{
 		SetPixelUV( u, v, 0.0f, pixel );
 	}
 
-	bool SetPixelUV( const float u, const float v, const float w, const T& pixel )
+	bool SetPixelUV( float u, float v, float w, const T& pixel )
 	{
-		WrapUV( u, v );
+		WrapUV( u, v, w );
 
 		const uint32_t x = static_cast<uint32_t>( u * GetWidth() );
 		const uint32_t y = static_cast<uint32_t>( v * GetWidth() );
@@ -343,23 +346,6 @@ public:
 	inline T* const RawBuffer()
 	{
 		return reinterpret_cast<T*>( Ptr() );
-	}
-
-	static void WrapUV( float& u, float& v )
-	{
-		float w;
-		WrapUV( u, v, w );
-	}
-
-	static void WrapUV( float& u, float& v, float& w )
-	{
-		u = ( u > 1.0 ) ? ( u - floor( u ) ) : u;
-		v = ( v > 1.0 ) ? ( v - floor( v ) ) : v;
-		w = ( w > 1.0 ) ? ( w - floor( v ) ) : w;
-
-		u = Saturate( u );
-		v = Saturate( v );
-		w = Saturate( w );
 	}
 
 	void Serialize( Serializer* serializer );
