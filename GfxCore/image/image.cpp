@@ -34,7 +34,7 @@ void ImageConvert( const ImageBuffer<SourceType>& from, ImageBuffer<DestType>& t
 			for ( uint32_t x = 0; x < width; ++x )
 			{
 				DestType rgba;
-				ImageAdaptPixel( from.GetPixel( x, y, l ), rgba );
+				ImageConvertPixel( from.GetPixel( x, y, l ), rgba );
 
 				to.SetPixel( x, y, l, rgba );
 			}
