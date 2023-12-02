@@ -10,6 +10,12 @@ inline void ImageConvertPixel( const Color& src, RGBA& dst )
 }
 
 
+inline void ImageConvertPixel( const RGBA& src, Color& dst )
+{
+	dst = Color( src );
+}
+
+
 template<class SourceType, class DestType>
 void ImageConvert( const ImageBuffer<SourceType>& from, ImageBuffer<DestType>& to )
 {
