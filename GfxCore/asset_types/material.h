@@ -62,11 +62,24 @@ enum drawPass_t : uint32_t
 	DRAWPASS_2D_END = DRAWPASS_DEBUG_2D,
 };
 
+enum textureSlot_t : uint32_t
+{
+	TEXTURE_SLOT_0,
+	TEXTURE_SLOT_1,
+	TEXTURE_SLOT_2,
+	TEXTURE_SLOT_3,
+	TEXTURE_SLOT_4,
+	TEXTURE_SLOT_5,
+	TEXTURE_SLOT_6,
+	TEXTURE_SLOT_7,
+};
+
 enum ggxTextureSlot_t : uint32_t
 {
 	GGX_COLOR_MAP_SLOT,
 	GGX_NORMAL_MAP_SLOT,
 	GGX_SPEC_MAP_SLOT,
+	GGX_METALLIC_MAP_SLOT,
 };
 
 enum cubeTextureSlot_t : uint32_t
