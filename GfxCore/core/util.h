@@ -30,6 +30,70 @@
 #include "../image/bitmap.h"
 #include "../image/image.h"
 
+union packFp16_t
+{
+	struct fp16_t
+	{
+		uint16_t	mantissa	: 10;
+		uint16_t	exp			: 5;
+		uint16_t	sign		: 1;
+	} fp;
+	uint16_t    u;
+};
+
+union packFp32_t
+{
+	struct fp32_t
+	{
+		uint32_t	mantissa	: 23;
+		uint32_t	exp			: 8;
+		uint32_t	sign		: 1;
+	} fp;
+	uint32_t    u;
+	float       f;
+};
+
+
+inline uint16_t PackFloat32( const float unpacked )
+{
+	packFp32_t full;
+	packFp16_t half;
+
+	full.f = unpacked;
+
+	half.fp.sign = full.fp.sign;
+	if ( full.fp.exp > 0x70 ) {
+		half.fp.exp = ( full.fp.exp - 0x70 ); // Implicitly clamps to INF
+	} else {
+		half.fp.exp = 0; // Flush denormals
+	}
+	half.fp.mantissa = full.fp.mantissa >> 13; // Don't round up
+	
+	return half.u;
+}
+
+
+inline float UnpackFloat32( const uint16_t packed )
+{
+	packFp32_t full;
+	packFp16_t half;
+
+	half.u = packed;
+
+	full.u = 0;
+
+	if ( full.fp.exp > 0x0F ) {
+		full.fp.exp = 0xFF; // INF
+	}
+	else if ( full.fp.exp > 0 )
+	{
+		full.fp.sign = half.fp.sign;
+		full.fp.exp = half.fp.exp + 0x70;
+		full.fp.mantissa = uint32_t( half.fp.mantissa ) << 13;
+	}
+}
+
+
 inline mat4x4f ComputeRotationX( const float degrees )
 {
 	const float theta = Radians( degrees );
