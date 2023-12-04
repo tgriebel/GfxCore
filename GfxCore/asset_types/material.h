@@ -84,12 +84,12 @@ enum ggxTextureSlot_t : uint32_t
 
 enum cubeTextureSlot_t : uint32_t
 {
-	CUBE_RIGHT_SLOT,
-	CUBE_LEFT_SLOT,
-	CUBE_TOP_SLOT,
-	CUBE_BOTTOM_SLOT,
 	CUBE_FRONT_SLOT,
 	CUBE_BACK_SLOT,
+	CUBE_TOP_SLOT,
+	CUBE_BOTTOM_SLOT,
+	CUBE_RIGHT_SLOT,
+	CUBE_LEFT_SLOT,
 };
 
 enum hgtTextureSlot_t : uint32_t
