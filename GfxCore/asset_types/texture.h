@@ -120,6 +120,31 @@ struct imageSubResourceView_t
 };
 
 
+enum samplerAddress_t
+{
+	SAMPLER_ADDRESS_WRAP = 0,
+	SAMPLER_ADDRESS_CLAMP_EDGE = 1,
+	SAMPLER_ADDRESS_CLAMP_BORDER = 2,
+	SAMPLER_ADDRESS_MODES,
+};
+
+
+enum samplerFilter_t
+{
+	SAMPLER_FILTER_NEAREST = 0,
+	SAMPLER_FILTER_BILINEAR = 1,
+	SAMPLER_FILTER_TRILINEAR = 2,
+	SAMPLER_FILTER_MODES,
+};
+
+
+struct samplerState_t
+{
+	samplerAddress_t	addrMode;
+	samplerFilter_t		filter;
+};
+
+
 inline bool operator==( const imageInfo_t& info0, const imageInfo_t& info1 )
 {
 	bool equal =
@@ -150,6 +175,7 @@ private:
 public:
 	imageInfo_t				info;
 	imageSubResourceView_t	subResourceView;
+	samplerState_t			sampler;
 
 	ImageBufferInterface*	cpuImage;
 	GpuImage*				gpuImage;
@@ -165,6 +191,9 @@ public:
 		info.fmt = IMAGE_FMT_UNKNOWN;
 		info.aspect = IMAGE_ASPECT_COLOR_FLAG;
 		info.tiling = IMAGE_TILING_LINEAR;
+
+		sampler.addrMode = SAMPLER_ADDRESS_WRAP;
+		sampler.filter = SAMPLER_FILTER_BILINEAR;
 
 		cpuImage = nullptr;
 		gpuImage = nullptr;
@@ -186,11 +215,12 @@ public:
 class ImageLoader : public LoadHandler<Image>
 {
 private:
-	std::string	m_basePath;
-	std::string	m_fileName;
-	std::string	m_ext;
-	bool		m_hdr;
-	bool		m_cubemap;
+	std::string		m_basePath;
+	std::string		m_fileName;
+	std::string		m_ext;
+	bool			m_hdr;
+	bool			m_cubemap;
+	samplerState_t	m_sampler;
 
 	bool Load( Asset<Image>& texture );
 
@@ -202,6 +232,7 @@ public:
 		SetTextureFile( file );
 	}
 
+	void SetSampler( const samplerState_t& sampler );
 	void SetBasePath( const std::string& path );
 	void SetTextureFile( const std::string& file );
 	void LoadAsCubemap( const bool isCubemap );

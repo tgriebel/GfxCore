@@ -50,6 +50,8 @@ bool ImageLoader::Load( Asset<Image>& imageAsset )
 {
 	Image& image = imageAsset.Get();
 
+	image.sampler = m_sampler;
+
 	bakedAssetInfo_t info = {};
 	const bool loadedBaked = LoadBaked( imageAsset, info, m_basePath, "img.bin" );
 	if ( loadedBaked ) {
@@ -65,6 +67,12 @@ bool ImageLoader::Load( Asset<Image>& imageAsset )
 			return LoadImage( ( m_basePath + m_fileName + "." + m_ext ).c_str(), image );
 		}
 	}
+}
+
+
+void ImageLoader::SetSampler( const samplerState_t& sampler )
+{
+	m_sampler = sampler;
 }
 
 
