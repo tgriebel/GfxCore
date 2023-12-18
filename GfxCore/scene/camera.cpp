@@ -187,37 +187,37 @@ void Camera::Translate( vec4f offset )
 }
 
 
-void Camera::AdjustYaw( const float delta )
+void Camera::Pan( const float delta )
 {
 	yaw += delta;
 }
 
 
-void Camera::AdjustPitch( const float delta )
+void Camera::Tilt( const float delta )
 {
 	pitch += delta;
 }
 
 
-void Camera::AdjustRoll( const float delta )
+void Camera::Roll( const float delta )
 {
 	roll += delta;
 }
 
 
-void Camera::MoveForward( const float delta )
+void Camera::Dolly( const float delta )
 {
 	origin += delta * GetForward();
 }
 
 
-void Camera::MoveRight( const float delta )
+void Camera::Truck( const float delta )
 {
 	origin += delta * GetRight();
 }
 
 
-void Camera::MoveUp( const float delta )
+void Camera::Pedestal( const float delta )
 {
 	origin += delta * GetUp();
 }

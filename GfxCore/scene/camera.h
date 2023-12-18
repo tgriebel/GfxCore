@@ -153,10 +153,10 @@ public:
 	
 	// Movement
 	void		Translate( vec4f offset );
-	void		AdjustYaw( const float delta );
-	void		AdjustPitch( const float delta );
-	void		AdjustRoll( const float delta );
-	void		MoveForward( const float delta );
-	void		MoveRight( const float delta );
-	void		MoveUp( const float delta );
+	void		Pan( const float delta );
+	void		Tilt( const float delta );
+	void		Roll( const float delta );
+	void		Dolly( const float delta );
+	void		Truck( const float delta );
+	void		Pedestal( const float delta );
 };
