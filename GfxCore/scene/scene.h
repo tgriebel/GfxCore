@@ -117,7 +117,7 @@ public:
 	{
 		for( uint32_t i = 0; i < 7; ++i )
 		{
-			cameras[ i ] = Camera( vec4f( 0.0f, 1.66f, 1.0f, 0.0f ) );
+			cameras[ i ] = Camera( vec4f( 0.0f, 0.0f, 0.0f, 0.0f ) );
 			cameras[ i ].SetClip( defaultNear, defaultFar );
 			cameras[ i ].SetFov( Radians( 90.0f ) );
 			cameras[ i ].SetAspectRatio( 1.0f );

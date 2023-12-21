@@ -35,6 +35,7 @@ enum entityFlags_t
 	ENT_FLAG_NO_SHADOWS		= ( 1 << 2 ),
 	ENT_FLAG_WIREFRAME		= ( 1 << 3 ),
 	ENT_FLAG_DEBUG			= ( 1 << 4 ),
+	ENT_FLAG_CAMERA_LOCKED	= ( 1 << 5 ),
 };
 
 class Entity

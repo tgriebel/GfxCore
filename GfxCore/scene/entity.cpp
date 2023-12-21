@@ -86,7 +86,7 @@ mat4x4f Entity::GetMatrix() const
 	result[ 0 ][ 3 ] = translation[ 0 ];
 	result[ 1 ][ 3 ] = translation[ 1 ];
 	result[ 2 ][ 3 ] = translation[ 2 ];
-	result[ 3 ][ 3 ] = 1.0f;
+	result[ 3 ][ 3 ] = HasFlag( ENT_FLAG_CAMERA_LOCKED ) ? 0.0f : 1.0f;
 	return result;
 }
 
