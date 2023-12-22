@@ -111,6 +111,17 @@ struct imageInfo_t
 };
 
 
+enum imageCubeFace : uint8_t
+{
+	IMAGE_CUBE_FACE_X_POS,
+	IMAGE_CUBE_FACE_X_NEG,
+	IMAGE_CUBE_FACE_Y_POS,
+	IMAGE_CUBE_FACE_Y_NEG,
+	IMAGE_CUBE_FACE_Z_POS,
+	IMAGE_CUBE_FACE_Z_NEG,
+};
+
+
 struct imageSubResourceView_t
 {
 	uint32_t baseMip;
