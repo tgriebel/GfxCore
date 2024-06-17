@@ -58,6 +58,12 @@ bool ImageLoader::Load( Asset<Image>& imageAsset )
 		return true;
 	}
 
+	if( m_ext == "img" ) {
+		Serializer s( MB(16), serializeMode_t::LOAD );
+		image.Serialize(&s);
+		return ( s.Status() == serializeStatus_t::OK );
+	}
+
 	if ( m_cubemap ) {
 		return LoadCubeMapImage( ( m_basePath + m_fileName ).c_str(), m_ext.c_str(), image );
 	} else {
