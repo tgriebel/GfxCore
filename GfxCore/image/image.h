@@ -165,6 +165,13 @@ public:
 		return buffer;
 	}
 
+	inline uint8_t* GetLayerPtr( const uint32_t layer ) const
+	{
+		uint64_t offset = layer;
+		offset *= uint64_t( width ) * uint64_t( height );
+		return buffer + offset;
+	}
+
 	inline uint32_t GetWidth() const
 	{
 		return width;
@@ -177,7 +184,7 @@ public:
 
 	inline uint32_t GetLayers() const
 	{
-		return height;
+		return layers;
 	}
 
 	inline uint32_t GetBpp() const
