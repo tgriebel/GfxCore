@@ -59,7 +59,15 @@ bool ImageLoader::Load( Asset<Image>& imageAsset )
 	}
 
 	if( m_ext == "img" ) {
-		Serializer s( MB(16), serializeMode_t::LOAD );
+		Serializer s( MB(32), serializeMode_t::LOAD );
+
+		const std::string path = m_basePath + m_fileName + ".img";
+		if ( FileExists( path ) == false ) {
+			return false;
+		}
+		s.ReadFile( path );
+
+		image.cpuImage = new ImageBuffer<Color>();
 		image.Serialize(&s);
 		return ( s.Status() == serializeStatus_t::OK );
 	}
