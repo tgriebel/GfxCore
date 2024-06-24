@@ -53,6 +53,7 @@ bool ImageLoader::Load( Asset<Image>& imageAsset )
 	image.sampler = m_sampler;
 
 	bakedAssetInfo_t info = {};
+	
 	const bool loadedBaked = LoadBaked( imageAsset, info, m_basePath, "img.bin" );
 	if ( loadedBaked ) {
 		return true;
@@ -67,8 +68,10 @@ bool ImageLoader::Load( Asset<Image>& imageAsset )
 		}
 		s.ReadFile( path );
 
-		image.cpuImage = new ImageBuffer<Color>();
+		// TODO: add type-based buffer creation
+		image.cpuImage = new ImageBuffer<rgbaTupleh_t>();
 		image.Serialize(&s);
+
 		return ( s.Status() == serializeStatus_t::OK );
 	}
 
