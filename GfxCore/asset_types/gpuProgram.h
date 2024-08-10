@@ -28,6 +28,8 @@
 #include "../core/handle.h"
 #include "../core/asset.h"
 #include "../io/io.h"
+#include <syscore/systemUtils.h>
+#include <syscore/common.h>
 
 
 class ShaderBindSet;
@@ -55,17 +57,55 @@ enum class pipelineType_t : uint32_t
 struct shaderSource_t
 {
 	std::string			name;
+	std::string			binName;
+	std::vector<char>	src;
 	std::vector<char>	blob;
 	shaderType_t		type;
 };
 
 
-enum shaderFlags_t : uint32_t
+enum class shaderFlags_t : uint32_t
 {
-	SHADER_FLAG_NONE			= 0,
-	SHADER_FLAG_USE_SAMPLING_MS	= ( 1 << 0 ),
-	SHADER_FLAG_IMAGE_SHADER	= ( 1 << 1 ),
+	NONE					= 0,
+	USE_MSAA				= ( 1 << 0 ),
+	USE_CUBE_SAMPLER		= ( 1 << 1 ),
+	IMAGE_SHADER			= ( 1 << 2 ),
 };
+DEFINE_ENUM_OPERATORS( shaderFlags_t, uint32_t )
+
+
+struct shaderPerm_t
+{
+	shaderFlags_t	flags;
+	std::string		macro;
+	std::string		tag;
+};
+
+
+enum class shaderPermId_t : int32_t
+{
+	NONE				= -1,
+	MSAA				= 0,
+	SKY_CUBE_SAMPLER	= 1,
+	COUNT
+};
+DEFINE_ENUM_OPERATORS( shaderPermId_t, uint32_t )
+
+#define SHADER_PERM(FLAG, TAG) { shaderFlags_t::FLAG, #FLAG, TAG }
+
+static const shaderPerm_t ShaderPerms[] = {	SHADER_PERM( USE_MSAA,			"msaa" ),
+											SHADER_PERM( USE_CUBE_SAMPLER,	"skycube" )};
+
+static shaderPermId_t GetPermId( const std::string& perm )
+{
+	for( uint32_t i = 0; i < shaderPermId_t::COUNT; ++i )
+	{
+		if( perm == ShaderPerms[ i ].tag ) {
+			return shaderPermId_t( i );
+		}
+	}
+	return shaderPermId_t::NONE;
+}
 
 
 class GpuProgram
@@ -84,6 +124,7 @@ public:
 	uint32_t				shaderCount;
 	uint32_t				bindsetCount;
 	shaderFlags_t			flags;
+	shaderPermId_t			perm;
 
 	friend class LoadHandler<GpuProgram>;
 
@@ -102,6 +143,23 @@ private:
 	std::string		csFileName;
 	uint64_t		bindHash;
 	shaderFlags_t	flags;
+	shaderPermId_t	perm;
+
+	static std::string GetMacros( const std::string perms[] )
+	{
+	//	for
+	}
+
+	static std::string GetBinName( const std::string& fileName, const std::string perms[] )
+	{
+		std::string name;
+		std::string ext;
+		SplitFileName( fileName, name, ext );
+
+		if( ext == "vert" ) {
+			name += "VS";
+		}
+	}
 
 	bool LoadRasterProgram( GpuProgram& program )
 	{
@@ -110,10 +168,12 @@ private:
 		program.bindsetCount = 0;
 
 		program.shaders[ 0 ].name = vsFileName;
+		program.shaders[ 0 ].binName = "";
 		program.shaders[ 0 ].blob = ReadFile( basePath + vsFileName );
 		program.shaders[ 0 ].type = shaderType_t::VERTEX;
 
 		program.shaders[ 1 ].name = psFileName;
+		program.shaders[ 1 ].binName = "";
 		program.shaders[ 1 ].blob = ReadFile( basePath + psFileName );
 		program.shaders[ 1 ].type = shaderType_t::PIXEL;
 		
@@ -132,6 +192,7 @@ private:
 		program.bindsetCount = 0;
 
 		program.shaders[ 0 ].name = csFileName;
+		program.shaders[ 0 ].binName = "";
 		program.shaders[ 0 ].blob = ReadFile( basePath + csFileName );
 		program.shaders[ 0 ].type = shaderType_t::COMPUTE;	
 
@@ -165,7 +226,8 @@ public:
 	GpuProgramLoader() {}
 	GpuProgramLoader( const std::string& path, const std::string& vertexFileName, const std::string& pixelFileName )
 	{
-		flags = SHADER_FLAG_NONE;
+		flags = shaderFlags_t::NONE;
+		perm = shaderPermId_t::NONE;
 		bindHash = 0;
 		SetBasePath( path );
 		AddFilePaths( vertexFileName, pixelFileName, "" );
@@ -173,7 +235,7 @@ public:
 
 	GpuProgramLoader( const std::string& path, const std::string& computeFileName )
 	{
-		flags = SHADER_FLAG_NONE;
+		flags = shaderFlags_t::NONE;
 		bindHash = 0;
 		SetBasePath( path );
 		AddFilePaths( "", "", computeFileName );
@@ -187,6 +249,11 @@ public:
 	void SetBindSet( const std::string& setName )
 	{
 		bindHash = Hash( setName );
+	}
+
+	void SetPerm( const std::string& permName )
+	{
+		perm = GetPermId( permName );
 	}
 
 	void SetFlags( const shaderFlags_t shaderFlags )
