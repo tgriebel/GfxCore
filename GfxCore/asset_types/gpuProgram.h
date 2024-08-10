@@ -108,6 +108,27 @@ static shaderPermId_t GetPermId( const std::string& perm )
 }
 
 
+static const shaderPerm_t* FindPerm( const shaderPermId_t perm )
+{
+	if ( perm != shaderPermId_t::NONE && perm < shaderPermId_t::COUNT ) {
+		return &ShaderPerms[ static_cast<int32_t>( perm ) ];
+	}
+	return nullptr;
+}
+
+
+static const shaderPerm_t* FindPerm( const std::string& perm )
+{
+	for ( uint32_t i = 0; i < shaderPermId_t::COUNT; ++i )
+	{
+		if ( perm == ShaderPerms[ i ].tag ) {
+			return &ShaderPerms[ i ];
+		}
+	}
+	return nullptr;
+}
+
+
 class GpuProgram
 {
 public:
@@ -137,7 +158,8 @@ public:
 class GpuProgramLoader : public LoadHandler<GpuProgram>
 {
 private:
-	std::string		basePath;
+	std::string		srcPath;
+	std::string		binPath;
 	std::string		vsFileName;
 	std::string		psFileName;
 	std::string		csFileName;
@@ -145,12 +167,7 @@ private:
 	shaderFlags_t	flags;
 	shaderPermId_t	perm;
 
-	static std::string GetMacros( const std::string perms[] )
-	{
-	//	for
-	}
-
-	static std::string GetBinName( const std::string& fileName, const std::string perms[] )
+	static std::string GetBinName( const std::string& fileName, const shaderPermId_t permId )
 	{
 		std::string name;
 		std::string ext;
@@ -158,7 +175,19 @@ private:
 
 		if( ext == "vert" ) {
 			name += "VS";
+		} else if ( ext == "frag" ) {
+			name += "PS";
+		} else if ( ext == "comp" ) {
+			name += "CS";
 		}
+
+		const shaderPerm_t* perm = FindPerm( permId );
+		if( perm != nullptr ) {
+			name += "_" + perm->tag;
+		}
+		name += ".spv";
+
+		return name;
 	}
 
 	bool LoadRasterProgram( GpuProgram& program )
@@ -167,14 +196,25 @@ private:
 		program.shaderCount = 2;
 		program.bindsetCount = 0;
 
+		const std::string vsBinName = GetBinName( vsFileName, perm );
+		const std::string psBinName = GetBinName( psFileName, perm );
+
+		if( FileExists( binPath + vsBinName ) == false )
+		{
+		//	std::string compileCommand = "C:\\VulkanSDK\\1.3.261.0\\Bin\\glslangValidator.exe - l - V " + srcPath + vsFileName + " " + binPath + binName + "- g";
+		//	system( compileCommand.c_str() );
+		}
+
 		program.shaders[ 0 ].name = vsFileName;
-		program.shaders[ 0 ].binName = "";
-		program.shaders[ 0 ].blob = ReadFile( basePath + vsFileName );
+		program.shaders[ 0 ].binName = vsBinName;
+		program.shaders[ 0 ].src = ReadTextFile( srcPath + vsFileName );
+		program.shaders[ 0 ].blob = ReadBinaryFile( binPath + vsBinName );
 		program.shaders[ 0 ].type = shaderType_t::VERTEX;
 
 		program.shaders[ 1 ].name = psFileName;
-		program.shaders[ 1 ].binName = "";
-		program.shaders[ 1 ].blob = ReadFile( basePath + psFileName );
+		program.shaders[ 1 ].binName = psBinName;
+		program.shaders[ 1 ].src = ReadTextFile( srcPath + psFileName );
+		program.shaders[ 1 ].blob = ReadBinaryFile( binPath + psBinName );
 		program.shaders[ 1 ].type = shaderType_t::PIXEL;
 		
 #ifdef USE_VULKAN
@@ -191,9 +231,12 @@ private:
 		program.shaderCount = 1;
 		program.bindsetCount = 0;
 
+		const std::string csBinName = GetBinName( csFileName, perm );
+
 		program.shaders[ 0 ].name = csFileName;
-		program.shaders[ 0 ].binName = "";
-		program.shaders[ 0 ].blob = ReadFile( basePath + csFileName );
+		program.shaders[ 0 ].binName = csBinName;
+		program.shaders[ 0 ].src = ReadTextFile( srcPath + csFileName );
+		program.shaders[ 0 ].blob = ReadBinaryFile( binPath + csBinName );
 		program.shaders[ 0 ].type = shaderType_t::COMPUTE;	
 
 #ifdef USE_VULKAN
@@ -224,26 +267,15 @@ private:
 
 public:
 	GpuProgramLoader() {}
-	GpuProgramLoader( const std::string& path, const std::string& vertexFileName, const std::string& pixelFileName )
+
+	void SetSourcePath( const std::string& path )
 	{
-		flags = shaderFlags_t::NONE;
-		perm = shaderPermId_t::NONE;
-		bindHash = 0;
-		SetBasePath( path );
-		AddFilePaths( vertexFileName, pixelFileName, "" );
+		srcPath = path;
 	}
 
-	GpuProgramLoader( const std::string& path, const std::string& computeFileName )
+	void SetBinPath( const std::string& path )
 	{
-		flags = shaderFlags_t::NONE;
-		bindHash = 0;
-		SetBasePath( path );
-		AddFilePaths( "", "", computeFileName );
-	}
-
-	void SetBasePath( const std::string& path )
-	{
-		basePath = path;
+		binPath = path;
 	}
 
 	void SetBindSet( const std::string& setName )
@@ -263,9 +295,15 @@ public:
 
 	void AddFilePaths( const std::string& vertexFileName, const std::string& pixelFileName, const std::string& computeFileName )
 	{
-		vsFileName = vertexFileName;
-		psFileName = pixelFileName;
-		csFileName = computeFileName;
+		if( !vertexFileName.empty() ) {
+			vsFileName = vertexFileName + ".vert";
+		}
+		if ( !pixelFileName.empty() ) {
+			psFileName = pixelFileName + ".frag";
+		}
+		if( !computeFileName.empty() ) {
+			csFileName = computeFileName + ".comp";
+		}
 	}
 };
 

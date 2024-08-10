@@ -36,7 +36,6 @@ class AssetManager;
 template<class T>
 class Asset;
 
-std::vector<char> ReadFile( const std::string& filename );
 bool LoadImage( const char* texturePath, Image& texture );
 bool LoadImageHDR( const char* texturePath, Image& texture );
 bool LoadCubeMapImage( const char* textureBasePath, const char* ext, Image& texture );

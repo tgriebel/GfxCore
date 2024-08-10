@@ -2,12 +2,10 @@
   material.cpp
   model.cpp
   texture.cpp
-  image.cpp
   io.cpp
   serializeClasses.cpp
   geom.cpp
   assetBaker.cpp
   camera.cpp
-  entity.cpp
   scene.cpp
   GfxCore.vcxproj -> C:\Users\thoma\source\repos\GfxCore\Release\GfxCore.lib
