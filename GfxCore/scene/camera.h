@@ -152,6 +152,8 @@ public:
 	mat4x4f		GetOrthogonalMatrix( const float left, const float right, const float top, const float bottom );
 	
 	// Movement
+	void		SetPosition( const vec3f& angles );
+	void		SetAngles( const vec3f& position );
 	void		Translate( vec4f offset );
 	void		Pan( const float delta );
 	void		Tilt( const float delta );

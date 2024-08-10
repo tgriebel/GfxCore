@@ -181,6 +181,20 @@ vec4f Camera::GetUp() const
 }
 
 
+void Camera::SetAngles( const vec3f& angles )
+{
+	yaw = angles[ 0 ];
+	pitch = angles[ 1 ];
+	roll = angles[ 2 ];
+}
+
+
+void Camera::SetPosition( const vec3f& position )
+{
+	origin = vec4f( position, 0.0f );
+}
+
+
 void Camera::Translate( vec4f offset )
 {
 	origin += offset;

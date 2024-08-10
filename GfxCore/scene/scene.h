@@ -122,12 +122,12 @@ public:
 			cameras[ i ].SetFov( Radians( 90.0f ) );
 			cameras[ i ].SetAspectRatio( 1.0f );
 		}
-		cameras[ 1 ].Pan( 0.0f * PI );
-		cameras[ 2 ].Pan( 0.5f * PI );
-		cameras[ 3 ].Pan( 1.0f * PI );
-		cameras[ 4 ].Pan( 1.5f * PI );
-		cameras[ 5 ].Tilt( -0.5f * PI );
-		cameras[ 6 ].Tilt( 0.5f * PI );
+		cameras[ IMAGE_CUBE_FACE_X_POS + 1 ].Pan( 0.0f * PI );
+		cameras[ IMAGE_CUBE_FACE_Y_POS + 1 ].Pan( 0.5f * PI );
+		cameras[ IMAGE_CUBE_FACE_X_NEG + 1 ].Pan( 1.0f * PI );
+		cameras[ IMAGE_CUBE_FACE_Y_NEG + 1 ].Pan( 1.5f * PI );
+		cameras[ IMAGE_CUBE_FACE_Z_POS + 1 ].Tilt( -0.5f * PI );
+		cameras[ IMAGE_CUBE_FACE_Z_NEG + 1 ].Tilt( 0.5f * PI );
 
 		mainCamera = &cameras[ 0 ];
 
