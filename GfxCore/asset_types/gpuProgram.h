@@ -129,6 +129,16 @@ static const shaderPerm_t* FindPerm( const std::string& perm )
 }
 
 
+static std::string GetCompileString( const std::string& srcPath, const std::string& binPath, const std::string& macros )
+{
+	std::string cmd = "C:\\VulkanSDK\\1.3.261.0\\Bin\\glslangValidator.exe -l -V " + srcPath + " -o " + binPath + " -g";
+	if( macros != "" ) {
+		cmd += " --define-macro " + macros;
+	}
+	return cmd;
+}
+
+
 class GpuProgram
 {
 public:
@@ -190,6 +200,23 @@ private:
 		return name;
 	}
 
+
+	static void CheckCompileShader( const std::string& path, const std::string& binPath, const shaderPermId_t permId )
+	{
+		if ( FileExists( binPath ) == false )
+		{
+			std::string macros = "";
+			const shaderPerm_t* shaderPerm = FindPerm( permId );
+			if ( shaderPerm != nullptr ) {
+				macros = shaderPerm->macro;
+			}
+
+			std::string compileCommand = GetCompileString( path, binPath, macros );
+			system( compileCommand.c_str() );
+		}
+	}
+
+
 	bool LoadRasterProgram( GpuProgram& program )
 	{
 		program.type = pipelineType_t::RASTER;
@@ -199,11 +226,8 @@ private:
 		const std::string vsBinName = GetBinName( vsFileName, perm );
 		const std::string psBinName = GetBinName( psFileName, perm );
 
-		if( FileExists( binPath + vsBinName ) == false )
-		{
-		//	std::string compileCommand = "C:\\VulkanSDK\\1.3.261.0\\Bin\\glslangValidator.exe - l - V " + srcPath + vsFileName + " " + binPath + binName + "- g";
-		//	system( compileCommand.c_str() );
-		}
+		CheckCompileShader( srcPath + vsFileName, binPath + vsBinName, perm );
+		CheckCompileShader( srcPath + psFileName, binPath + psBinName, perm );
 
 		program.shaders[ 0 ].name = vsFileName;
 		program.shaders[ 0 ].binName = vsBinName;
@@ -225,6 +249,7 @@ private:
 		return true;
 	}
 
+
 	bool LoadComputeProgram( GpuProgram& program )
 	{
 		program.type = pipelineType_t::COMPUTE;
@@ -232,6 +257,8 @@ private:
 		program.bindsetCount = 0;
 
 		const std::string csBinName = GetBinName( csFileName, perm );
+
+		CheckCompileShader( srcPath + csFileName, binPath + csBinName, perm );
 
 		program.shaders[ 0 ].name = csFileName;
 		program.shaders[ 0 ].binName = csBinName;
@@ -246,6 +273,7 @@ private:
 
 		return true;
 	}
+
 
 	bool Load( Asset<GpuProgram>& programAsset )
 	{
