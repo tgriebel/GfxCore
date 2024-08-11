@@ -201,9 +201,9 @@ private:
 	}
 
 
-	static void CheckCompileShader( const std::string& path, const std::string& binPath, const shaderPermId_t permId )
+	static void CheckCompileShader( const std::string& path, const std::string& binPath, const shaderPermId_t permId, const bool forceRebuild = false )
 	{
-		if ( FileExists( binPath ) == false )
+		if ( FileExists( binPath ) == false || forceRebuild )
 		{
 			std::string macros = "";
 			const shaderPerm_t* shaderPerm = FindPerm( permId );
@@ -226,8 +226,8 @@ private:
 		const std::string vsBinName = GetBinName( vsFileName, perm );
 		const std::string psBinName = GetBinName( psFileName, perm );
 
-		CheckCompileShader( srcPath + vsFileName, binPath + vsBinName, perm );
-		CheckCompileShader( srcPath + psFileName, binPath + psBinName, perm );
+		CheckCompileShader( srcPath + vsFileName, binPath + vsBinName, perm, HasFlags( LOAD_HANDLER_FLAGS_REBAKE ) );
+		CheckCompileShader( srcPath + psFileName, binPath + psBinName, perm, HasFlags( LOAD_HANDLER_FLAGS_REBAKE ) );
 
 		program.shaders[ 0 ].name = vsFileName;
 		program.shaders[ 0 ].binName = vsBinName;
@@ -258,7 +258,7 @@ private:
 
 		const std::string csBinName = GetBinName( csFileName, perm );
 
-		CheckCompileShader( srcPath + csFileName, binPath + csBinName, perm );
+		CheckCompileShader( srcPath + csFileName, binPath + csBinName, perm, HasFlags( LOAD_HANDLER_FLAGS_REBAKE ) );
 
 		program.shaders[ 0 ].name = csFileName;
 		program.shaders[ 0 ].binName = csBinName;

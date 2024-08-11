@@ -32,9 +32,39 @@
 template< class AssetType >
 class Asset;
 
+enum loadHandlerFlags_t
+{
+	LOAD_HANDLER_FLAGS_NONE		= 0,
+	LOAD_HANDLER_FLAGS_REBAKE	= ( 1 << 0 ),
+};
+
 template< class AssetType >
 class LoadHandler
 {
+private:
+	uint32_t m_flags = 0;
+
+protected:
+	inline void SetFlags( const uint32_t flags )
+	{
+		m_flags |= flags;
+	}
+
+	inline uint32_t GetFlags() const
+	{
+		return m_flags;
+	}
+
+	inline void ClearFlags( const uint32_t flags )
+	{
+		m_flags &= ~flags;
+	}
+
+	inline bool HasFlags( const uint32_t flags ) const
+	{
+		return ( m_flags & flags ) != 0;
+	}
+
 private:
 	virtual bool Load( Asset<AssetType>& asset ) = 0;
 
@@ -64,7 +94,7 @@ public:
 		m_handle = Hash( m_name );
 	}
 
-	virtual bool Load() = 0;
+	virtual bool Load( const bool rebake = false ) = 0;
 	virtual void Unload() = 0;
 	virtual bool HasLoader() const = 0;
 	virtual void Serialize( Serializer* s ) = 0;
@@ -168,11 +198,20 @@ public:
 		return m_loader ? true : false;
 	}
 
-	bool Load() override
+	bool Load( const bool rebake = false ) override
 	{
 		if ( ( m_loaded == false ) && HasLoader() )
 		{
+			const uint32_t flags = m_loader->GetFlags();
+			if( rebake ) {
+				m_loader->SetFlags( LOAD_HANDLER_FLAGS_REBAKE );
+			}
+
 			m_loaded = m_loader->Load( *this );
+
+			if ( rebake ) {
+				m_loader->SetFlags( flags );
+			}
 			return m_loaded;
 		}
 		return true;

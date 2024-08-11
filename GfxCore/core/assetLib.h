@@ -43,7 +43,7 @@ public:
 	virtual bool						SetDefault( const char* name ) = 0;
 	virtual AssetInterface*				GetDefault() = 0;
 	virtual const AssetInterface*		GetDefault() const = 0;
-	virtual void						LoadAll() = 0;
+	virtual void						LoadAll( const bool rebake = false ) = 0;
 	virtual void						UnloadAll() = 0;
 	virtual bool						HasPendingLoads() const = 0;
 	virtual uint32_t					Count() const = 0;
@@ -96,7 +96,7 @@ public:
 	bool						SetDefault( const char* name );
 	Asset<AssetType>*			GetDefault() { return ( defaultHdl != INVALID_HDL ) ? Find( defaultHdl ) : nullptr; };
 	const Asset<AssetType>*		GetDefault() const { return ( defaultHdl != INVALID_HDL ) ? Find( defaultHdl ) : nullptr; };
-	void						LoadAll();
+	void						LoadAll( const bool rebake = false );
 	void						UnloadAll();
 	bool						HasPendingLoads() const { return ( pendingLoad.size() > 0 ); }
 	uint32_t					Count() const { return static_cast<uint32_t>( assets.size() ); }
@@ -128,13 +128,13 @@ void AssetLib< AssetType >::Clear()
 }
 
 
-static inline void ThreadLoad( AssetInterface* asset )
+static inline void ThreadLoad( AssetInterface* asset, const bool rebake = false )
 {
-	asset->Load();
+	asset->Load( rebake );
 }
 
 template< class AssetType >
-void AssetLib< AssetType >::LoadAll()
+void AssetLib< AssetType >::LoadAll( const bool rebake )
 {
 	static bool useThreading = true;
 
@@ -146,7 +146,7 @@ void AssetLib< AssetType >::LoadAll()
 		Asset<AssetType>* asset = Find( handle );
 		
 		if( useThreading ) {
-			threadPool.push_back( std::thread( ThreadLoad, asset ) );
+			threadPool.push_back( std::thread( ThreadLoad, asset, rebake ) );
 		} else {
 			ThreadLoad( asset );
 		}
