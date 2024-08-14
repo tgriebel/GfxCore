@@ -96,6 +96,7 @@ public:
 
 	virtual bool Load( const bool rebake = false ) = 0;
 	virtual void Unload() = 0;
+	virtual void Reload( const bool rebake = false ) = 0;
 	virtual bool HasLoader() const = 0;
 	virtual void Serialize( Serializer* s ) = 0;
 
@@ -221,6 +222,13 @@ public:
 	{
 		m_asset.~AssetType();
 		m_loaded = false;
+	}
+
+	void Reload( const bool rebake = false ) override
+	{
+		Unload();
+		Load( rebake );	
+		QueueUpload();
 	}
 
 	void Serialize( Serializer* s )
