@@ -183,6 +183,8 @@ class Image
 {
 private:
 	static const uint32_t Version = 1;
+
+	bool initialized = false;
 public:
 	imageInfo_t				info;
 	imageSubResourceView_t	subResourceView;
@@ -203,6 +205,11 @@ public:
 		info.aspect = IMAGE_ASPECT_COLOR_FLAG;
 		info.tiling = IMAGE_TILING_LINEAR;
 
+		subResourceView.baseArray = 0;
+		subResourceView.arrayCount = 0;
+		subResourceView.baseMip = 0;
+		subResourceView.mipLevels = 0;
+
 		sampler.addrMode = SAMPLER_ADDRESS_WRAP;
 		sampler.filter = SAMPLER_FILTER_BILINEAR;
 
@@ -210,13 +217,47 @@ public:
 		gpuImage = nullptr;
 	}
 
+	Image( const imageInfo_t& _info ) : Image( _info, nullptr, nullptr ) {}
+
+	Image( const imageInfo_t& _info, ImageBufferInterface* _cpuImage, GpuImage* _gpuImage )
+	{
+		Create( _info, _cpuImage, _gpuImage );
+	}
+
 	~Image()
+	{
+		Destroy();
+	}
+
+	void Create( const imageInfo_t& _info, ImageBufferInterface* _cpuImage, GpuImage* _gpuImage )
+	{
+		assert( initialized == false );
+
+		info = _info;
+		info.layers = ( _info.type == IMAGE_TYPE_CUBE ) ? 6 : _info.layers;
+
+		subResourceView.baseArray = 0;
+		subResourceView.arrayCount = info.layers;
+		subResourceView.baseMip = 0;
+		subResourceView.mipLevels = info.mipLevels;
+
+		sampler.addrMode = SAMPLER_ADDRESS_WRAP;
+		sampler.filter = SAMPLER_FILTER_BILINEAR;
+
+		cpuImage = _cpuImage;
+		gpuImage = _gpuImage;
+
+		initialized = true;
+	}
+
+	void Destroy()
 	{
 		if ( cpuImage != nullptr )
 		{
 			delete cpuImage;
 			cpuImage = nullptr;
 		}
+		initialized = false;
 	}
 
 	void	Serialize( Serializer* serializer );
