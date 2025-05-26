@@ -231,8 +231,6 @@ public:
 
 	void Create( const imageInfo_t& _info, ImageBufferInterface* _cpuImage, GpuImage* _gpuImage )
 	{
-		assert( initialized == false );
-
 		info = _info;
 		info.layers = ( _info.type == IMAGE_TYPE_CUBE ) ? 6 : _info.layers;
 
@@ -257,7 +255,6 @@ public:
 			delete cpuImage;
 			cpuImage = nullptr;
 		}
-		initialized = false;
 	}
 
 	void	Serialize( Serializer* serializer );
