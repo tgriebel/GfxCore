@@ -6,6 +6,5 @@
   serializeClasses.cpp
   geom.cpp
   assetBaker.cpp
-  camera.cpp
   scene.cpp
   GfxCore.vcxproj -> C:\Users\thoma\source\repos\GfxCore\Release\GfxCore.lib

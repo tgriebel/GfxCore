@@ -133,8 +133,15 @@ void ImageBufferInterface::Serialize( Serializer* s )
 
 	if ( s->GetMode() == serializeMode_t::LOAD )
 	{
+		imageBufferInfo_t info{};
+		info.width = width;
+		info.height = height;
+		info.layers = layers;
+		info.mipCount = 1;
+		info.bpp = bpp;
+
 		const uint32_t storedLength = length;
-		_Init( width, height, layers, bpp );
+		_Init( info );
 		assert( storedLength == length );
 	}
 

@@ -52,6 +52,15 @@ inline void MipDimensions( const uint32_t level, const uint32_t baseWidth, const
 
 class Serializer;
 
+struct imageBufferInfo_t
+{
+	uint32_t		width;				// Width of image (highest mip)
+	uint32_t		height;				// Height of image (highest mip)
+	uint32_t		layers;				// Depth for 3D volumes, sides for cubemaps, 1 normally
+	uint32_t		mipCount;			// Number of MIP levels, 1 normally
+	uint32_t		bpp;				// Bytes per pixel
+};
+
 class ImageBufferInterface
 {
 private:
@@ -65,7 +74,7 @@ private:
 	const char*		name;
 
 protected:
-	void _Init( const uint32_t _width, const uint32_t _height, const uint32_t _layers, const uint32_t _bpp, const char* _name = "" )
+	void _Init( const imageBufferInfo_t& _info, const char* _name = "" )
 	{
 		if ( buffer != nullptr )
 		{
@@ -75,10 +84,10 @@ protected:
 
 		name = _name;
 
-		width = _width;
-		height = _height;
-		layers = _layers;
-		bpp = _bpp;
+		width = _info.width;
+		height = _info.height;
+		layers = _info.layers;
+		bpp = _info.bpp;
 		length = width * height * layers;
 
 		buffer = new uint8_t[ bpp * length ];
@@ -119,7 +128,14 @@ public:
 
 	void Init( const uint32_t _width, const uint32_t _height, const uint32_t _bpp, const char* _name = "", const bool clear = false )
 	{
-		_Init( _width, _height, 1, _bpp, _name );
+		imageBufferInfo_t info {};
+		info.width = _width;
+		info.height = _height;
+		info.layers = 1;
+		info.mipCount = 1;
+		info.bpp = _bpp;
+
+		_Init( info, _name );
 
 		if ( clear ) {
 			Clear();
@@ -127,9 +143,9 @@ public:
 	}
 
 
-	void Init( const uint32_t _width, const uint32_t _height, const uint32_t _layers, const uint32_t _bpp, const char* _name = "", const bool clear = false )
+	void Init( const imageBufferInfo_t& _info, const char* _name = "", const bool clear = false )
 	{
-		_Init( _width, _height, _layers, _bpp, _name );
+		_Init( _info, _name );
 
 		if ( clear ) {
 			Clear();
@@ -221,7 +237,14 @@ public:
 
 	ImageBuffer( const uint32_t _width, const uint32_t _height, const uint32_t _layers, const T _default = T(), const char* _name = "" )
 	{
-		Init( _width, _height, _layers, _default, _name );
+		imageBufferInfo_t info{};
+		info.width = _width;
+		info.height = _height;
+		info.layers = _layers;
+		info.mipCount = 1;
+		info.bpp = sizeof( T );
+
+		_Init( info, _name );
 	}
 
 	ImageBuffer( const ImageBuffer& _image ) : ImageBufferInterface( reinterpret_cast<const ImageBufferInterface*>( &_image ) )
@@ -235,24 +258,52 @@ public:
 
 	void Init( const uint32_t _width, const uint32_t _height, const char* _name = "" )
 	{
-		_Init( _width, _height, 1, sizeof( T ), _name );
+		imageBufferInfo_t info{};
+		info.width = _width;
+		info.height = _height;
+		info.layers = 1;
+		info.mipCount = 1;
+		info.bpp = sizeof( T );
+
+		_Init( info, _name );
 	}
 
 	void Init( const uint32_t _width, const uint32_t _height, const uint32_t _layers, const T& _default, const char* _name = "" )
 	{
-		_Init( _width, _height, _layers, sizeof( T ), _name );
+		imageBufferInfo_t info{};
+		info.width = _width;
+		info.height = _height;
+		info.layers = _layers;
+		info.mipCount = 1;
+		info.bpp = sizeof( T );
+
+		_Init( info, _name );
 		Clear( _default );
 	}
 
 	void Init( const uint32_t _width, const uint32_t _height, const uint32_t _layers, const T* data, const char* _name = "" )
 	{
-		_Init( _width, _height, _layers, sizeof( T ), _name );
+		imageBufferInfo_t info{};
+		info.width = _width;
+		info.height = _height;
+		info.layers = _layers;
+		info.mipCount = 1;
+		info.bpp = sizeof( T );
+
+		_Init( info, _name );
 		memcpy( Ptr(), data, GetByteCount() );
 	}
 
 	void Init( const uint32_t _width, const uint32_t _height, const T& _default, const char* _name = "" )
 	{
-		_Init( _width, _height, 1, sizeof( T ), _name );
+		imageBufferInfo_t info{};
+		info.width = _width;
+		info.height = _height;
+		info.layers = 1;
+		info.mipCount = 1;
+		info.bpp = sizeof( T );
+
+		_Init( info, _name );
 		Clear( _default );
 	}
 
