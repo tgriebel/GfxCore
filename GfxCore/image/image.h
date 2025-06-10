@@ -61,6 +61,15 @@ struct imageBufferInfo_t
 	uint32_t		bpp;				// Bytes per pixel
 };
 
+// References a MxN image within a buffer
+struct slice_t
+{
+	uint32_t	offset;
+	uint32_t	size;
+	uint8_t*	ptr;
+	uint8_t*	end;
+};
+
 class ImageBufferInterface
 {
 private:
@@ -69,7 +78,11 @@ private:
 	uint32_t		height;				// Height of image (highest mip)
 	uint32_t		length;				// Number of elements in buffer
 	uint32_t		layers;				// Depth for 3D volumes, sides for cubemaps, 1 normally
+	uint32_t		mipCount;			// Number of mips in buffer, 1 normally
 	uint32_t		bpp;				// Bytes per pixel
+	uint32_t		byteCount;			// Bytes of buffer
+	uint32_t		sliceCount;			// Number of MxN image slices
+	slice_t*		slices = nullptr;	// Buffer needs to be continuous data, this helps index into that pool in a structured way
 	uint8_t*		buffer = nullptr;
 	const char*		name;
 
@@ -82,15 +95,55 @@ protected:
 			buffer = nullptr;
 		}
 
+		const bool clearbuffers = true;
+
 		name = _name;
 
 		width = _info.width;
 		height = _info.height;
 		layers = _info.layers;
+		mipCount = _info.mipCount;
 		bpp = _info.bpp;
 		length = width * height * layers;
+		sliceCount = layers * uint64_t( mipCount );
 
-		buffer = new uint8_t[ bpp * length ];
+		// 1. Compute partitions
+		slices = new slice_t[ sliceCount ];
+		if( clearbuffers ) {
+			memset( slices, 0, sliceCount * sizeof( slice_t ) );
+		}
+
+		byteCount = 0;
+		for ( uint32_t mip = 0; mip < mipCount; ++mip )
+		{
+			for( uint32_t layerId = 0; layerId < layers; ++layerId )
+			{
+				slice_t& slice = slices[ mip * layerId ];
+				const uint32_t size = width * height * bpp;
+
+				slice.offset = byteCount;	
+				slice.size = size;
+
+				byteCount += size;
+			}
+		}
+
+		// 2. Allocate
+		buffer = new uint8_t[ byteCount ];
+		if ( clearbuffers ) {
+			memset( buffer, 0, byteCount );
+		}
+
+		// 3. Create convenience pointers
+		for ( uint32_t mip = 0; mip < mipCount; ++mip )
+		{
+			for ( uint32_t layerId = 0; layerId < layers; ++layerId )
+			{
+				slice_t& slice = slices[ mip * layerId ];
+				slice.ptr = buffer + slice.offset;
+				slice.end = slice.ptr + slice.size;
+			}
+		}
 	}
 
 public:
@@ -110,20 +163,21 @@ public:
 			delete[] buffer;
 		}
 
-		const uint32_t byteCount = _image->GetByteCount();
+		width = _image->width;
+		height = _image->height;
+		length = _image->length;
+		layers = _image->layers;
+		mipCount = _image->mipCount;
+		bpp = _image->bpp;
+		name = _image->name;
+		byteCount = _image->byteCount;
+		sliceCount = _image->sliceCount;
+
 		buffer = new uint8_t[ byteCount ];
+		slices = new slice_t[ sliceCount ];
 
-		const uint8_t* srcBuffer = _image->Ptr();
-		for ( uint32_t i = 0; i < byteCount; ++i ) {
-			buffer[ i ] = srcBuffer[ i ];
-		}
-
-		width = _image->GetWidth();
-		height = _image->GetHeight();
-		length = _image->GetPixelCount();
-		layers = _image->GetLayers();
-		bpp = _image->GetBpp();
-		name = _image->GetName();
+		memcpy( buffer, _image->buffer, byteCount );
+		memcpy( slices, _image->slices, sliceCount * sizeof( slice_t ) );
 	}
 
 	void Init( const uint32_t _width, const uint32_t _height, const uint32_t _bpp, const char* _name = "", const bool clear = false )
@@ -215,7 +269,7 @@ public:
 
 	inline uint32_t GetByteCount() const
 	{
-		return length * bpp;
+		return byteCount;
 	}
 
 	inline const char* GetName() const
