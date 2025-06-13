@@ -43,6 +43,12 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../external/stb_image.h"
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#pragma warning(push)
+#pragma warning(disable : 4996) // sprintf
+#include "../../external/stb_image_write.h"
+#pragma warning(pop)
+
 
 bool LoadImage( const char* texturePath, Image& texture )
 {
@@ -194,6 +200,36 @@ bool LoadCubeMapImage( const char* textureBasePath, const char* ext, Image& text
 	delete[] bytes;
 
 	return true;
+}
+
+
+bool WriteImage( const char* path, const Image& image )
+{
+	std::string fileName;
+	std::string ext;
+	SplitFileName( path, fileName, ext );
+
+	if( ext == "png" )
+	{
+		const int ret = stbi_write_png( path, image.info.width, image.info.height, image.info.channels, image.cpuImage->Ptr(), image.info.width * image.cpuImage->GetBpp() );
+		return ret == 1;
+	}
+	else if( ext == "jpg" )
+	{
+		const int ret = stbi_write_jpg( path, image.info.width, image.info.height, image.info.channels, image.cpuImage->Ptr(), 100 );
+		return ret == 1;
+	}
+	else if ( ext == "bmp" )
+	{
+		const int ret = stbi_write_bmp( path, image.info.width, image.info.height, image.info.channels, image.cpuImage->Ptr() );
+		return ret == 1;
+	}
+	else if ( ext == "hdr" )
+	{
+		const int ret = stbi_write_hdr( path, image.info.width, image.info.height, image.info.channels, (float*)image.cpuImage->Ptr() );
+		return ret == 1;
+	}
+	return false;
 }
 
 

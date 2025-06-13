@@ -122,14 +122,15 @@ void ImageBufferInterface::Serialize( Serializer* s )
 {
 	uint32_t version = Version;
 	s->Next( version );
-	if ( version != Version ) {
-		throw std::runtime_error( "Wrong version number." );
-	}
 	s->Next( width );
 	s->Next( height );
-	s->Next( layers );
+	s->Next( layers );	
 	s->Next( length );
 	s->Next( bpp );
+
+	if( version == 4 ) {
+		s->Next( mipCount );
+	}
 
 	if ( s->GetMode() == serializeMode_t::LOAD )
 	{
@@ -137,7 +138,8 @@ void ImageBufferInterface::Serialize( Serializer* s )
 		info.width = width;
 		info.height = height;
 		info.layers = layers;
-		info.mipCount = 1;
+		info.layers = layers;
+		info.mipCount = mipCount > 0 ? mipCount : 1;
 		info.bpp = bpp;
 
 		const uint32_t storedLength = length;

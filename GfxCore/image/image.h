@@ -73,7 +73,7 @@ struct slice_t
 class ImageBufferInterface
 {
 private:
-	static const uint32_t Version = 3;
+	static const uint32_t Version = 4;
 	uint32_t		width;				// Width of image (highest mip)
 	uint32_t		height;				// Height of image (highest mip)
 	uint32_t		length;				// Number of elements in buffer
@@ -94,6 +94,11 @@ protected:
 			delete[] buffer;
 			buffer = nullptr;
 		}
+		if ( slices != nullptr )
+		{
+			delete[] slices;
+			slices = nullptr;
+		}
 
 		const bool clearbuffers = true;
 
@@ -105,7 +110,7 @@ protected:
 		mipCount = _info.mipCount;
 		bpp = _info.bpp;
 		length = width * height * layers;
-		sliceCount = layers * uint64_t( mipCount );
+		sliceCount = layers * mipCount;
 
 		// 1. Compute partitions
 		slices = new slice_t[ sliceCount ];
@@ -116,9 +121,10 @@ protected:
 		byteCount = 0;
 		for ( uint32_t mip = 0; mip < mipCount; ++mip )
 		{
+			const uint32_t mipOffset = mip * layers;
 			for( uint32_t layerId = 0; layerId < layers; ++layerId )
 			{
-				slice_t& slice = slices[ mip * layerId ];
+				slice_t& slice = slices[ layerId + mipOffset ];
 				const uint32_t size = width * height * bpp;
 
 				slice.offset = byteCount;	
@@ -137,9 +143,10 @@ protected:
 		// 3. Create convenience pointers
 		for ( uint32_t mip = 0; mip < mipCount; ++mip )
 		{
+			const uint32_t mipOffset = mip * layers;
 			for ( uint32_t layerId = 0; layerId < layers; ++layerId )
 			{
-				slice_t& slice = slices[ mip * layerId ];
+				slice_t& slice = slices[ layerId + mipOffset ];
 				slice.ptr = buffer + slice.offset;
 				slice.end = slice.ptr + slice.size;
 			}
@@ -153,16 +160,18 @@ public:
 		height = 0;
 		length = 0;
 		layers = 1;
+		mipCount = 1;
+		bpp = 0;
+		sliceCount = 0;
+		byteCount = 0;
+		
 		name = "";
 		buffer = nullptr;
+		slices = nullptr;
 	}
 
 	ImageBufferInterface( const ImageBufferInterface* _image )
 	{
-		if ( buffer != nullptr ) {
-			delete[] buffer;
-		}
-
 		width = _image->width;
 		height = _image->height;
 		length = _image->length;
@@ -178,6 +187,11 @@ public:
 
 		memcpy( buffer, _image->buffer, byteCount );
 		memcpy( slices, _image->slices, sliceCount * sizeof( slice_t ) );
+	}
+
+	// Child classes don't manage any data so not virtual
+	~ImageBufferInterface() {
+		Destroy();
 	}
 
 	void Init( const uint32_t _width, const uint32_t _height, const uint32_t _bpp, const char* _name = "", const bool clear = false )
@@ -212,11 +226,15 @@ public:
 		height = 0;
 		length = 0;
 		layers = 1;
+		mipCount = 1;
+		byteCount = 0;
 		name = "";
 
-		if ( buffer == nullptr )
-		{
+		if ( buffer == nullptr ) {
 			delete[] buffer;
+		}
+		if ( slices == nullptr ) {
+			delete[] slices;
 		}
 	}
 
@@ -235,11 +253,14 @@ public:
 		return buffer;
 	}
 
-	inline uint8_t* GetLayerPtr( const uint32_t layer ) const
+	inline uint8_t* GetSlicePtr( const uint32_t layer, const uint32_t mipLevel ) const
 	{
-		uint64_t offset = layer;
-		offset *= uint64_t( width ) * uint64_t( height );
-		return buffer + offset;
+		uint32_t offset = 0;
+		offset += layer < layers ? layer : layers - 1;
+		offset += ( mipLevel < mipCount ? mipLevel : ( mipCount - 1 ) ) * layers;
+
+		slice_t& slice = slices[ offset ];
+		return slice.ptr;
 	}
 
 	inline uint32_t GetWidth() const
@@ -255,6 +276,11 @@ public:
 	inline uint32_t GetLayers() const
 	{
 		return layers;
+	}
+
+	inline uint32_t GetMipCount() const
+	{
+		return mipCount;
 	}
 
 	inline uint32_t GetBpp() const
@@ -280,6 +306,7 @@ public:
 	void Serialize( Serializer* s );
 };
 
+// TODO: Figure out better class names since the child class is strictly a view of the data
 template<typename T>
 class ImageBuffer : public ImageBufferInterface
 {
@@ -380,14 +407,9 @@ public:
 			return false;
 		}
 
-		const uint32_t index = ( x + y * GetWidth() ) + z * ( GetWidth() * GetHeight() );
-		assert( index < GetPixelCount() );
+		const uint32_t index = x + y * GetWidth();
+		reinterpret_cast<T*>( GetSlicePtr( z, 0 ) )[ index ] = pixel;
 
-		if ( index >= GetPixelCount() ) {
-			return false;
-		}
-
-		RawBuffer()[ index ] = pixel;
 		return true;
 	}
 
@@ -405,14 +427,8 @@ public:
 			return T();
 		}
 
-		const uint32_t index = ( x + y * GetWidth() ) + z * ( GetWidth() * GetHeight() );
-		assert( index < GetPixelCount() );
-
-		if ( index >= GetPixelCount() ) {
-			return T();
-		}
-
-		return RawBuffer()[ index ];
+		const uint32_t index = x + y * GetWidth();
+		return reinterpret_cast<const T* const>( GetSlicePtr( z, 0 ) )[ index ];
 	}
 
 	inline bool SetPixelUV( float u, float v, const T& pixel )
