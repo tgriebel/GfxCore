@@ -61,22 +61,19 @@ bool LoadImage( const char* texturePath, Image& texture )
 	}
 
 	//assert( texChannels == 4 );
-	texture.info.width = static_cast<uint32_t>( texWidth );
-	texture.info.height = static_cast<uint32_t>( texHeight );
-	texture.info.channels = 4; // always loaded in as rgba
-	texture.info.layers = 1;
-	texture.info.type = IMAGE_TYPE_2D;
-	texture.info.fmt = IMAGE_FMT_RGBA_8;
-	texture.info.tiling = IMAGE_TILING_MORTON;
-	texture.info.mipLevels = 1;
-	texture.info.generateMips = true;
+	imageInfo_t info = DefaultImage2dInfo();
+	info.width = static_cast<uint32_t>( texWidth );
+	info.height = static_cast<uint32_t>( texHeight );
+	info.channels = 4; // always loaded in as rgba
+	info.fmt = IMAGE_FMT_RGBA_8;
+	info.generateMips = true;
 
 	assert( texture.cpuImage == nullptr );
 
 	ImageBuffer<RGBA>* imageBuffer = new ImageBuffer<RGBA>();
-	imageBuffer->Init( texture.info.width, texture.info.height, texture.info.layers, reinterpret_cast<RGBA*>( pixels ), "" );
+	imageBuffer->Init( info.width, info.height, info.layers, reinterpret_cast<RGBA*>( pixels ), "" );
 
-	texture.cpuImage = imageBuffer;
+	texture.Create( info, imageBuffer, nullptr );
 
 	stbi_image_free( pixels );
 	return true;
@@ -94,20 +91,16 @@ bool LoadImageHDR( const char* texturePath, Image& texture )
 	}
 
 	//assert( texChannels == 4 );
-	texture.info.width = static_cast<uint32_t>( texWidth );
-	texture.info.height = static_cast<uint32_t>( texHeight );
-	texture.info.channels = 4; // always loaded in as rgba
-	texture.info.layers = 1;
-	texture.info.type = IMAGE_TYPE_2D;
-	texture.info.fmt = IMAGE_FMT_RGBA_16;
-	texture.info.tiling = IMAGE_TILING_MORTON;
-	texture.info.mipLevels = 1;
-	texture.info.generateMips = true;
+	imageInfo_t info = DefaultImage2dInfo();
+	info.width = static_cast<uint32_t>( texWidth );
+	info.height = static_cast<uint32_t>( texHeight );
+	info.fmt = IMAGE_FMT_RGBA_16;
+	info.generateMips = true;
 
 	assert( texture.cpuImage == nullptr );
 
 	ImageBuffer<rgbaTupleh_t>* imageBuffer = new ImageBuffer<rgbaTupleh_t>();
-	imageBuffer->Init( texture.info.width, texture.info.height, texture.info.layers, rgbaTupleh_t{} );
+	imageBuffer->Init( info.width, info.height, info.layers, rgbaTupleh_t{} );
 	
 	const uint32_t elementCount = 4 * imageBuffer->GetPixelCount();
 
@@ -115,7 +108,8 @@ bool LoadImageHDR( const char* texturePath, Image& texture )
 	for ( uint32_t i = 0; i < elementCount; ++i ) {
 		buffer[ i ] = PackFloat32( elements[ i ] );
 	}
-	texture.cpuImage = imageBuffer;
+
+	texture.Create( info, imageBuffer, nullptr );
 
 	stbi_image_free( elements );
 	return true;
@@ -184,21 +178,21 @@ bool LoadCubeMapImage( const char* textureBasePath, const char* ext, Image& text
 	}
 
 	assert( sizeBytes == byteOffset );
-	texture.info.width = texWidth;
-	texture.info.height = texHeight;
-	texture.info.channels = texChannels;
-	texture.info.layers = 6;
-	texture.info.type = IMAGE_TYPE_CUBE;
-	texture.info.fmt = IMAGE_FMT_RGBA_8;
-	texture.info.tiling = IMAGE_TILING_MORTON;
-	texture.info.mipLevels = 1;
-	texture.info.generateMips = true;
+	imageInfo_t info = DefaultImage2dInfo();
+	info.width = texWidth;
+	info.height = texHeight;
+	info.channels = texChannels;
+	info.layers = 6;
+	info.type = IMAGE_TYPE_CUBE;
+	info.fmt = IMAGE_FMT_RGBA_8;
+	info.generateMips = true;
 
 	assert( texture.cpuImage == nullptr );
 
 	ImageBuffer<RGBA>* imageBuffer = new ImageBuffer<RGBA>();
-	imageBuffer->Init( texture.info.width, texture.info.height, texture.info.layers, reinterpret_cast<RGBA*>( bytes ), "" );
-	texture.cpuImage = imageBuffer;
+	imageBuffer->Init( info.width, info.height, info.layers, reinterpret_cast<RGBA*>( bytes ), "" );
+	
+	texture.Create( info, imageBuffer, nullptr );
 
 	delete[] bytes;
 

@@ -181,6 +181,25 @@ inline bool operator!=( const imageInfo_t& info0, const imageInfo_t& info1 )
 }
 
 
+inline imageInfo_t DefaultImage2dInfo()
+{
+	imageInfo_t info {};
+	info.width = 1;
+	info.height = 1;
+	info.layers = 1;
+	info.channels = 4;
+	info.mipLevels = 1;
+	info.subsamples = IMAGE_SMP_1;
+	info.type = IMAGE_TYPE_2D;
+	info.fmt = IMAGE_FMT_RGBA_8;
+	info.aspect = IMAGE_ASPECT_COLOR_FLAG;
+	info.tiling = IMAGE_TILING_MORTON;
+	info.generateMips = false;
+
+	return info;
+}
+
+
 class Image
 {
 private:
@@ -195,21 +214,12 @@ public:
 
 	Image()
 	{
-		info.width = 0;
-		info.height = 0;
-		info.channels = 0;
-		info.mipLevels = 0;
-		info.subsamples = IMAGE_SMP_1;
-		info.type = IMAGE_TYPE_UNKNOWN;
-		info.fmt = IMAGE_FMT_UNKNOWN;
-		info.aspect = IMAGE_ASPECT_COLOR_FLAG;
-		info.tiling = IMAGE_TILING_LINEAR;
-		info.generateMips = false;
+		info = DefaultImage2dInfo();
 
 		subResourceView.baseArray = 0;
-		subResourceView.arrayCount = 0;
+		subResourceView.arrayCount = 1;
 		subResourceView.baseMip = 0;
-		subResourceView.mipLevels = 0;
+		subResourceView.mipLevels = 1;
 
 		sampler.addrMode = SAMPLER_ADDRESS_WRAP;
 		sampler.filter = SAMPLER_FILTER_BILINEAR;
