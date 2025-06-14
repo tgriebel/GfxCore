@@ -108,6 +108,7 @@ struct imageInfo_t
 	imageFmt_t				fmt;
 	imageAspectFlags_t		aspect;
 	imageTiling_t			tiling;
+	bool					generateMips;
 };
 
 
@@ -168,7 +169,8 @@ inline bool operator==( const imageInfo_t& info0, const imageInfo_t& info1 )
 		( info0.type == info1.type ) &&
 		( info0.fmt == info1.fmt ) &&
 		( info0.aspect == info1.aspect ) &&
-		( info0.tiling == info1.tiling );
+		( info0.tiling == info1.tiling ) &&
+		( info0.generateMips == info1.generateMips );
 	return equal;
 }
 
@@ -183,8 +185,6 @@ class Image
 {
 private:
 	static const uint32_t Version = 1;
-
-	bool initialized = false;
 public:
 	imageInfo_t				info;
 	imageSubResourceView_t	subResourceView;
@@ -204,6 +204,7 @@ public:
 		info.fmt = IMAGE_FMT_UNKNOWN;
 		info.aspect = IMAGE_ASPECT_COLOR_FLAG;
 		info.tiling = IMAGE_TILING_LINEAR;
+		info.generateMips = false;
 
 		subResourceView.baseArray = 0;
 		subResourceView.arrayCount = 0;
@@ -244,8 +245,6 @@ public:
 
 		cpuImage = _cpuImage;
 		gpuImage = _gpuImage;
-
-		initialized = true;
 	}
 
 	void Destroy()
