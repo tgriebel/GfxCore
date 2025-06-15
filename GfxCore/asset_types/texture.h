@@ -181,20 +181,20 @@ inline bool operator!=( const imageInfo_t& info0, const imageInfo_t& info1 )
 }
 
 
-inline imageInfo_t DefaultImage2dInfo()
+inline imageInfo_t DefaultImage2dInfo( uint32_t w, uint32_t h )
 {
 	imageInfo_t info {};
-	info.width = 1;
-	info.height = 1;
+	info.width = w;
+	info.height = h;
 	info.layers = 1;
 	info.channels = 4;
-	info.mipLevels = 1;
+	info.mipLevels = MipCount( w, h );
 	info.subsamples = IMAGE_SMP_1;
 	info.type = IMAGE_TYPE_2D;
 	info.fmt = IMAGE_FMT_RGBA_8;
 	info.aspect = IMAGE_ASPECT_COLOR_FLAG;
 	info.tiling = IMAGE_TILING_MORTON;
-	info.generateMips = false;
+	info.generateMips = true;
 
 	return info;
 }
@@ -214,7 +214,7 @@ public:
 
 	Image()
 	{
-		info = DefaultImage2dInfo();
+		info = DefaultImage2dInfo( 1, 1 );
 
 		subResourceView.baseArray = 0;
 		subResourceView.arrayCount = 1;

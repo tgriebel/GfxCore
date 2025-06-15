@@ -43,6 +43,10 @@ void Image::Serialize( Serializer* s )
 	cpuImage->Serialize( s );
 
 	SerializeStruct( s, info );
+
+	if ( s->GetMode() == serializeMode_t::LOAD ) {
+		Create( info, cpuImage, nullptr );
+	}
 }
 
 

@@ -61,12 +61,7 @@ bool LoadImage( const char* texturePath, Image& texture )
 	}
 
 	//assert( texChannels == 4 );
-	imageInfo_t info = DefaultImage2dInfo();
-	info.width = static_cast<uint32_t>( texWidth );
-	info.height = static_cast<uint32_t>( texHeight );
-	info.channels = 4; // always loaded in as rgba
-	info.fmt = IMAGE_FMT_RGBA_8;
-	info.generateMips = true;
+	imageInfo_t info = DefaultImage2dInfo( texWidth, texHeight );
 
 	assert( texture.cpuImage == nullptr );
 
@@ -91,11 +86,8 @@ bool LoadImageHDR( const char* texturePath, Image& texture )
 	}
 
 	//assert( texChannels == 4 );
-	imageInfo_t info = DefaultImage2dInfo();
-	info.width = static_cast<uint32_t>( texWidth );
-	info.height = static_cast<uint32_t>( texHeight );
+	imageInfo_t info = DefaultImage2dInfo( texWidth, texHeight );
 	info.fmt = IMAGE_FMT_RGBA_16;
-	info.generateMips = true;
 
 	assert( texture.cpuImage == nullptr );
 
@@ -178,14 +170,10 @@ bool LoadCubeMapImage( const char* textureBasePath, const char* ext, Image& text
 	}
 
 	assert( sizeBytes == byteOffset );
-	imageInfo_t info = DefaultImage2dInfo();
-	info.width = texWidth;
-	info.height = texHeight;
+	imageInfo_t info = DefaultImage2dInfo( texWidth, texHeight );
 	info.channels = texChannels;
 	info.layers = 6;
 	info.type = IMAGE_TYPE_CUBE;
-	info.fmt = IMAGE_FMT_RGBA_8;
-	info.generateMips = true;
 
 	assert( texture.cpuImage == nullptr );
 

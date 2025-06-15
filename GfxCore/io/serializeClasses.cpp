@@ -138,7 +138,6 @@ void ImageBufferInterface::Serialize( Serializer* s )
 		info.width = width;
 		info.height = height;
 		info.layers = layers;
-		info.layers = layers;
 		info.mipCount = mipCount > 0 ? mipCount : 1;
 		info.bpp = bpp;
 
