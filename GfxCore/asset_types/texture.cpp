@@ -69,12 +69,12 @@ void Image::Create( const imageInfo_t& _info, uint8_t* pixelBytes, const uint32_
 			ImageBuffer<rgba16_t>* imageBuffer = nullptr;
 			if ( pixelBytes == nullptr )
 			{
-				ImageBuffer<rgba16_t>* imageBuffer = new ImageBuffer<rgba16_t>();
+				imageBuffer = new ImageBuffer<rgba16_t>();
 				imageBuffer->Init( info.width, info.height, info.layers, rgba16_t(), "" );
 			}
 			else if ( byteCount == sizeof( rgba8_t ) )
 			{
-				ImageBuffer<rgba16_t>* imageBuffer = new ImageBuffer<rgba16_t>();
+				imageBuffer = new ImageBuffer<rgba16_t>();
 				imageBuffer->Init( info.width, info.height, info.layers, *reinterpret_cast<rgba16_t*>( pixelBytes ), "" );
 			}
 			else
