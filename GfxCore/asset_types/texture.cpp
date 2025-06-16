@@ -37,6 +37,9 @@ void Image::Create( const imageInfo_t& _info, uint8_t* pixelBytes, const uint32_
 	subResourceView.arrayCount = info.layers;
 	subResourceView.mipLevels = info.mipLevels;
 
+	sampler.addrMode = SAMPLER_ADDRESS_WRAP;
+	sampler.filter = SAMPLER_FILTER_BILINEAR;
+
 	assert( cpuImage == nullptr );
 
 	switch ( info.fmt )
@@ -126,16 +129,12 @@ void Image::Serialize( Serializer* s )
 		throw std::runtime_error( "Wrong version number." );
 	}
 
-	if( cpuImage == nullptr ) {
-		cpuImage = new ImageBuffer<RGBA>();
-	}
-	cpuImage->Serialize( s );
-
 	SerializeStruct( s, info );
 
 	if ( s->GetMode() == serializeMode_t::LOAD ) {
-		Create( info, cpuImage, nullptr );
+		Create( info );
 	}
+	cpuImage->Serialize( s );
 }
 
 
@@ -147,7 +146,7 @@ bool ImageLoader::Load( Asset<Image>& imageAsset )
 
 	bakedAssetInfo_t info = {};
 	
-	const bool loadedBaked = LoadBaked( imageAsset, info, m_basePath, "img.bin" );
+	const bool loadedBaked = LoadBaked( imageAsset, info, ".\\baked\\" + m_basePath, "img.bin" );
 	if ( loadedBaked ) {
 		return true;
 	}
@@ -161,8 +160,6 @@ bool ImageLoader::Load( Asset<Image>& imageAsset )
 		}
 		s.ReadFile( path );
 
-		// TODO: add type-based buffer creation
-		image.cpuImage = new ImageBuffer<rgbaTupleh_t>();
 		image.Serialize(&s);
 
 		return ( s.Status() == serializeStatus_t::OK );

@@ -60,6 +60,12 @@ bool LoadBaked( Asset<T>& asset, bakedAssetInfo_t& info, const std::string& dir,
 		assert( loaded );
 		return loaded;
 	}
+	else
+	{
+		std::stringstream ss;
+		ss << "Baked file not found: " << bakedPath << " for asset " << asset.GetName() << "\n";
+		std::cout << ss.str();
+	}
 	return false;
 }
 

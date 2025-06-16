@@ -32,6 +32,10 @@ static void BakeLibraryAssets( AssetLib<T>& lib, const std::string& path, const 
 	{
 		Asset<T>* asset = lib.Find( i );
 
+		if( asset->CanBake() == false ) {
+			continue;
+		}
+
 		bakedAssetInfo_t info = {};
 		info.name = asset->GetName();
 		info.hash = asset->Handle().String();

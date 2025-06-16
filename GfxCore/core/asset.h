@@ -81,11 +81,12 @@ protected:
 	bool						m_loaded;
 	bool						m_uploaded;
 	bool						m_isDefault;
+	bool						m_canBake;
 
 public:
-	AssetInterface() : m_name( "" ), m_loaded( false ), m_isDefault( false ), m_uploaded( false ), m_handle( INVALID_HDL ) {}
+	AssetInterface() : m_name( "" ), m_loaded( false ), m_isDefault( false ), m_uploaded( false ), m_canBake( true ), m_handle( INVALID_HDL ) {}
 
-	AssetInterface( const hdl_t hdl ) : m_handle( hdl ), m_loaded( false ), m_isDefault( false ), m_uploaded( false )
+	AssetInterface( const hdl_t hdl ) : m_handle( hdl ), m_loaded( false ), m_isDefault( false ), m_canBake( true ), m_uploaded( false )
 	{}
 
 	AssetInterface( const std::string& _name, const bool _loaded ) :
@@ -154,6 +155,16 @@ public:
 	inline void SetDefault()
 	{
 		m_isDefault = true;
+	}
+
+	inline bool CanBake() const
+	{
+		return m_canBake;
+	}
+
+	inline void SetBakeable( const bool isBakeable)
+	{
+		m_canBake = isBakeable;
 	}
 };
 
