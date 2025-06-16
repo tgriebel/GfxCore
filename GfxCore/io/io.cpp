@@ -61,14 +61,9 @@ bool LoadImage( const char* texturePath, Image& texture )
 	}
 
 	//assert( texChannels == 4 );
-	imageInfo_t info = DefaultImage2dInfo( texWidth, texHeight );
+	const imageInfo_t info = DefaultImage2dInfo( texWidth, texHeight );
 
-	assert( texture.cpuImage == nullptr );
-
-	ImageBuffer<RGBA>* imageBuffer = new ImageBuffer<RGBA>();
-	imageBuffer->Init( info.width, info.height, info.layers, reinterpret_cast<RGBA*>( pixels ), "" );
-
-	texture.Create( info, imageBuffer, nullptr );
+	texture.Create( info, pixels );
 
 	stbi_image_free( pixels );
 	return true;
@@ -175,12 +170,7 @@ bool LoadCubeMapImage( const char* textureBasePath, const char* ext, Image& text
 	info.layers = 6;
 	info.type = IMAGE_TYPE_CUBE;
 
-	assert( texture.cpuImage == nullptr );
-
-	ImageBuffer<RGBA>* imageBuffer = new ImageBuffer<RGBA>();
-	imageBuffer->Init( info.width, info.height, info.layers, reinterpret_cast<RGBA*>( bytes ), "" );
-	
-	texture.Create( info, imageBuffer, nullptr );
+	texture.Create( info, bytes );
 
 	delete[] bytes;
 

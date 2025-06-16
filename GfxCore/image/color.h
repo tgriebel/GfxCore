@@ -46,6 +46,12 @@ using rgbaTupleh_t = rgbaTuple_t<uint16_t>;
 using rgbaTuplef_t = rgbaTuple_t<float>;
 using rgbaTupled_t = rgbaTuple_t<double>;
 
+// New convention
+using rgba8_t = RGBA;
+using rgba16_t = rgbaTupleh_t;
+using rgba32_t = rgbaTuplef_t;
+using rgba64_t = rgbaTupled_t;
+
 template<typename T>
 struct rgbTuple_t
 {

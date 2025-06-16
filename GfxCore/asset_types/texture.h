@@ -240,33 +240,13 @@ public:
 		Destroy();
 	}
 
-	void Create( const imageInfo_t& _info, ImageBufferInterface* _cpuImage, GpuImage* _gpuImage )
-	{
-		info = _info;
-		info.layers = ( _info.type == IMAGE_TYPE_CUBE ) ? 6 : _info.layers;
+	void Create( const imageInfo_t& _info, uint8_t* pixelBytes = nullptr, const uint32_t byteCount = 0 );
 
-		subResourceView.baseArray = 0;
-		subResourceView.arrayCount = info.layers;
-		subResourceView.baseMip = 0;
-		subResourceView.mipLevels = info.mipLevels;
+	void Create( const imageInfo_t& _info, ImageBufferInterface* _cpuImage, GpuImage* _gpuImage );
 
-		sampler.addrMode = SAMPLER_ADDRESS_WRAP;
-		sampler.filter = SAMPLER_FILTER_BILINEAR;
+	void Destroy();
 
-		cpuImage = _cpuImage;
-		gpuImage = _gpuImage;
-	}
-
-	void Destroy()
-	{
-		if ( cpuImage != nullptr )
-		{
-			delete cpuImage;
-			cpuImage = nullptr;
-		}
-	}
-
-	void	Serialize( Serializer* serializer );
+	void Serialize( Serializer* serializer );
 };
 
 

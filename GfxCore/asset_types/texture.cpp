@@ -29,6 +29,95 @@
 #include "../io/serializeClasses.h"
 
 
+void Image::Create( const imageInfo_t& _info, uint8_t* pixelBytes, const uint32_t byteCount )
+{
+	info = _info;
+	info.layers = ( _info.type == IMAGE_TYPE_CUBE ) ? 6 : _info.layers;
+
+	subResourceView.arrayCount = info.layers;
+	subResourceView.mipLevels = info.mipLevels;
+
+	assert( cpuImage == nullptr );
+
+	switch ( info.fmt )
+	{
+		// TODO: temp for refactoring, unify `ImageBuffer` interfaces and push multiplex logic into that class
+
+		case IMAGE_FMT_RGBA_8:
+		{
+			ImageBuffer<rgba8_t>* imageBuffer = nullptr;
+			if( pixelBytes == nullptr )
+			{
+				imageBuffer = new ImageBuffer<rgba8_t>();
+				imageBuffer->Init( info.width, info.height, info.layers, rgba8_t(), "" );
+			}
+			else if( byteCount == sizeof( rgba8_t ) )
+			{
+				
+				imageBuffer = new ImageBuffer<rgba8_t>();
+				imageBuffer->Init( info.width, info.height, info.layers, *reinterpret_cast<rgba8_t*>( pixelBytes ), "" );
+			}
+			else
+			{
+				imageBuffer = new ImageBuffer<rgba8_t>();
+				imageBuffer->Init( info.width, info.height, info.layers, reinterpret_cast<rgba8_t*>( pixelBytes ), "" );
+			}
+			cpuImage = imageBuffer;
+		} break;
+		case IMAGE_FMT_RGBA_16:
+		{
+			ImageBuffer<rgba16_t>* imageBuffer = nullptr;
+			if ( pixelBytes == nullptr )
+			{
+				ImageBuffer<rgba16_t>* imageBuffer = new ImageBuffer<rgba16_t>();
+				imageBuffer->Init( info.width, info.height, info.layers, rgba16_t(), "" );
+			}
+			else if ( byteCount == sizeof( rgba8_t ) )
+			{
+				ImageBuffer<rgba16_t>* imageBuffer = new ImageBuffer<rgba16_t>();
+				imageBuffer->Init( info.width, info.height, info.layers, *reinterpret_cast<rgba16_t*>( pixelBytes ), "" );
+			}
+			else
+			{
+				imageBuffer = new ImageBuffer<rgba16_t>();
+				imageBuffer->Init( info.width, info.height, info.layers, reinterpret_cast<rgba16_t*>( pixelBytes ), "" );
+			}
+			cpuImage = imageBuffer;
+		} break;
+		default: assert( 0 );
+	}
+	gpuImage = nullptr;
+}
+
+
+void Image::Create( const imageInfo_t& _info, ImageBufferInterface* _cpuImage, GpuImage* _gpuImage )
+{
+	info = _info;
+	info.layers = ( _info.type == IMAGE_TYPE_CUBE ) ? 6 : _info.layers;
+
+	subResourceView.baseArray = 0;
+	subResourceView.arrayCount = info.layers;
+	subResourceView.baseMip = 0;
+	subResourceView.mipLevels = info.mipLevels;
+
+	sampler.addrMode = SAMPLER_ADDRESS_WRAP;
+	sampler.filter = SAMPLER_FILTER_BILINEAR;
+
+	cpuImage = _cpuImage;
+	gpuImage = _gpuImage;
+}
+
+
+void Image::Destroy()
+{
+	if ( cpuImage != nullptr )
+	{
+		delete cpuImage;
+		cpuImage = nullptr;
+	}
+}
+
+
 void Image::Serialize( Serializer* s )
 {
 	uint32_t version = Version;
