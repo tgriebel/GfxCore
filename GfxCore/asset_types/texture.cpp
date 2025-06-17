@@ -89,7 +89,6 @@ void Image::Create( const imageInfo_t& _info, uint8_t* pixelBytes, const uint32_
 		} break;
 		default: assert( 0 );
 	}
-	gpuImage = nullptr;
 }
 
 
