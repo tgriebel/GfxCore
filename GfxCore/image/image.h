@@ -31,9 +31,20 @@
 void WrapUV( float& u, float& v );
 void WrapUV( float& u, float& v, float& w );
 
+
+inline uint32_t MipPixelCount( const uint32_t width, const uint32_t height )
+{
+	const uint32_t dimension = RoundPow2( Max( width, height ) );
+	const uint32_t highestMipPixelCount = dimension * dimension;
+	const uint32_t mipChainPixelCount = ( highestMipPixelCount - 1 ) & 0x55555555; // All squared power of 2's aka alternating bits
+
+	return ( highestMipPixelCount | mipChainPixelCount );
+}
+
+
 inline uint32_t MipCount( const uint32_t width, const uint32_t height )
 {
-	return static_cast<uint32_t>( std::floor( std::log2( std::max( width, height ) ) ) ) + 1;
+	return static_cast<uint32_t>( std::floor( std::log2( Max( width, height ) ) ) ) + 1;
 }
 
 

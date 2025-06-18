@@ -25,6 +25,7 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <stdint.h>
 
 static constexpr float PI = 3.14159265358979323846f;
 
@@ -75,4 +76,21 @@ template<typename T>
 constexpr inline T Degrees( const T& radians )
 {
 	return ( radians * ( static_cast<T>( 180.0 ) / PI ) );
+}
+
+
+// https://graphics.stanford.edu/%7Eseander/bithacks.html#RoundUpPowerOf2
+inline uint32_t RoundPow2( uint32_t num )
+{
+	uint32_t v = num;
+
+	v--;
+	v |= v >> 1;
+	v |= v >> 2;
+	v |= v >> 4;
+	v |= v >> 8;
+	v |= v >> 16;
+	v++;
+
+	return v;
 }
