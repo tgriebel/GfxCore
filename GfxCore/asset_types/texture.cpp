@@ -46,7 +46,7 @@ void Image::Create( const imageInfo_t& _info, uint8_t* pixelBytes, const uint32_
 	bufferInfo.width = _info.width;
 	bufferInfo.height = _info.height;
 	bufferInfo.layers = _info.layers;
-	bufferInfo.mipCount = _info.mipLevels;
+	bufferInfo.mipCount = 1;//_info.mipLevels;
 	bufferInfo.data = pixelBytes;
 	bufferInfo.dataByteCount = byteCount;
 

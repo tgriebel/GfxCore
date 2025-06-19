@@ -28,8 +28,9 @@ Color SrgbTolinear( const Color& color, const float gamma )
 	Color outColor;
 	for ( int32_t i = 0; i < 3; ++i )
 	{
-		outColor[ i ] = pow( color[ i ], gamma );
+		outColor[ i ] = Saturate( pow( color[ i ], gamma ) );
 	}
+	outColor[ 3 ] = 1.0f;
 
 	return outColor;
 }
@@ -40,8 +41,9 @@ Color LinearToSrgb( const Color& color, const float gamma )
 	Color outColor;
 	for ( int32_t i = 0; i < 3; ++i )
 	{
-		outColor[ i ] = pow( color[ i ], 1.0f / gamma );
+		outColor[ i ] = Saturate( pow( color[ i ], 1.0f / gamma ) );
 	}
+	outColor[ 3 ] = 1.0f;
 
 	return outColor;
 }

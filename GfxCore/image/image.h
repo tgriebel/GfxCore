@@ -269,14 +269,14 @@ public:
 		return buffer;
 	}
 
-	inline uint8_t* GetSlicePtr( const uint32_t layer, const uint32_t mipLevel ) const
+	inline const slice_t GetSlice( const uint32_t layer, const uint32_t mipLevel ) const
 	{
 		uint32_t offset = 0;
 		offset += layer < layers ? layer : layers - 1;
 		offset += ( mipLevel < mipCount ? mipLevel : ( mipCount - 1 ) ) * layers;
 
 		slice_t& slice = slices[ offset ];
-		return slice.ptr;
+		return slice;
 	}
 
 	inline uint32_t GetWidth() const
@@ -320,6 +320,13 @@ public:
 	}
 
 	void Serialize( Serializer* s );
+};
+
+template<typename T>
+struct imageRawBuffer_t
+{
+	uint32_t	pixelCount;
+	T*			ptr;
 };
 
 // TODO: Figure out better class names since the child class is strictly a view of the data
@@ -404,6 +411,17 @@ public:
 		Destroy();
 	}
 
+	inline imageRawBuffer_t<T> GetRawBuffer( const uint32_t layer, const uint32_t mipLevel ) const
+	{
+		const slice_t slice = GetSlice( layer, mipLevel );
+
+		imageRawBuffer_t<T> rawBuffer;
+		rawBuffer.ptr = reinterpret_cast<T*>( slice.ptr );
+		rawBuffer.pixelCount = slice.size / sizeof( T );
+
+		return rawBuffer;
+	}
+
 	inline bool SetPixel( const int32_t x, const int32_t y, const T& pixel )
 	{
 		return SetPixel( x, y, 0, pixel );
@@ -424,7 +442,7 @@ public:
 		}
 
 		const uint32_t index = x + y * GetWidth();
-		reinterpret_cast<T*>( GetSlicePtr( z, 0 ) )[ index ] = pixel;
+		reinterpret_cast<T*>( GetSlice( z, 0 ).ptr )[ index ] = pixel;
 
 		return true;
 	}
@@ -444,7 +462,7 @@ public:
 		}
 
 		const uint32_t index = x + y * GetWidth();
-		return reinterpret_cast<const T* const>( GetSlicePtr( z, 0 ) )[ index ];
+		return reinterpret_cast<const T* const>( GetSlice( z, 0 ).ptr )[ index ];
 	}
 
 	inline bool SetPixelUV( float u, float v, const T& pixel )
