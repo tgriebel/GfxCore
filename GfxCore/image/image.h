@@ -89,7 +89,7 @@ struct slice_t
 class ImageBufferInterface
 {
 private:
-	static const uint32_t Version = 4;
+	static const uint32_t Version = 5;
 	uint32_t		width;				// Width of image (highest mip)
 	uint32_t		height;				// Height of image (highest mip)
 	uint32_t		length;				// Number of elements in buffer
@@ -134,20 +134,25 @@ protected:
 			memset( slices, 0, sliceCount * sizeof( slice_t ) );
 		}
 
+		uint32_t mipWidth = width;
+		uint32_t mipHeight = height;
+
 		byteCount = 0;
 		for ( uint32_t mip = 0; mip < mipCount; ++mip )
 		{
+			MipDimensions( mip, width, height, &mipWidth, &mipHeight );
+
 			const uint32_t mipOffset = mip * layers;
 			for( uint32_t layerId = 0; layerId < layers; ++layerId )
 			{
 				slice_t& slice = slices[ layerId + mipOffset ];
-				const uint32_t size = width * height * bpp;
+				const uint32_t size = mipWidth * mipHeight * bpp;
 
 				slice.offset = byteCount;	
 				slice.size = size;
 
 				byteCount += size;
-			}
+			}		
 		}
 
 		// 2. Allocate
@@ -274,6 +279,8 @@ public:
 		uint32_t offset = 0;
 		offset += layer < layers ? layer : layers - 1;
 		offset += ( mipLevel < mipCount ? mipLevel : ( mipCount - 1 ) ) * layers;
+
+		assert( offset < sliceCount );
 
 		slice_t& slice = slices[ offset ];
 		return slice;

@@ -37,6 +37,8 @@ void Image::Create( const imageInfo_t& _info, uint8_t* pixelBytes, const uint32_
 	subResourceView.arrayCount = info.layers;
 	subResourceView.mipLevels = info.mipLevels;
 
+	generateMips = true;
+
 	sampler.addrMode = SAMPLER_ADDRESS_WRAP;
 	sampler.filter = SAMPLER_FILTER_BILINEAR;
 
@@ -46,7 +48,7 @@ void Image::Create( const imageInfo_t& _info, uint8_t* pixelBytes, const uint32_
 	bufferInfo.width = _info.width;
 	bufferInfo.height = _info.height;
 	bufferInfo.layers = _info.layers;
-	bufferInfo.mipCount = 1;//_info.mipLevels;
+	bufferInfo.mipCount = _info.mipLevels;
 	bufferInfo.data = pixelBytes;
 	bufferInfo.dataByteCount = byteCount;
 
@@ -75,6 +77,8 @@ void Image::Create( const imageInfo_t& _info, ImageBufferInterface* _cpuImage, G
 	subResourceView.baseMip = 0;
 	subResourceView.mipLevels = info.mipLevels;
 
+	generateMips = true;
+
 	sampler.addrMode = SAMPLER_ADDRESS_WRAP;
 	sampler.filter = SAMPLER_FILTER_BILINEAR;
 
@@ -97,15 +101,17 @@ void Image::Serialize( Serializer* s )
 {
 	uint32_t version = Version;
 	s->Next( version );
-	if ( version != Version ) {
-		throw std::runtime_error( "Wrong version number." );
-	}
 
 	SerializeStruct( s, info );
 
 	if ( s->GetMode() == serializeMode_t::LOAD ) {
 		Create( info );
 	}
+
+	if ( version == 2 ) {
+		s->Next( generateMips );
+	}
+
 	cpuImage->Serialize( s );
 }
 

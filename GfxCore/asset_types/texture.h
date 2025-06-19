@@ -108,7 +108,7 @@ struct imageInfo_t
 	imageFmt_t				fmt;
 	imageAspectFlags_t		aspect;
 	imageTiling_t			tiling;
-	bool					generateMips;
+	bool					unused; // Deprecated v2
 };
 
 
@@ -169,8 +169,7 @@ inline bool operator==( const imageInfo_t& info0, const imageInfo_t& info1 )
 		( info0.type == info1.type ) &&
 		( info0.fmt == info1.fmt ) &&
 		( info0.aspect == info1.aspect ) &&
-		( info0.tiling == info1.tiling ) &&
-		( info0.generateMips == info1.generateMips );
+		( info0.tiling == info1.tiling );
 	return equal;
 }
 
@@ -194,7 +193,6 @@ inline imageInfo_t DefaultImage2dInfo( uint32_t w, uint32_t h )
 	info.fmt = IMAGE_FMT_RGBA_8;
 	info.aspect = IMAGE_ASPECT_COLOR_FLAG;
 	info.tiling = IMAGE_TILING_MORTON;
-	info.generateMips = true;
 
 	return info;
 }
@@ -203,11 +201,12 @@ inline imageInfo_t DefaultImage2dInfo( uint32_t w, uint32_t h )
 class Image
 {
 private:
-	static const uint32_t Version = 1;
+	static const uint32_t Version = 2;
 public:
 	imageInfo_t				info;
 	imageSubResourceView_t	subResourceView;
 	samplerState_t			sampler;
+	bool					generateMips;
 
 	ImageBufferInterface*	cpuImage;
 	GpuImage*				gpuImage;
@@ -220,6 +219,8 @@ public:
 		subResourceView.arrayCount = 1;
 		subResourceView.baseMip = 0;
 		subResourceView.mipLevels = 1;
+
+		generateMips = true;
 
 		sampler.addrMode = SAMPLER_ADDRESS_WRAP;
 		sampler.filter = SAMPLER_FILTER_BILINEAR;

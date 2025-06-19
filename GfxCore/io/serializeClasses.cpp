@@ -127,9 +127,11 @@ void ImageBufferInterface::Serialize( Serializer* s )
 	s->Next( layers );	
 	s->Next( length );
 	s->Next( bpp );
+	s->Next( mipCount );
 
-	if( version == 4 ) {
-		s->Next( mipCount );
+	if ( version == 5 )
+	{
+		s->Next( byteCount );
 	}
 
 	if ( s->GetMode() == serializeMode_t::LOAD )
@@ -141,13 +143,21 @@ void ImageBufferInterface::Serialize( Serializer* s )
 		info.mipCount = mipCount > 0 ? mipCount : 1;
 		info.bpp = bpp;
 
-		const uint32_t storedLength = length;
+		const uint32_t storedLength = length; // TODO: replace with byteCount
 		_Init( info );
 		assert( storedLength == length );
 	}
 
-	assert( buffer != nullptr );
-	SerializeArray( s, buffer, bpp * length );
+	if( version == 5 )
+	{
+		assert( buffer != nullptr );
+		SerializeArray( s, buffer, byteCount );
+	}
+	else
+	{
+		assert( buffer != nullptr );
+		SerializeArray( s, buffer, bpp * length );
+	}
 }
 
 
