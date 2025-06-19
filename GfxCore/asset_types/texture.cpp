@@ -42,50 +42,23 @@ void Image::Create( const imageInfo_t& _info, uint8_t* pixelBytes, const uint32_
 
 	assert( cpuImage == nullptr );
 
+	imageBufferInfo_t bufferInfo{};
+	bufferInfo.width = _info.width;
+	bufferInfo.height = _info.height;
+	bufferInfo.layers = _info.layers;
+	bufferInfo.mipCount = _info.mipLevels;
+	bufferInfo.data = pixelBytes;
+	bufferInfo.dataByteCount = byteCount;
+
 	switch ( info.fmt )
 	{
-		// TODO: temp for refactoring, unify `ImageBuffer` interfaces and push multiplex logic into that class
-
 		case IMAGE_FMT_RGBA_8:
 		{
-			ImageBuffer<rgba8_t>* imageBuffer = nullptr;
-			if( pixelBytes == nullptr )
-			{
-				imageBuffer = new ImageBuffer<rgba8_t>();
-				imageBuffer->Init( info.width, info.height, info.layers, rgba8_t(), "" );
-			}
-			else if( byteCount == sizeof( rgba8_t ) )
-			{
-				
-				imageBuffer = new ImageBuffer<rgba8_t>();
-				imageBuffer->Init( info.width, info.height, info.layers, *reinterpret_cast<rgba8_t*>( pixelBytes ), "" );
-			}
-			else
-			{
-				imageBuffer = new ImageBuffer<rgba8_t>();
-				imageBuffer->Init( info.width, info.height, info.layers, reinterpret_cast<rgba8_t*>( pixelBytes ), "" );
-			}
-			cpuImage = imageBuffer;
+			cpuImage = new ImageBuffer<rgba8_t>( bufferInfo );
 		} break;
 		case IMAGE_FMT_RGBA_16:
 		{
-			ImageBuffer<rgba16_t>* imageBuffer = nullptr;
-			if ( pixelBytes == nullptr )
-			{
-				imageBuffer = new ImageBuffer<rgba16_t>();
-				imageBuffer->Init( info.width, info.height, info.layers, rgba16_t(), "" );
-			}
-			else if ( byteCount == sizeof( rgba8_t ) )
-			{
-				imageBuffer = new ImageBuffer<rgba16_t>();
-				imageBuffer->Init( info.width, info.height, info.layers, *reinterpret_cast<rgba16_t*>( pixelBytes ), "" );
-			}
-			else
-			{
-				imageBuffer = new ImageBuffer<rgba16_t>();
-				imageBuffer->Init( info.width, info.height, info.layers, reinterpret_cast<rgba16_t*>( pixelBytes ), "" );
-			}
-			cpuImage = imageBuffer;
+			cpuImage = new ImageBuffer<rgba16_t>( bufferInfo );
 		} break;
 		default: assert( 0 );
 	}

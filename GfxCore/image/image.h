@@ -34,10 +34,13 @@ void WrapUV( float& u, float& v, float& w );
 
 inline uint32_t MipPixelCount( const uint32_t width, const uint32_t height )
 {
-	const uint32_t dimension = RoundPow2( Max( width, height ) );
-	const uint32_t highestMipPixelCount = dimension * dimension;
-	const uint32_t mipChainPixelCount = ( highestMipPixelCount - 1 ) & 0x55555555; // All squared power of 2's aka alternating bits
-
+	const uint32_t highestMipPixelCount = RoundPow2( width ) * RoundPow2( height );
+	uint32_t mipChainPixelCount = 0;
+	if ( ( highestMipPixelCount & 0xAAAAAAAB ) != 0 ) {
+		mipChainPixelCount = ( highestMipPixelCount - 1 ) & 0xAAAAAAAB; // All squared power of 2's aka alternating bits + 0-bit for 1x1
+	} else {
+		mipChainPixelCount = ( highestMipPixelCount - 1 ) & 0x55555555; // Alternating bits
+	}
 	return ( highestMipPixelCount | mipChainPixelCount );
 }
 
@@ -70,6 +73,8 @@ struct imageBufferInfo_t
 	uint32_t		layers;				// Depth for 3D volumes, sides for cubemaps, 1 normally
 	uint32_t		mipCount;			// Number of MIP levels, 1 normally
 	uint32_t		bpp;				// Bytes per pixel
+	void*			data;				// Initialization data
+	uint32_t		dataByteCount;
 };
 
 // References a MxN image within a buffer
@@ -327,6 +332,39 @@ public:
 	{
 	}
 
+	ImageBuffer( const imageBufferInfo_t& _info, const char* _name = "" )
+	{
+		imageBufferInfo_t info = _info;
+		info.bpp = sizeof( T );
+
+		_Init( info, _name );
+
+		if( ( info.data != nullptr ) && ( info.dataByteCount > 0 ) )
+		{
+			if ( info.dataByteCount == info.bpp ) {
+				Clear( *reinterpret_cast<T*>( info.data ) );
+			} else {
+				memcpy( Ptr(), info.data, GetByteCount() );
+			}
+		} else {
+			Clear( T() );
+		}
+	}
+
+	ImageBuffer( const uint32_t _width, const uint32_t _height, const char* _name = "" )
+	{
+		imageBufferInfo_t info{};
+		info.width = _width;
+		info.height = _height;
+		info.layers = 1;
+		info.mipCount = 1;
+		info.bpp = sizeof( T );
+		info.data = nullptr;
+		info.dataByteCount = 0;
+
+		_Init( info, _name );
+	}
+
 	ImageBuffer( const uint32_t _width, const uint32_t _height, const uint32_t _layers, const T _default = T(), const char* _name = "" )
 	{
 		imageBufferInfo_t info{};
@@ -335,8 +373,26 @@ public:
 		info.layers = _layers;
 		info.mipCount = 1;
 		info.bpp = sizeof( T );
+		info.data = nullptr;
+		info.dataByteCount = 0;
 
 		_Init( info, _name );
+		Clear( _default );
+	}
+
+	ImageBuffer( const uint32_t _width, const uint32_t _height, const uint32_t _layers, const T* data, const char* _name = "" )
+	{
+		imageBufferInfo_t info{};
+		info.width = _width;
+		info.height = _height;
+		info.layers = _layers;
+		info.mipCount = 1;
+		info.bpp = sizeof( T );
+		info.data = nullptr;
+		info.dataByteCount = 0;
+
+		_Init( info, _name );
+		memcpy( Ptr(), data, GetByteCount() );
 	}
 
 	ImageBuffer( const ImageBuffer& _image ) : ImageBufferInterface( reinterpret_cast<const ImageBufferInterface*>( &_image ) )
@@ -346,57 +402,6 @@ public:
 	~ImageBuffer()
 	{
 		Destroy();
-	}
-
-	void Init( const uint32_t _width, const uint32_t _height, const char* _name = "" )
-	{
-		imageBufferInfo_t info{};
-		info.width = _width;
-		info.height = _height;
-		info.layers = 1;
-		info.mipCount = 1;
-		info.bpp = sizeof( T );
-
-		_Init( info, _name );
-	}
-
-	void Init( const uint32_t _width, const uint32_t _height, const uint32_t _layers, const T& _default, const char* _name = "" )
-	{
-		imageBufferInfo_t info{};
-		info.width = _width;
-		info.height = _height;
-		info.layers = _layers;
-		info.mipCount = 1;
-		info.bpp = sizeof( T );
-
-		_Init( info, _name );
-		Clear( _default );
-	}
-
-	void Init( const uint32_t _width, const uint32_t _height, const uint32_t _layers, const T* data, const char* _name = "" )
-	{
-		imageBufferInfo_t info{};
-		info.width = _width;
-		info.height = _height;
-		info.layers = _layers;
-		info.mipCount = 1;
-		info.bpp = sizeof( T );
-
-		_Init( info, _name );
-		memcpy( Ptr(), data, GetByteCount() );
-	}
-
-	void Init( const uint32_t _width, const uint32_t _height, const T& _default, const char* _name = "" )
-	{
-		imageBufferInfo_t info{};
-		info.width = _width;
-		info.height = _height;
-		info.layers = 1;
-		info.mipCount = 1;
-		info.bpp = sizeof( T );
-
-		_Init( info, _name );
-		Clear( _default );
 	}
 
 	inline bool SetPixel( const int32_t x, const int32_t y, const T& pixel )
@@ -452,8 +457,8 @@ public:
 		WrapUV( u, v, w );
 
 		const uint32_t x = static_cast<uint32_t>( u * GetWidth() );
-		const uint32_t y = static_cast<uint32_t>( v * GetWidth() );
-		const uint32_t z = static_cast<uint32_t>( w * GetWidth() );
+		const uint32_t y = static_cast<uint32_t>( v * GetHeight() );
+		const uint32_t z = static_cast<uint32_t>( w * GetLayers() );
 
 		return SetPixel( pixel, x, y, z );
 	}
@@ -464,7 +469,7 @@ public:
 
 		const uint32_t x = static_cast<uint32_t>( u * GetWidth() );
 		const uint32_t y = static_cast<uint32_t>( v * GetHeight() );
-		const uint32_t z = static_cast<uint32_t>( w * GetWidth() );
+		const uint32_t z = static_cast<uint32_t>( w * GetLayers() );
 
 		return GetPixel( x, y, z );
 	}

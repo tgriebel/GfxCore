@@ -86,8 +86,7 @@ bool LoadImageHDR( const char* texturePath, Image& texture )
 
 	assert( texture.cpuImage == nullptr );
 
-	ImageBuffer<rgbaTupleh_t>* imageBuffer = new ImageBuffer<rgbaTupleh_t>();
-	imageBuffer->Init( info.width, info.height, info.layers, rgbaTupleh_t{} );
+	ImageBuffer<rgba16_t>* imageBuffer = new ImageBuffer<rgba16_t>( info.width, info.height, info.layers );
 	
 	const uint32_t elementCount = 4 * imageBuffer->GetPixelCount();
 
