@@ -80,10 +80,12 @@ struct imageBufferInfo_t
 // References a MxN image within a buffer
 struct slice_t
 {
-	uint32_t	offset;
-	uint32_t	size;
-	uint8_t*	ptr;
-	uint8_t*	end;
+	uint32_t	width;	// Width of slice
+	uint32_t	height;	// Height of slice
+	uint32_t	offset;	// Offset within buffer
+	uint32_t	size;	// Size of slice within buffer
+	uint8_t*	ptr;	// Start pointer
+	uint8_t*	end;	// End pointer
 };
 
 class ImageBufferInterface
@@ -162,15 +164,11 @@ protected:
 		}
 
 		// 3. Create convenience pointers
-		for ( uint32_t mip = 0; mip < mipCount; ++mip )
+		for ( uint32_t sliceIndex = 0; sliceIndex < sliceCount; ++sliceIndex )
 		{
-			const uint32_t mipOffset = mip * layers;
-			for ( uint32_t layerId = 0; layerId < layers; ++layerId )
-			{
-				slice_t& slice = slices[ layerId + mipOffset ];
-				slice.ptr = buffer + slice.offset;
-				slice.end = slice.ptr + slice.size;
-			}
+			slice_t& slice = slices[ sliceIndex ];
+			slice.ptr = buffer + slice.offset;
+			slice.end = slice.ptr + slice.size;
 		}
 	}
 
@@ -332,6 +330,8 @@ public:
 template<typename T>
 struct imageRawBuffer_t
 {
+	uint32_t	width;
+	uint32_t	height;
 	uint32_t	pixelCount;
 	T*			ptr;
 };
@@ -425,6 +425,8 @@ public:
 		imageRawBuffer_t<T> rawBuffer;
 		rawBuffer.ptr = reinterpret_cast<T*>( slice.ptr );
 		rawBuffer.pixelCount = slice.size / sizeof( T );
+		rawBuffer.width = slice.width;
+		rawBuffer.height = slice.height;
 
 		return rawBuffer;
 	}
