@@ -113,11 +113,11 @@ struct materialParms_t
 {
 	materialParms_t() : Tr( 0.0f ), Ns( 0.0f ), Ni( 0.0f ), d( 1.0f ), illum( 0.0f ) {}
 
-	rgbTuplef_t	Ka;
-	rgbTuplef_t	Ke;
-	rgbTuplef_t	Kd;
-	rgbTuplef_t	Ks;
-	rgbTuplef_t	Tf;
+	rgb32_t		Ka;
+	rgb32_t		Ke;
+	rgb32_t		Kd;
+	rgb32_t		Ks;
+	rgb32_t		Tf;
 	float		Tr;
 	float		Ns;
 	float		Ni;
@@ -148,7 +148,7 @@ public:
 		textureBitSet( 0 ),
 		shaderBitSet( 0 )
 	{
-		p.Kd = rgbTuplef_t( 1.0f, 1.0f, 1.0f );
+		p.Kd = rgb32_t( 1.0f, 1.0f, 1.0f );
 		for ( int i = 0; i < MaxMaterialTextures; ++i ) {
 			textures[ i ] = INVALID_HDL;
 		}
@@ -164,52 +164,52 @@ public:
 		p = parms;
 	}
 
-	inline const rgbTuplef_t& Kd() const
+	inline const rgb32_t& Kd() const
 	{
 		return p.Kd;
 	}
 
-	inline void Kd( const rgbTuplef_t rgb )
+	inline void Kd( const rgb32_t rgb )
 	{
 		p.Kd = rgb;
 	}
 
-	inline const rgbTuplef_t& Ks() const
+	inline const rgb32_t& Ks() const
 	{
 		return p.Ks;
 	}
 
-	inline void Ks( const rgbTuplef_t rgb )
+	inline void Ks( const rgb32_t rgb )
 	{
 		p.Ks = rgb;
 	}
 
-	inline const rgbTuplef_t& Ke() const
+	inline const rgb32_t& Ke() const
 	{
 		return p.Ke;
 	}
 
-	inline void Ke( const rgbTuplef_t rgb )
+	inline void Ke( const rgb32_t rgb )
 	{
 		p.Ke = rgb;
 	}
 
-	inline const rgbTuplef_t& Ka() const
+	inline const rgb32_t& Ka() const
 	{
 		return p.Ka;
 	}
 
-	inline void Ka( const rgbTuplef_t rgb )
+	inline void Ka( const rgb32_t rgb )
 	{
 		p.Ka = rgb;
 	}
 
-	inline const rgbTuplef_t& Tf() const
+	inline const rgb32_t& Tf() const
 	{
 		return p.Tf;
 	}
 
-	inline void Tf( const rgbTuplef_t rgb )
+	inline void Tf( const rgb32_t rgb )
 	{
 		p.Tf = rgb;
 	}

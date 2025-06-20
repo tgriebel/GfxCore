@@ -252,11 +252,11 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 		mat.AddTexture( GGX_NORMAL_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 1 ].c_str() ) );
 		mat.AddTexture( GGX_SPEC_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 2 ].c_str() ) );
 
-		mat.Kd( rgbTuplef_t( material.diffuse[ 0 ], material.diffuse[ 1 ], material.diffuse[ 2 ] ) );
-		mat.Ks( rgbTuplef_t( material.specular[ 0 ], material.specular[ 1 ], material.specular[ 2 ] ) );
-		mat.Ka( rgbTuplef_t( material.ambient[ 0 ], material.ambient[ 1 ], material.ambient[ 2 ] ) );
-		mat.Ke( rgbTuplef_t( material.emission[ 0 ], material.emission[ 1 ], material.emission[ 2 ] ) );
-		mat.Tf( rgbTuplef_t( material.transmittance[ 0 ], material.transmittance[ 1 ], material.transmittance[ 2 ] ) );
+		mat.Kd( rgb32_t( material.diffuse[ 0 ], material.diffuse[ 1 ], material.diffuse[ 2 ] ) );
+		mat.Ks( rgb32_t( material.specular[ 0 ], material.specular[ 1 ], material.specular[ 2 ] ) );
+		mat.Ka( rgb32_t( material.ambient[ 0 ], material.ambient[ 1 ], material.ambient[ 2 ] ) );
+		mat.Ke( rgb32_t( material.emission[ 0 ], material.emission[ 1 ], material.emission[ 2 ] ) );
+		mat.Tf( rgb32_t( material.transmittance[ 0 ], material.transmittance[ 1 ], material.transmittance[ 2 ] ) );
 		mat.Ni( material.ior );
 		mat.Ns( material.shininess );
 		mat.Tr( 1.0f - material.dissolve );

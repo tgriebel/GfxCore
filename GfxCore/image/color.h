@@ -61,11 +61,10 @@ struct rgbTuple_t
 	T	g;
 	T	r;
 };
-using RGB = rgbTuple_t<uint8_t>;
-
-using rgbTupleh_t = rgbTuple_t<uint16_t>;
-using rgbTuplef_t = rgbTuple_t<float>;
-using rgbTupled_t = rgbTuple_t<double>;
+using rgb8_t = rgbTuple_t<uint8_t>;
+using rgb16_t = rgbTuple_t<uint16_t>;
+using rgb32_t = rgbTuple_t<float>;
+using rgb64_t = rgbTuple_t<double>;
 
 union Pixel
 {
@@ -234,7 +233,7 @@ public:
 		u.vec[ 3 ] = _value;
 	}
 
-	Color( const RGB& rgb, uint8_t a )
+	Color( const rgb8_t& rgb, uint8_t a )
 	{
 		u.rgba.r = rgb.r / 255.0f;
 		u.rgba.g = rgb.g / 255.0f;
@@ -389,9 +388,9 @@ public:
 		return rgba;
 	}
 
-	inline RGB AsRGB() const
+	inline rgb8_t AsRGB() const
 	{
-		RGB rgb;
+		rgb8_t rgb;
 		rgb.r = static_cast<uint8_t>( 255.0f * u.rgba.r );
 		rgb.g = static_cast<uint8_t>( 255.0f * u.rgba.g );
 		rgb.b = static_cast<uint8_t>( 255.0f * u.rgba.b );
