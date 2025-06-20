@@ -186,7 +186,7 @@ static inline void BitmapToImage( const Bitmap& bitmap, ImageBuffer<Color>& imag
 }
 
 
-static inline void ImageToBitmap( const ImageBuffer<RGBA>& image, Bitmap& bitmap )
+static inline void ImageToBitmap( const ImageBuffer<rgba8_t>& image, Bitmap& bitmap )
 {
 	bitmap.ClearImage( Color::Black );
 
@@ -197,7 +197,7 @@ static inline void ImageToBitmap( const ImageBuffer<RGBA>& image, Bitmap& bitmap
 	{
 		for ( int32_t x = 0; x < width; ++x )
 		{
-			RGBA color = image.GetPixel( x, y );
+			rgba8_t color = image.GetPixel( x, y );
 			bitmap.SetPixel( x, y, Pixel( color ).r8g8b8a8 );
 		}
 	}

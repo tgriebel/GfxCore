@@ -41,16 +41,11 @@ struct rgbaTuple_t
 	T	g;
 	T	r;
 };
-using RGBA = rgbaTuple_t<uint8_t>;
-using rgbaTupleh_t = rgbaTuple_t<uint16_t>;
-using rgbaTuplef_t = rgbaTuple_t<float>;
-using rgbaTupled_t = rgbaTuple_t<double>;
 
-// New convention
-using rgba8_t = RGBA;
-using rgba16_t = rgbaTupleh_t;
-using rgba32_t = rgbaTuplef_t;
-using rgba64_t = rgbaTupled_t;
+using rgba8_t = rgbaTuple_t<uint8_t>;
+using rgba16_t = rgbaTuple_t<uint16_t>;
+using rgba32_t = rgbaTuple_t<float>;
+using rgba64_t = rgbaTuple_t<double>;
 
 template<typename T>
 struct rgbTuple_t
@@ -78,11 +73,11 @@ private:
 	uint8_t		vec[ 4 ];
 public:
 	uint32_t	r8g8b8a8;
-	RGBA		rgba;
+	rgba8_t		rgba;
 
 	Pixel() : r8g8b8a8( 0 ) {}
 	Pixel( const uint32_t _hexColor ) : r8g8b8a8( _hexColor ) {}
-	Pixel( const RGBA& _rgba ) : rgba( rgba ) {}
+	Pixel( const rgba8_t& _rgba ) : rgba( rgba ) {}
 
 	uint8_t& operator[]( const uint32_t i )
 	{
@@ -247,7 +242,7 @@ public:
 		u.rgba.a = a;
 	}
 
-	Color( const RGBA& rgba )
+	Color( const rgba8_t& rgba )
 	{	
 		u.rgba.r = rgba.r / 255.0f;
 		u.rgba.g = rgba.g / 255.0f;
@@ -384,9 +379,9 @@ public:
 		return outColor;
 	}
 
-	inline RGBA AsRGBA() const
+	inline rgba8_t AsRGBA() const
 	{
-		RGBA rgba;
+		rgba8_t rgba;
 		rgba.r = static_cast<uint8_t>( 255.0f * u.rgba.r );
 		rgba.g = static_cast<uint8_t>( 255.0f * u.rgba.g );
 		rgba.b = static_cast<uint8_t>( 255.0f * u.rgba.b );

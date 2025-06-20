@@ -49,7 +49,7 @@ public:
 	~Bitmap();
 
 	Bitmap& operator=( const Bitmap& bitmap );
-	static void CopyToPixel( const RGBA& rgba, Pixel& pixel, BitmapFormat format );
+	static void CopyToPixel( const rgba8_t& rgba, Pixel& pixel, BitmapFormat format );
 
 	bool Load( const std::string& filename );
 	void Write( const std::string& filename );

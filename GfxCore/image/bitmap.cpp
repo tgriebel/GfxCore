@@ -201,7 +201,7 @@ bool Bitmap::Load( const std::string& filename )
 
 		for ( uint32_t pixNum = 0; pixNum < ( h.width * pixelBytes ); pixNum += pixelBytes )
 		{
-			RGBA pixel;
+			rgba8_t pixel;
 			//parse raw data width/24bits
 			pixel.b	= buffer[ pixNum ];
 			pixel.g	= buffer[ pixNum + 1 ];
@@ -340,7 +340,7 @@ uint32_t Bitmap::GetPixel( const int32_t x, const int32_t y ) const
 }
 
 
-void Bitmap::CopyToPixel( const RGBA& rgba, Pixel& pixel, BitmapFormat format )
+void Bitmap::CopyToPixel( const rgba8_t& rgba, Pixel& pixel, BitmapFormat format )
 {
 	switch ( format )
 	{

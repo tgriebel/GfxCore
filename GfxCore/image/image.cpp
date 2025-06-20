@@ -26,13 +26,13 @@ void WrapUV( float& u, float& v, float& w )
 }
 
 
-inline void ImageConvertPixel( const Color& src, RGBA& dst )
+inline void ImageConvertPixel( const Color& src, rgba8_t& dst )
 {
 	dst = src.AsRGBA();
 }
 
 
-inline void ImageConvertPixel( const RGBA& src, Color& dst )
+inline void ImageConvertPixel( const rgba8_t& src, Color& dst )
 {
 	dst = Color( src );
 }

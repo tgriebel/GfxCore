@@ -185,7 +185,7 @@ inline void ApplyBlur( Bitmap& bitmap, Bitmap& output )
 									bitmap.GetPixel( i - 1, j + 1 ), bitmap.GetPixel( i, j + 1 ), bitmap.GetPixel( i + 1, j + 1 )
 			};
 
-			RGBA rgba = Color( kValues[ 4 ] ).AsRGBA();
+			rgba8_t rgba = Color( kValues[ 4 ] ).AsRGBA();
 
 			//RED CHANNEL
 			int32_t rSum = rgba.r;
