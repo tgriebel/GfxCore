@@ -49,7 +49,7 @@ public:
 	~Bitmap();
 
 	Bitmap& operator=( const Bitmap& bitmap );
-	static void CopyToPixel( const rgba8_t& rgba, Pixel& pixel, BitmapFormat format );
+	static void CopyToPixel( const rgba8_t& rgba, rgba8_t& pixel, BitmapFormat format );
 
 	bool Load( const std::string& filename );
 	void Write( const std::string& filename );
@@ -87,7 +87,7 @@ private:
 		uint32_t iColors;
 	} h;
 
-	Pixel* mapdata;
+	rgba8_t* mapdata;
 	uint32_t pixelCnt;
 
 	std::ifstream instream;

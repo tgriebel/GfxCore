@@ -33,19 +33,55 @@ static uint8_t _pixel_trap;
 
 class Serializer;
 
+enum rgbaChannel_t : uint32_t
+{
+	RGBA_R = 0,
+	RGBA_G = 1,
+	RGBA_B = 2,
+	RGBA_A = 3,
+};
+
+// Specialized for little-endian
+union rgba8_t
+{
+public:
+	uint8_t		vec[ 4 ];
+	uint32_t	hex;
+	struct {
+		uint8_t	a;
+		uint8_t	b;
+		uint8_t	g;
+		uint8_t	r;
+	};
+
+	rgba8_t() : hex( 0 ) {}
+	rgba8_t( const uint32_t _hexColor ) : hex( _hexColor ) {}
+};
+
 template<typename T>
 struct rgbaTuple_t
 {
-	T	a;
-	T	b;
-	T	g;
 	T	r;
+	T	g;
+	T	b;
+	T	a;
 };
 
-using rgba8_t = rgbaTuple_t<uint8_t>;
 using rgba16_t = rgbaTuple_t<uint16_t>;
 using rgba32_t = rgbaTuple_t<float>;
-using rgba64_t = rgbaTuple_t<double>;
+
+struct rgb8_t
+{
+	rgb8_t() : r( 0 ), g( 0 ), b( 0 ) {}
+	rgb8_t( const uint8_t& r, const uint8_t& g, const uint8_t& b ) {
+		this->r = r;
+		this->g = g;
+		this->b = b;
+	}
+	uint8_t	r;
+	uint8_t	g;
+	uint8_t	b;
+};
 
 template<typename T>
 struct rgbTuple_t
@@ -57,55 +93,12 @@ struct rgbTuple_t
 		this->b = b;
 	}
 
-	T	b;
-	T	g;
 	T	r;
+	T	g;
+	T	b;
 };
-using rgb8_t = rgbTuple_t<uint8_t>;
 using rgb16_t = rgbTuple_t<uint16_t>;
 using rgb32_t = rgbTuple_t<float>;
-using rgb64_t = rgbTuple_t<double>;
-
-union Pixel
-{
-private:
-	uint8_t		vec[ 4 ];
-public:
-	uint32_t	r8g8b8a8;
-	rgba8_t		rgba;
-
-	Pixel() : r8g8b8a8( 0 ) {}
-	Pixel( const uint32_t _hexColor ) : r8g8b8a8( _hexColor ) {}
-	Pixel( const rgba8_t& _rgba ) : rgba( rgba ) {}
-
-	uint8_t& operator[]( const uint32_t i )
-	{
-		if ( i >= 4 )
-		{
-			assert( false );
-			return _pixel_trap;
-		}
-
-		return vec[ 3 - i ];
-	}
-};
-
-enum rgbaChannel_t : uint32_t
-{
-	RGBA_R = 3,
-	RGBA_G = 2,
-	RGBA_B = 1,
-	RGBA_A = 0,
-};
-
-
-enum rgbChannel_t : uint32_t
-{
-	RGB_R = 2,
-	RGB_G = 1,
-	RGB_B = 0,
-};
-
 
 enum class blendMode_t : uint32_t
 {
@@ -128,6 +121,17 @@ enum class blendMode_t : uint32_t
 	COUNT,
 };
 
+
+inline rgba8_t Swizzle( const rgba8_t& rgba, rgbaChannel_t r, rgbaChannel_t g, rgbaChannel_t b, rgbaChannel_t a )
+{
+	rgba8_t swizzle;
+	swizzle.r = rgba.vec[ 3 - r ];
+	swizzle.g = rgba.vec[ 3 - g ];
+	swizzle.b = rgba.vec[ 3 - b ];
+	swizzle.a = rgba.vec[ 3 - a ];
+	return swizzle;
+}
+
 template<typename T>
 inline rgbaTuple_t<T> Swizzle( const rgbaTuple_t<T>& rgba, rgbaChannel_t r, rgbaChannel_t g, rgbaChannel_t b, rgbaChannel_t a )
 {
@@ -145,9 +149,8 @@ inline rgbaTuple_t<T> Swizzle( const rgbaTuple_t<T>& rgba, rgbaChannel_t r, rgba
 	return swizzle;
 }
 
-
 template<typename T>
-inline rgbTuple_t<T> Swizzle( const rgbTuple_t<T>& rgb, rgbChannel_t r, rgbChannel_t g, rgbChannel_t b )
+inline rgbTuple_t<T> Swizzle( const rgbTuple_t<T>& rgb, rgbaChannel_t r, rgbaChannel_t g, rgbaChannel_t b )
 {
 	union {
 		T v[ 3 ];
@@ -166,13 +169,13 @@ static float _color_trap;
 
 class Color
 {
-private:
+protected:
 	static const uint32_t Version = 1;
-	union color_t
+	union
 	{
-		float				vec[ 4 ];
-		rgbaTuple_t<float>	rgba;
-	} u;
+		float		vec[ 4 ];
+		rgba32_t	rgba;
+	};
 
 public:
 	static const uint32_t Red		= 0xFF0000FF;
@@ -194,67 +197,67 @@ public:
 	{
 		for ( int32_t i = 0; i < 4; ++i )
 		{
-			u.vec[ i ] = 0.0f;
+			vec[ i ] = 0.0f;
 		}
 	}
 
 	Color( uint32_t _color )
 	{
-		Pixel pixel;
-		pixel.r8g8b8a8 = _color;
+		rgba8_t pixel;
+		pixel.hex = _color;
 
-		(*this)[ 0 ] = pixel[ 0 ] / 255.0f;
-		(*this)[ 1 ] = pixel[ 1 ] / 255.0f;
-		(*this)[ 2 ] = pixel[ 2 ] / 255.0f;
-		(*this)[ 3 ] = pixel[ 3 ] / 255.0f;
+		rgba.r = pixel.r / 255.0f;
+		rgba.g = pixel.g / 255.0f;
+		rgba.b = pixel.b / 255.0f;
+		rgba.a = pixel.a / 255.0f;
 	}
 
 	Color( const float _r, const float _g, const float _b, const float _a )
 	{
-		u.rgba.r	= std::max( 0.0f, _r );
-		u.rgba.g	= std::max( 0.0f, _g );
-		u.rgba.b	= std::max( 0.0f, _b );
-		u.rgba.a	= _a;
+		rgba.r	= Max( 0.0f, _r );
+		rgba.g	= Max( 0.0f, _g );
+		rgba.b	= Max( 0.0f, _b );
+		rgba.a	= Max( 0.0f, _a );
 	}
 
 	Color( const float _r, const float _g, const float _b )
 	{
-		u.rgba.r	= std::max( 0.0f, _r );
-		u.rgba.g	= std::max( 0.0f, _g );
-		u.rgba.b	= std::max( 0.0f, _b );
-		u.rgba.a	= 1.0f;
+		rgba.r	= Max( 0.0f, _r );
+		rgba.g	= Max( 0.0f, _g );
+		rgba.b	= Max( 0.0f, _b );
+		rgba.a	= 1.0f;
 	}
 
 	Color( const float _value )
 	{
-		u.vec[ 0 ] = _value;
-		u.vec[ 1 ] = _value;
-		u.vec[ 2 ] = _value;
-		u.vec[ 3 ] = _value;
+		vec[ 0 ] = _value;
+		vec[ 1 ] = _value;
+		vec[ 2 ] = _value;
+		vec[ 3 ] = _value;
 	}
 
-	Color( const rgb8_t& rgb, uint8_t a )
+	Color( const rgb8_t& _rgb, uint8_t _a = 255 )
 	{
-		u.rgba.r = rgb.r / 255.0f;
-		u.rgba.g = rgb.g / 255.0f;
-		u.rgba.b = rgb.b;
-		u.rgba.a = a;
+		rgba.r = _rgb.r / 255.0f;
+		rgba.g = _rgb.g / 255.0f;
+		rgba.b = _rgb.b / 255.0f;
+		rgba.a = _a / 255.0f;
 	}
 
-	Color( const rgba8_t& rgba )
+	Color( const rgba8_t& _rgba )
 	{	
-		u.rgba.r = rgba.r / 255.0f;
-		u.rgba.g = rgba.g / 255.0f;
-		u.rgba.b = rgba.b / 255.0f;
-		u.rgba.a = rgba.a / 255.0f;
+		rgba.r = _rgba.r / 255.0f;
+		rgba.g = _rgba.g / 255.0f;
+		rgba.b = _rgba.b / 255.0f;
+		rgba.a = _rgba.a / 255.0f;
 	}
 
-	Color( const rgbTuple_t<float>& rgb, float a = 1.0f )
+	Color( const rgb32_t& _rgb, float _a = 1.0f )
 	{
-		u.rgba.r = rgb.r;
-		u.rgba.g = rgb.g;
-		u.rgba.b = rgb.b;
-		u.rgba.a = a;
+		rgba.r = _rgb.r;
+		rgba.g = _rgb.g;
+		rgba.b = _rgb.b;
+		rgba.a = _a;
 	}
 
 	float& operator[]( const uint32_t i )
@@ -265,7 +268,7 @@ public:
 			return _color_trap;
 		}
 
-		return u.vec[ 3 - i ];
+		return vec[ i ];
 	}
 
 	float operator[]( const uint32_t i ) const
@@ -276,14 +279,14 @@ public:
 			return _color_trap;
 		}
 
-		return u.vec[ 3 - i ];
+		return vec[ i ];
 	}
 
 	Color& operator+=( const Color& color )
 	{
 		for ( int32_t i = 0; i < 4; ++i )
 		{
-			u.vec[ i ] += color.u.vec[ i ];
+			vec[ i ] += color.vec[ i ];
 		}
 		return *this;
 	}
@@ -292,7 +295,7 @@ public:
 	{
 		for ( int32_t i = 0; i < 4; ++i )
 		{
-			u.vec[ i ] -= color.u.vec[ i ];
+			vec[ i ] -= color.vec[ i ];
 		}
 		return *this;
 	}
@@ -301,7 +304,7 @@ public:
 	{
 		for ( int32_t i = 0; i < 4; ++i )
 		{
-			u.vec[ i ] *= color.u.vec[ i ];
+			vec[ i ] *= color.vec[ i ];
 		}
 		return *this;
 	}
@@ -310,7 +313,7 @@ public:
 	{
 		for ( int32_t i = 0; i < 4; ++i )
 		{
-			if ( fabs( u.vec[ i ] - color.u.vec[ i ] ) > 1e-7 )
+			if ( fabs( vec[ i ] - color.vec[ i ] ) > 1e-7 )
 			{
 				return false;
 			}
@@ -320,52 +323,42 @@ public:
 
 	inline float& r()
 	{
-		return u.rgba.r;
+		return rgba.r;
 	}
 
 	inline float& g()
 	{
-		return u.rgba.g;
+		return rgba.g;
 	}
 
 	inline float& b()
 	{
-		return u.rgba.b;
+		return rgba.b;
 	}
 
 	inline float& a()
 	{
-		return u.rgba.a;
-	}
-
-	inline rgbaTuple_t<float>& rgba()
-	{
-		return u.rgba;
+		return rgba.a;
 	}
 
 	inline float r() const
 	{
-		return u.rgba.r;
+		return rgba.r;
 	}
 
 	inline float g() const
 	{
-		return u.rgba.g;
+		return rgba.g;
 	}
 
 	inline float b() const
 	{
-		return u.rgba.b;
+		return rgba.b;
 	}
 
 	inline float a() const
 	{
-		return u.rgba.a;
-	}
-
-	inline rgbaTuple_t<float> rgba() const
-	{
-		return u.rgba;
+		return rgba.a;
 	}
 
 	inline Color Inverse() const
@@ -373,58 +366,82 @@ public:
 		Color outColor;
 		for ( int32_t i = 0; i < 4; ++i )
 		{
-			outColor[ i ] = ( 1.0f - std::min( 1.0f, std::max( 0.0f, u.vec[ i ] ) ) );
+			outColor[ i ] = ( 1.0f - Min( 1.0f, Max( 0.0f, vec[ i ] ) ) );
 		}
 		return outColor;
 	}
 
-	inline rgba8_t AsRGBA() const
+	inline void Swizzle( rgbaChannel_t r, rgbaChannel_t g, rgbaChannel_t b, rgbaChannel_t a )
 	{
-		rgba8_t rgba;
-		rgba.r = static_cast<uint8_t>( 255.0f * u.rgba.r );
-		rgba.g = static_cast<uint8_t>( 255.0f * u.rgba.g );
-		rgba.b = static_cast<uint8_t>( 255.0f * u.rgba.b );
-		rgba.a = static_cast<uint8_t>( 255.0f * u.rgba.a );
+		Color src = *this;
+		rgba.r = src.vec[ r ];
+		rgba.g = src.vec[ g ];
+		rgba.b = src.vec[ b ];
+		rgba.a = src.vec[ a ];
+	}
+
+	inline rgba8_t AsRgba8() const
+	{	
+		float r = Min( 1.0f, Max( 0.0f, rgba.r ) );
+		float g = Min( 1.0f, Max( 0.0f, rgba.g ) );
+		float b = Min( 1.0f, Max( 0.0f, rgba.b ) );
+		float a = Min( 1.0f, Max( 0.0f, rgba.a ) );
+
+		rgba8_t rgba8;
+		rgba8.r = static_cast<uint8_t>( 255.0f * r );
+		rgba8.g = static_cast<uint8_t>( 255.0f * g );
+		rgba8.b = static_cast<uint8_t>( 255.0f * b );
+		rgba8.a = static_cast<uint8_t>( 255.0f * a );
+
+		return rgba8;
+	}
+
+	rgba16_t AsRgba16() const;
+
+	rgba32_t& AsRgba32()
+	{
 		return rgba;
 	}
 
-	inline rgb8_t AsRGB() const
+	rgba32_t AsRgba32() const
 	{
-		rgb8_t rgb;
-		rgb.r = static_cast<uint8_t>( 255.0f * u.rgba.r );
-		rgb.g = static_cast<uint8_t>( 255.0f * u.rgba.g );
-		rgb.b = static_cast<uint8_t>( 255.0f * u.rgba.b );
-		return rgb;
+		return rgba;
 	}
 
-	inline rgbTuple_t<float> AsRGBf() const
+	inline rgb8_t AsRgb8() const
 	{
-		rgbTuple_t<float> rgb;
-		rgb.r = u.rgba.r;
-		rgb.g = u.rgba.g;
-		rgb.b = u.rgba.b;
-		return rgb;
+		float r = Min( 1.0f, Max( 0.0f, rgba.r ) );
+		float g = Min( 1.0f, Max( 0.0f, rgba.g ) );
+		float b = Min( 1.0f, Max( 0.0f, rgba.b ) );
+
+		rgb8_t rgb8;
+		rgb8.r = static_cast<uint8_t>( 255.0f * r );
+		rgb8.g = static_cast<uint8_t>( 255.0f * g );
+		rgb8.b = static_cast<uint8_t>( 255.0f * b );
+
+		return rgb8;
 	}
 
-	inline uint32_t AsR8G8B8A8() const
+	rgb16_t AsRgb16() const;
+
+	inline rgb32_t AsRgb32() const
 	{
-		const float r = std::min( 1.0f, std::max( 0.0f, u.rgba.r ) );
-		const float g = std::min( 1.0f, std::max( 0.0f, u.rgba.g ) );
-		const float b = std::min( 1.0f, std::max( 0.0f, u.rgba.b ) );
-		const float a = std::min( 1.0f, std::max( 0.0f, u.rgba.a ) );
+		rgb32_t rgb32;
+		rgb32.r = rgba.r;
+		rgb32.g = rgba.g;
+		rgb32.b = rgba.b;
+		return rgb32;
+	}
 
-		const uint8_t p0 = static_cast<uint8_t>( 255.0f * r );
-		const uint8_t p1 = static_cast<uint8_t>( 255.0f * g );
-		const uint8_t p2 = static_cast<uint8_t>( 255.0f * b );
-		const uint8_t p3 = static_cast<uint8_t>( 255.0f * a );
-
-		Pixel abgr;
-		abgr.rgba = { p3, p2, p1, p0 };
-		return abgr.r8g8b8a8;
+	inline uint32_t AsHex() const
+	{
+		rgba8_t rgba = AsRgba8();
+		return rgba.hex;
 	}
 
 	void Serialize( Serializer* serializer );
 };
+static_assert( sizeof( Color ) == 16, "Intended for continuous data-buffers" );
 
 
 inline Color operator*( const float t, const Color& color )

@@ -41,7 +41,7 @@ inline Bitmap CompositeBitmaps( Bitmap& bitmap1, Bitmap& bitmap2 )
 	for ( uint32_t j = 0; j < bitmap1.GetHeight(); ++j ) {
 		for ( uint32_t i = 0; i < bitmap1.GetWidth(); ++i ) {
 
-			uint32_t newColor = BlendColor( Color( bitmap1.GetPixel( i, j ) ), Color( bitmap2.GetPixel( i, j ) ), blendMode_t::SRCALPHA ).AsR8G8B8A8();
+			uint32_t newColor = BlendColor( Color( bitmap1.GetPixel( i, j ) ), Color( bitmap2.GetPixel( i, j ) ), blendMode_t::SRCALPHA ).AsHex();
 
 			outBitmap.SetPixel( i, j, newColor );
 		}
@@ -185,7 +185,7 @@ inline void ApplyBlur( Bitmap& bitmap, Bitmap& output )
 									bitmap.GetPixel( i - 1, j + 1 ), bitmap.GetPixel( i, j + 1 ), bitmap.GetPixel( i + 1, j + 1 )
 			};
 
-			rgba8_t rgba = Color( kValues[ 4 ] ).AsRGBA();
+			rgba8_t rgba = Color( kValues[ 4 ] ).AsRgba8();
 
 			//RED CHANNEL
 			int32_t rSum = rgba.r;
@@ -194,7 +194,7 @@ inline void ApplyBlur( Bitmap& bitmap, Bitmap& output )
 				int32_t rChannel[ kernelSize ];
 				for ( uint32_t v = 0; v < kernelSize; ++v )
 				{
-					rChannel[ v ] = Color( kValues[ v ] ).AsRGBA().r;
+					rChannel[ v ] = Color( kValues[ v ] ).AsRgba8().r;
 				}
 
 				Matrix<3, 3, int32_t> rSample( rChannel );
@@ -208,7 +208,7 @@ inline void ApplyBlur( Bitmap& bitmap, Bitmap& output )
 			if ( mask & 0x4 ) {
 				int32_t gChannel[ kernelSize ];
 				for ( uint32_t v = 0; v < kernelSize; ++v )
-					gChannel[ v ] = Color( kValues[ v ] ).AsRGBA().g;
+					gChannel[ v ] = Color( kValues[ v ] ).AsRgba8().g;
 
 				matKern_t g_sample( gChannel );
 				gSum = Convolution( g_sample, kernel );
@@ -221,7 +221,7 @@ inline void ApplyBlur( Bitmap& bitmap, Bitmap& output )
 			if ( mask & 0x2 ) {
 				int32_t bChannel[ kernelSize ];
 				for ( uint32_t v = 0; v < kernelSize; ++v )
-					bChannel[ v ] = Color( (uint32_t) kValues[ v ] ).AsRGBA().b;
+					bChannel[ v ] = Color( (uint32_t) kValues[ v ] ).AsRgba8().b;
 
 				matKern_t bSample( bChannel );
 				bSum = Convolution( bSample, kernel );
@@ -234,7 +234,7 @@ inline void ApplyBlur( Bitmap& bitmap, Bitmap& output )
 			if ( mask & 0x1 ) {
 				int32_t aChannel[ kernelSize ];
 				for ( uint32_t v = 0; v < kernelSize; ++v )
-					aChannel[ v ] = Color( kValues[ v ] ).AsRGBA().a;
+					aChannel[ v ] = Color( kValues[ v ] ).AsRgba8().a;
 
 				matKern_t aSample( aChannel );
 				aSum = Convolution( aSample, kernel );
@@ -248,16 +248,16 @@ inline void ApplyBlur( Bitmap& bitmap, Bitmap& output )
 			//if(b_sum < 0) b_sum = ~abs(b_sum);
 			//if(a_sum < 0) r_sum = ~r_sum;
 
-			Pixel pc;
-			pc.rgba.r = (uint32_t) ( rSum < 0 ? 0 : rSum );
-			pc.rgba.g = (uint32_t) ( gSum < 0 ? 0 : gSum );
-			pc.rgba.b = (uint32_t) ( bSum < 0 ? 0 : bSum );
-			pc.rgba.a = (uint32_t) ( aSum < 0 ? 0 : aSum );
+			rgba8_t pc;
+			pc.r = (uint32_t) ( rSum < 0 ? 0 : rSum );
+			pc.g = (uint32_t) ( gSum < 0 ? 0 : gSum );
+			pc.b = (uint32_t) ( bSum < 0 ? 0 : bSum );
+			pc.a = (uint32_t) ( aSum < 0 ? 0 : aSum );
 
 			//cout << hex << convo.GetPixel(i,j) << endl;
 			//cout << hex << pc.rawGetColor() << endl;
 
-			output.SetPixel( i, j, pc.r8g8b8a8 );
+			output.SetPixel( i, j, pc.hex );
 		}
 	}
 

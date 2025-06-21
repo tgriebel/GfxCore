@@ -102,7 +102,7 @@ void Color::Serialize( Serializer* s )
 	if ( version != Version ) {
 		throw std::runtime_error( "Wrong version number." );
 	}
-	SerializeStruct( s, u.rgba );
+	SerializeStruct( s, rgba );
 }
 
 

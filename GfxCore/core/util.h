@@ -198,7 +198,7 @@ static inline void ImageToBitmap( const ImageBuffer<rgba8_t>& image, Bitmap& bit
 		for ( int32_t x = 0; x < width; ++x )
 		{
 			rgba8_t color = image.GetPixel( x, y );
-			bitmap.SetPixel( x, y, Pixel( color ).r8g8b8a8 );
+			bitmap.SetPixel( x, y, color.hex );
 		}
 	}
 }
@@ -216,7 +216,7 @@ static inline void ImageToBitmap( const ImageBuffer<Color>& image, Bitmap& bitma
 		for ( int32_t x = 0; x < width; ++x )
 		{
 			Color color = image.GetPixel( x, y );
-			bitmap.SetPixel( x, y, color.AsR8G8B8A8() );
+			bitmap.SetPixel( x, y, color.AsHex() );
 		}
 	}
 }
@@ -252,7 +252,7 @@ static inline void ImageToBitmap( const ImageBuffer<float>& image, Bitmap& bitma
 			const float packed = ( value - minZ ) / ( maxZ - minZ );
 
 			const Color c = Color( packed );
-			bitmap.SetPixel( x, y, c.AsR8G8B8A8() );
+			bitmap.SetPixel( x, y, c.AsHex() );
 		}
 	}
 }

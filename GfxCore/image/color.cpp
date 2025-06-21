@@ -22,6 +22,29 @@
 */
 
 #include "color.h"
+#include "../core/util.h"
+
+
+rgb16_t Color::AsRgb16() const
+{
+	rgb16_t rgb16;
+	rgb16.r = PackFloat32( rgba.r );
+	rgb16.g = PackFloat32( rgba.g );
+	rgb16.b = PackFloat32( rgba.b );
+	return rgb16;
+}
+
+
+rgba16_t Color::AsRgba16() const
+{
+	rgba16_t rgba16;
+	rgba16.r = PackFloat32( rgba.r );
+	rgba16.g = PackFloat32( rgba.g );
+	rgba16.b = PackFloat32( rgba.b );
+	rgba16.a = PackFloat32( rgba.a );
+	return rgba16;
+}
+
 
 Color SrgbTolinear( const Color& color, const float gamma )
 {
@@ -64,19 +87,19 @@ Color BlendColor( const Color& src, const Color& dest, const blendMode_t blendMo
 		}
 		case blendMode_t::SRCALPHA:
 		{
-			return Lerp( dest, src, src.rgba().a );
+			return Lerp( dest, src, src.a() );
 		}
 		case blendMode_t::DESTALPHA:
 		{
-			return Lerp( dest, src, dest.rgba().a );
+			return Lerp( dest, src, dest.a() );
 		}
 		case blendMode_t::INVSRCALPHA:
 		{
-			return Lerp( dest, src, 1.0f - src.rgba().a );
+			return Lerp( dest, src, 1.0f - src.a() );
 		}
 		case blendMode_t::INVDESTALPHA:
 		{
-			return Lerp( dest, src, 1.0f - dest.rgba().a );
+			return Lerp( dest, src, 1.0f - dest.a() );
 		}
 		case blendMode_t::INVSRCCOLOR:
 		{
@@ -109,7 +132,7 @@ Color BlendColor( const Color& src, const Color& dest, const blendMode_t blendMo
 		}
 		case blendMode_t::XOR:
 		{
-			return Color( src.AsR8G8B8A8() ^ dest.AsR8G8B8A8() );
+			return Color( src.AsHex() ^ dest.AsHex() );
 		}
 		case blendMode_t::MAX:
 		{

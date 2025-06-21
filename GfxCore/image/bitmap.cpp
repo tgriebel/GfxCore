@@ -50,7 +50,7 @@ Bitmap::Bitmap( const Bitmap& bitmap )
 	{
 		delete[] mapdata;
 	}
-	mapdata = new Pixel[ pixelCnt ];
+	mapdata = new rgba8_t[ pixelCnt ];
 
 	for ( uint32_t i = 0; i < pixelCnt; ++i )
 	{
@@ -63,7 +63,7 @@ Bitmap::Bitmap( const uint32_t width, const uint32_t height, const uint32_t colo
 {
 	pixelCnt = ( width * height );
 
-	mapdata = new Pixel[ pixelCnt ];
+	mapdata = new rgba8_t[ pixelCnt ];
 
 	h.magicNum[ 0 ]	= 'B';
 	h.magicNum[ 1 ]	= 'M';
@@ -87,7 +87,7 @@ Bitmap::Bitmap( const uint32_t width, const uint32_t height, const uint32_t colo
 
 	for ( size_t i = 0; i < pixelCnt; ++i )
 	{
-		mapdata[ i ].rgba = Color( color ).AsRGBA();
+		mapdata[ i ] = rgba8_t( Color( color ).AsRgba8() );
 	}
 }
 
@@ -189,7 +189,7 @@ bool Bitmap::Load( const std::string& filename )
 	instream.seekg( h.offset, std::ios_base::beg );
 
 	pixelCnt = ( h.width + padding ) * h.height;
-	mapdata = new Pixel[ pixelCnt ];
+	mapdata = new rgba8_t[ pixelCnt ];
 
 	const int32_t pixelBytes = ( srcBitDepth >> 3 );
 	const int32_t lineBytes = ( pixelBytes * h.width );
@@ -208,7 +208,7 @@ bool Bitmap::Load( const std::string& filename )
 			pixel.r	= buffer[ pixNum + 2 ];
 			pixel.a	= (uint8_t) 0xFF;
 
-			mapdata[ row * h.width + ( pixNum / pixelBytes ) ].rgba = pixel;
+			mapdata[ row * h.width + ( pixNum / pixelBytes ) ] = rgba8_t( pixel );
 		}
 
 		instream.seekg( padding + instream.tellg(), std::ios_base::beg );
@@ -261,9 +261,9 @@ void Bitmap::Write( const std::string& filename )
 		const int32_t rowOffset = ( row * h.width );
 		for ( uint32_t colIx = 0; colIx < h.width; colIx++ )
 		{
-			Pixel pixel;
-			CopyToPixel( mapdata[ colIx + rowOffset ].rgba, pixel, BITMAP_ARGB );
-			WriteInt<4>( pixel.r8g8b8a8 );
+			rgba8_t pixel;
+			CopyToPixel( mapdata[ colIx + rowOffset ], pixel, BITMAP_ARGB );
+			WriteInt<4>( pixel.hex );
 			// xARGB
 		}
 
@@ -296,7 +296,7 @@ void Bitmap::ClearImage( const uint32_t color )
 {
 	for ( uint32_t i = 0; i < pixelCnt; ++i )
 	{
-		mapdata[ i ].r8g8b8a8 = color;
+		mapdata[ i ].hex = color;
 	}
 }
 
@@ -305,10 +305,10 @@ void Bitmap::GetBuffer( uint32_t buffer[] ) const
 {
 	for ( uint32_t i = 0; i < pixelCnt; ++i )
 	{
-		Pixel pixel;
-		CopyToPixel( mapdata[ i ].rgba, pixel, BITMAP_BGRA );
+		rgba8_t pixel;
+		CopyToPixel( mapdata[ i ], pixel, BITMAP_BGRA );
 
-		buffer[ i ] = pixel.r8g8b8a8;
+		buffer[ i ] = pixel.hex;
 	}
 }
 
@@ -321,7 +321,7 @@ bool Bitmap::SetPixel( const int32_t x, const int32_t y, const uint32_t color )
 	}
 	else
 	{
-		mapdata[ y * h.width + x ].rgba = Color( color ).AsRGBA();
+		mapdata[ y * h.width + x ] = Color( color ).AsRgba8();
 		return true;
 	}
 }
@@ -335,49 +335,46 @@ uint32_t Bitmap::GetPixel( const int32_t x, const int32_t y ) const
 	}
 	else
 	{
-		return mapdata[ y * h.width + x ].r8g8b8a8;
+		return mapdata[ y * h.width + x ].hex;
 	}
 }
 
 
-void Bitmap::CopyToPixel( const rgba8_t& rgba, Pixel& pixel, BitmapFormat format )
+void Bitmap::CopyToPixel( const rgba8_t& rgba, rgba8_t& pixel, BitmapFormat format )
 {
 	switch ( format )
 	{
 	case BITMAP_ABGR:
 	{
-		pixel[ 0 ] = rgba.a;
-		pixel[ 1 ] = rgba.b;
-		pixel[ 2 ] = rgba.g;
-		pixel[ 3 ] = rgba.r;
+		pixel.r = rgba.a;
+		pixel.g = rgba.b;
+		pixel.b = rgba.g;
+		pixel.a = rgba.r;
 	}
 	break;
 
 	case BITMAP_ARGB:
 	{
-		pixel[ 0 ] = rgba.a;
-		pixel[ 1 ] = rgba.r;
-		pixel[ 2 ] = rgba.g;
-		pixel[ 3 ] = rgba.b;
+		pixel.r = rgba.a;
+		pixel.g = rgba.r;
+		pixel.b = rgba.g;
+		pixel.a = rgba.b;
 	}
 	break;
 
 	case BITMAP_BGRA:
 	{
-		pixel[ 0 ] = rgba.b;
-		pixel[ 1 ] = rgba.g;
-		pixel[ 2 ] = rgba.r;
-		pixel[ 3 ] = rgba.a;
+		pixel.r = rgba.b;
+		pixel.g = rgba.g;
+		pixel.b = rgba.r;
+		pixel.a = rgba.a;
 	}
 	break;
 
 	default:
 	case BITMAP_RGBA:
 	{
-		pixel[ 0 ] = rgba.r;
-		pixel[ 1 ] = rgba.g;
-		pixel[ 2 ] = rgba.b;
-		pixel[ 3 ] = rgba.a;
+		pixel = rgba;
 	}
 	break;
 	}

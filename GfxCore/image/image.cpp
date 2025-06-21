@@ -28,7 +28,7 @@ void WrapUV( float& u, float& v, float& w )
 
 inline void ImageConvertPixel( const Color& src, rgba8_t& dst )
 {
-	dst = src.AsRGBA();
+	dst = src.AsRgba8();
 }
 
 
