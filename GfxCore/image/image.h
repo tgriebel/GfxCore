@@ -150,6 +150,8 @@ protected:
 				slice_t& slice = slices[ layerId + mipOffset ];
 				const uint32_t size = mipWidth * mipHeight * bpp;
 
+				slice.width = mipWidth;
+				slice.height = mipHeight;
 				slice.offset = byteCount;	
 				slice.size = size;
 
@@ -353,12 +355,14 @@ public:
 
 		_Init( info, _name );
 
-		if( ( info.data != nullptr ) && ( info.dataByteCount > 0 ) )
+		if( info.data != nullptr )
 		{
 			if ( info.dataByteCount == info.bpp ) {
 				Clear( *reinterpret_cast<T*>( info.data ) );
-			} else {
-				memcpy( Ptr(), info.data, GetByteCount() );
+			}
+			else if ( info.dataByteCount > 0 )
+			{
+				memcpy( Ptr(), info.data, info.dataByteCount );
 			}
 		} else {
 			Clear( T() );

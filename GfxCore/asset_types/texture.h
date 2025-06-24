@@ -241,7 +241,12 @@ public:
 		Destroy();
 	}
 
-	void Create( const imageInfo_t& _info, uint8_t* pixelBytes = nullptr, const uint32_t byteCount = 0 );
+	void Create( const imageInfo_t& _info )
+	{
+		Create( _info, nullptr, 0u );
+	}
+
+	void Create( const imageInfo_t& _info, uint8_t* pixelBytes, const uint32_t byteCount );
 
 	void Create( const imageInfo_t& _info, ImageBufferInterface* _cpuImage, GpuImage* _gpuImage );
 

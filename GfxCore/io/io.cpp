@@ -63,7 +63,7 @@ bool LoadImage( const char* texturePath, Image& texture )
 	//assert( texChannels == 4 );
 	const imageInfo_t info = DefaultImage2dInfo( texWidth, texHeight );
 
-	texture.Create( info, pixels );
+	texture.Create( info, pixels, info.width * info.height * 4 );
 
 	stbi_image_free( pixels );
 	return true;
@@ -169,7 +169,7 @@ bool LoadCubeMapImage( const char* textureBasePath, const char* ext, Image& text
 	info.layers = 6;
 	info.type = IMAGE_TYPE_CUBE;
 
-	texture.Create( info, bytes );
+	texture.Create( info, bytes, sizeBytes );
 
 	delete[] bytes;
 
