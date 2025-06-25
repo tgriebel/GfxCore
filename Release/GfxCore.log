@@ -1,8 +1,5 @@
-﻿  material.cpp
-  model.cpp
-  texture.cpp
-  io.cpp
+﻿  io.cpp
   geom.cpp
-  assetBaker.cpp
+  entity.cpp
   scene.cpp
   GfxCore.vcxproj -> C:\Users\thoma\source\repos\GfxCore\Release\GfxCore.lib

@@ -50,6 +50,9 @@ public:
 		materialHdl = INVALID_HDL;
 		flags = ENT_FLAG_NONE;
 		outline = false;
+
+		envMap = INVALID_HDL;
+		diffuseIblMap = INVALID_HDL;
 	}
 
 	Entity( const Entity& ent )
@@ -61,12 +64,17 @@ public:
 		materialHdl = ent.materialHdl;
 		flags = ent.flags;
 		outline = ent.flags;
+		envMap = ent.envMap;
+		diffuseIblMap = ent.diffuseIblMap;
 	}
 
 	std::string		name;
 	bool			outline;
 	hdl_t			modelHdl;
 	hdl_t			materialHdl;
+
+	hdl_t			envMap;
+	hdl_t			diffuseIblMap;
 
 	AABB			GetLocalBounds() const;
 	void			ExpandBounds( const AABB& bounds );

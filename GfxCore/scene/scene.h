@@ -72,6 +72,9 @@ private:
 public:
 	Camera*						mainCamera;
 	Camera						cameras[ 7 ];
+	std::string					envMap;
+	std::string					diffuseIblMap;
+	std::string					specIblMap;
 	std::vector<Entity*>		entities;
 	std::vector<light_t>		lights;
 	float						defaultNear = 0.1f;
