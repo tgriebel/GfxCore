@@ -221,13 +221,26 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 
 	for ( const auto& material : materials )
 	{
-		const std::string supportedTextures[ 3 ] = {
-			material.diffuse_texname,
-			material.bump_texname,
-			material.specular_texname,
-		};
+		const bool isPbr = material.roughness || material.metallic || !material.roughness_texname.empty() || !material.metallic_texname.empty();
 
-		for ( int i = 0; i < 3; ++i )
+		std::vector<std::string> supportedTextures;
+		
+		if( isPbr )
+		{
+			supportedTextures.push_back( material.diffuse_texname );
+			supportedTextures.push_back( material.normal_texname );
+			supportedTextures.push_back( material.roughness_texname );
+			supportedTextures.push_back( material.metallic_texname );
+		}
+		else
+		{
+			supportedTextures.push_back( material.diffuse_texname );
+			supportedTextures.push_back( material.bump_texname );
+			supportedTextures.push_back( material.specular_texname );
+		}
+
+		const uint32_t textureCount = static_cast<uint32_t>( supportedTextures.size() );
+		for ( uint32_t i = 0; i < textureCount; ++i )
 		{
 			const std::string& name = supportedTextures[ i ];
 			if( name.length() == 0 ) {
@@ -248,9 +261,25 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 		mat.AddShader( DRAWPASS_DEBUG_WIREFRAME, AssetLibGpuProgram::Handle( "Debug" ) );
 		mat.AddShader( DRAWPASS_DEBUG_3D, AssetLibGpuProgram::Handle( "DebugSolid" ) );
 
-		mat.AddTexture( GGX_COLOR_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 0 ].c_str() ) );
-		mat.AddTexture( GGX_NORMAL_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 1 ].c_str() ) );
-		mat.AddTexture( GGX_SPEC_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 2 ].c_str() ) );
+		if( isPbr  )
+		{
+			mat.usage = materialUsage_t::MATERIAL_USAGE_GGX;
+
+			mat.AddTexture( GGX_COLOR_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 0 ].c_str() ) );
+			mat.AddTexture( GGX_NORMAL_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 1 ].c_str() ) );
+			mat.AddTexture( GGX_SPEC_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 2 ].c_str() ) );
+			mat.AddTexture( GGX_METALLIC_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 3 ].c_str() ) );
+		}
+		else
+		{
+			// FIXME: Keep this as PBR for now as materials need to be updated
+			// mat.usage = materialUsage_t::MATERIAL_USAGE_BLINN_PHONG;
+			mat.usage = materialUsage_t::MATERIAL_USAGE_GGX;
+
+			mat.AddTexture( GGX_COLOR_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 0 ].c_str() ) );
+			mat.AddTexture( GGX_NORMAL_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 1 ].c_str() ) );
+			mat.AddTexture( GGX_SPEC_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 2 ].c_str() ) );
+		}
 
 		mat.Kd( rgb32_t( material.diffuse[ 0 ], material.diffuse[ 1 ], material.diffuse[ 2 ] ) );
 		mat.Ks( rgb32_t( material.specular[ 0 ], material.specular[ 1 ], material.specular[ 2 ] ) );
