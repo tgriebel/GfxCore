@@ -39,9 +39,6 @@ void Image::Create( const imageInfo_t& _info, uint8_t* pixelBytes, const uint32_
 
 	generateMips = true;
 
-	sampler.addrMode = SAMPLER_ADDRESS_WRAP;
-	sampler.filter = SAMPLER_FILTER_BILINEAR;
-
 	assert( cpuImage == nullptr );
 
 	imageBufferInfo_t bufferInfo{};

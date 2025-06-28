@@ -270,11 +270,19 @@ private:
 	bool Load( Asset<Image>& texture );
 
 public:
-	ImageLoader() : m_cubemap( false ), m_hdr( false ), m_linearColor( false ) {}
+	ImageLoader() : m_cubemap( false ), m_hdr( false ), m_linearColor( false )
+	{
+		m_sampler.addrMode = samplerAddress_t::SAMPLER_ADDRESS_WRAP;
+		m_sampler.filter = samplerFilter_t::SAMPLER_FILTER_BILINEAR;
+	}
+
 	ImageLoader( const std::string& path, const std::string& file, const bool linearColor ) : m_cubemap( false ), m_hdr( false ), m_linearColor( linearColor )
 	{
 		SetBasePath( path );
 		SetTextureFile( file );
+
+		m_sampler.addrMode = samplerAddress_t::SAMPLER_ADDRESS_WRAP;
+		m_sampler.filter = samplerFilter_t::SAMPLER_FILTER_BILINEAR;
 	}
 
 	void SetSampler( const samplerState_t& sampler );
