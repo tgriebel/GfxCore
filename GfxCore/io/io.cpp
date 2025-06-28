@@ -50,7 +50,7 @@
 #pragma warning(pop)
 
 
-bool LoadImage( const char* texturePath, Image& texture )
+bool LoadImage( const char* texturePath, const bool isLinearColor, Image& texture )
 {
 	int texWidth, texHeight, texChannels;
 	stbi_uc* pixels = stbi_load( texturePath, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha );
@@ -61,8 +61,10 @@ bool LoadImage( const char* texturePath, Image& texture )
 	}
 
 	//assert( texChannels == 4 );
-	const imageInfo_t info = DefaultImage2dInfo( texWidth, texHeight );
-
+	imageInfo_t info = DefaultImage2dInfo( texWidth, texHeight );
+	if ( isLinearColor ) {
+		info.fmt = imageFmt_t::IMAGE_FMT_RGBA_8_UNORM;
+	}
 	texture.Create( info, pixels, info.width * info.height * 4 );
 
 	stbi_image_free( pixels );
@@ -117,7 +119,7 @@ bool LoadCubeMapImage( const char* textureBasePath, const char* ext, Image& text
 	Image textures2D[ 6 ];
 	for ( int i = 0; i < 6; ++i )
 	{
-		if ( LoadImage( paths[ i ].c_str(), textures2D[ i ] ) == false ) {
+		if ( LoadImage( paths[ i ].c_str(), false, textures2D[ i ] ) == false ) {
 			sizeBytes = 0;
 			break;
 		}
@@ -223,30 +225,36 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 	{
 		const bool isPbr = material.roughness || material.metallic || !material.roughness_texname.empty() || !material.metallic_texname.empty();
 
-		std::vector<std::string> supportedTextures;
+		struct loadInfo_t
+		{
+			const std::string& name;
+			bool isLinear;
+		};
+
+		std::vector<loadInfo_t> supportedTextures;
 		
 		if( isPbr )
 		{
-			supportedTextures.push_back( material.diffuse_texname );
-			supportedTextures.push_back( material.normal_texname );
-			supportedTextures.push_back( material.roughness_texname );
-			supportedTextures.push_back( material.metallic_texname );
+			supportedTextures.push_back( loadInfo_t{ material.diffuse_texname, false } );
+			supportedTextures.push_back( loadInfo_t{ material.normal_texname, true } );
+			supportedTextures.push_back( loadInfo_t{ material.roughness_texname, true } );
+			supportedTextures.push_back( loadInfo_t{ material.metallic_texname, true } );
 		}
 		else
 		{
-			supportedTextures.push_back( material.diffuse_texname );
-			supportedTextures.push_back( material.bump_texname );
-			supportedTextures.push_back( material.specular_texname );
+			supportedTextures.push_back( loadInfo_t{ material.diffuse_texname, false } );
+			supportedTextures.push_back( loadInfo_t{ material.bump_texname, true } );
+			supportedTextures.push_back( loadInfo_t{ material.specular_texname, true } );
 		}
 
 		const uint32_t textureCount = static_cast<uint32_t>( supportedTextures.size() );
 		for ( uint32_t i = 0; i < textureCount; ++i )
 		{
-			const std::string& name = supportedTextures[ i ];
+			const std::string& name = supportedTextures[ i ].name;
 			if( name.length() == 0 ) {
 				continue;
 			}
-			assets.textureLib.AddDeferred( name.c_str(), pImgLoader_t( new ImageLoader( texturePath, name ) ) );
+			assets.textureLib.AddDeferred( name.c_str(), pImgLoader_t( new ImageLoader( texturePath, name, supportedTextures[ i ].isLinear ) ) );
 		}
 		
 		Material mat;
@@ -265,10 +273,10 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 		{
 			mat.usage = materialUsage_t::MATERIAL_USAGE_GGX;
 
-			mat.AddTexture( GGX_COLOR_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 0 ].c_str() ) );
-			mat.AddTexture( GGX_NORMAL_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 1 ].c_str() ) );
-			mat.AddTexture( GGX_SPEC_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 2 ].c_str() ) );
-			mat.AddTexture( GGX_METALLIC_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 3 ].c_str() ) );
+			mat.AddTexture( GGX_COLOR_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 0 ].name.c_str() ) );
+			mat.AddTexture( GGX_NORMAL_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 1 ].name.c_str() ) );
+			mat.AddTexture( GGX_SPEC_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 2 ].name.c_str() ) );
+			mat.AddTexture( GGX_METALLIC_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 3 ].name.c_str() ) );
 		}
 		else
 		{
@@ -276,9 +284,9 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 			// mat.usage = materialUsage_t::MATERIAL_USAGE_BLINN_PHONG;
 			mat.usage = materialUsage_t::MATERIAL_USAGE_GGX;
 
-			mat.AddTexture( GGX_COLOR_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 0 ].c_str() ) );
-			mat.AddTexture( GGX_NORMAL_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 1 ].c_str() ) );
-			mat.AddTexture( GGX_SPEC_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 2 ].c_str() ) );
+			mat.AddTexture( GGX_COLOR_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 0 ].name.c_str() ) );
+			mat.AddTexture( GGX_NORMAL_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 1 ].name.c_str() ) );
+			mat.AddTexture( GGX_SPEC_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 2 ].name.c_str() ) );
 		}
 
 		mat.Kd( rgb32_t( material.diffuse[ 0 ], material.diffuse[ 1 ], material.diffuse[ 2 ] ) );

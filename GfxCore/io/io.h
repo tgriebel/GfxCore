@@ -36,7 +36,7 @@ class AssetManager;
 template<class T>
 class Asset;
 
-bool LoadImage( const char* texturePath, Image& texture );
+bool LoadImage( const char* texturePath, const bool isLinearColor, Image& texture );
 bool LoadImageHDR( const char* texturePath, Image& texture );
 bool LoadCubeMapImage( const char* textureBasePath, const char* ext, Image& texture );
 bool WriteImage( const char* path, const Image& image );

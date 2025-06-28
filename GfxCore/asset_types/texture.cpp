@@ -54,9 +54,32 @@ void Image::Create( const imageInfo_t& _info, uint8_t* pixelBytes, const uint32_
 
 	switch ( info.fmt )
 	{
+		case IMAGE_FMT_R_8:
+		{
+			cpuImage = new ImageBuffer<uint8_t>( bufferInfo );
+		} break;
+		case IMAGE_FMT_D_16:
+		case IMAGE_FMT_R_16:
+		{
+			cpuImage = new ImageBuffer<uint16_t>( bufferInfo );
+		} break;
+		case IMAGE_FMT_D_32:
+		case IMAGE_FMT_R_32:
+		{
+			cpuImage = new ImageBuffer<float>( bufferInfo );
+		} break;
+		case IMAGE_FMT_RGB_8:
+		{
+			cpuImage = new ImageBuffer<rgb8_t>( bufferInfo );
+		} break;
 		case IMAGE_FMT_RGBA_8:
+		case IMAGE_FMT_RGBA_8_UNORM:
 		{
 			cpuImage = new ImageBuffer<rgba8_t>( bufferInfo );
+		} break;
+		case IMAGE_FMT_RGB_16:
+		{
+			cpuImage = new ImageBuffer<rgb16_t>( bufferInfo );
 		} break;
 		case IMAGE_FMT_RGBA_16:
 		{
@@ -149,7 +172,7 @@ bool ImageLoader::Load( Asset<Image>& imageAsset )
 		if( m_hdr ) {
 			return LoadImageHDR( ( m_basePath + m_fileName + "." + m_ext ).c_str(), image );			
 		} else {
-			return LoadImage( ( m_basePath + m_fileName + "." + m_ext ).c_str(), image );
+			return LoadImage( ( m_basePath + m_fileName + "." + m_ext ).c_str(), m_linearColor, image );
 		}
 	}
 }
@@ -180,6 +203,12 @@ void ImageLoader::SetTextureFile( const std::string& file )
 void ImageLoader::LoadAsCubemap( const bool isCubemap )
 {
 	m_cubemap = isCubemap;
+}
+
+
+void ImageLoader::LoadAsLinear( const bool isLinear )
+{
+	m_linearColor = isLinear;
 }
 
 

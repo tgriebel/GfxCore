@@ -264,13 +264,14 @@ private:
 	std::string		m_ext;
 	bool			m_hdr;
 	bool			m_cubemap;
+	bool			m_linearColor;
 	samplerState_t	m_sampler;
 
 	bool Load( Asset<Image>& texture );
 
 public:
-	ImageLoader() : m_cubemap( false ), m_hdr( false ) {}
-	ImageLoader( const std::string& path, const std::string& file ) : m_cubemap( false ), m_hdr( false )
+	ImageLoader() : m_cubemap( false ), m_hdr( false ), m_linearColor( false ) {}
+	ImageLoader( const std::string& path, const std::string& file, const bool linearColor ) : m_cubemap( false ), m_hdr( false ), m_linearColor( linearColor )
 	{
 		SetBasePath( path );
 		SetTextureFile( file );
@@ -280,6 +281,7 @@ public:
 	void SetBasePath( const std::string& path );
 	void SetTextureFile( const std::string& file );
 	void LoadAsCubemap( const bool isCubemap );
+	void LoadAsLinear( const bool isLinear );
 };
 
 class BakedImageLoader : public LoadHandler<Image>
