@@ -39,13 +39,15 @@
 #include "assetManager.h"
 
 
-enum lightFlags_t
+enum lightFlags_t : uint16_t
 {
 	LIGHT_FLAGS_NONE = 0,
 	LIGHT_FLAGS_HIDDEN = ( 1 << 0 ),
 	LIGHT_FLAGS_SHADOW = ( 1 << 1 ),
+	LIGHT_FLAGS_POINT = ( 1 << 2 ),
 	LIGHT_FLAGS_ALL = 0XFF,
 };
+DEFINE_ENUM_OPERATORS( lightFlags_t, uint16_t )
 
 
 struct light_t

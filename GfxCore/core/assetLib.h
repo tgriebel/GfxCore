@@ -90,7 +90,7 @@ public:
 		return typeName.c_str();
 	}
 
-	static inline hdl_t			Handle( const char* name ) { return Hash( name ); }
+	static inline hdl_t			Handle( const char* name ) { return ( name == nullptr ) ? INVALID_HDL : Hash( name ); }
 	void						Clear();
 	bool						SetDefault( const hdl_t& hdl );
 	bool						SetDefault( const char* name );
