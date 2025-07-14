@@ -4,7 +4,7 @@
 #include "../core/assetLib.h"
 #include <syscore/common.h>
 
-static const bool g_supportBaked = false;
+static const bool g_supportBaked = true;
 
 struct bakedAssetInfo_t
 {
