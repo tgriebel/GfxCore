@@ -32,6 +32,18 @@
 
 #define SERIALIZE_IMPLEMENTATIONS
 
+static bool g_supportBaked = true;
+
+void ToggleBakedLoading( const bool enabled )
+{
+	g_supportBaked = enabled;
+}
+
+bool AreBakedAssetsEnabled()
+{
+	return g_supportBaked;
+}
+
 #ifdef SERIALIZE_IMPLEMENTATIONS
 template<size_t D, typename T>
 void Vector<D, T>::Serialize( Serializer* serializer )

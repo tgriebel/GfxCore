@@ -4,8 +4,6 @@
 #include "../core/assetLib.h"
 #include <syscore/common.h>
 
-static const bool g_supportBaked = true;
-
 struct bakedAssetInfo_t
 {
 	std::string		name;
@@ -15,10 +13,14 @@ struct bakedAssetInfo_t
 	uint32_t		sizeBytes;
 };
 
+void ToggleBakedLoading( const bool enabled );
+
+bool AreBakedAssetsEnabled();
+
 template<class T>
 bool LoadBaked( Asset<T>& asset, bakedAssetInfo_t& info, const std::string& dir, const std::string& ext )
 {
-	if( g_supportBaked == false ) {
+	if( AreBakedAssetsEnabled() == false ) {
 		return false;
 	}
 
