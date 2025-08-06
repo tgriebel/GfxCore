@@ -107,3 +107,15 @@ bool Entity::HasFlag( const entityFlags_t flag ) const
 {
 	return ( ( flags & flag ) != 0 );
 }
+
+
+void Entity::SetSortOrder( const int8_t order )
+{
+	sortOrder = order;
+}
+
+
+int8_t Entity::GetSortOrder() const
+{
+	return sortOrder;
+}

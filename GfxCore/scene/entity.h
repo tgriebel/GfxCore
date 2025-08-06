@@ -50,6 +50,7 @@ public:
 		materialHdl = INVALID_HDL;
 		flags = ENT_FLAG_NONE;
 		outline = false;
+		sortOrder = 0;
 
 		envMap = INVALID_HDL;
 		diffuseIblMap = INVALID_HDL;
@@ -86,6 +87,8 @@ public:
 	void			SetRotation( const vec3f& xyzDegrees );
 	mat4x4f			GetMatrix() const;
 	void			SetFlag( const entityFlags_t flag );
+	void			SetSortOrder( const int8_t order );
+	int8_t			GetSortOrder() const;
 	void			ClearFlag( const entityFlags_t flag );
 	bool			HasFlag( const entityFlags_t flag ) const;
 
@@ -95,4 +98,5 @@ private:
 	mat4x4f			scale;
 	vec4f			translation;
 	AABB			bounds;
+	int8_t			sortOrder;
 };

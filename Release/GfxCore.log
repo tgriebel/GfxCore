@@ -1,16 +1,7 @@
-﻿  mikktspace.c
-  GfxCore.cpp
-  gpuProgram.cpp
-  material.cpp
+﻿  material.cpp
   model.cpp
-  texture.cpp
-  bitmap.cpp
-  color.cpp
-  image.cpp
   io.cpp
-  meshIO.cpp
   serializeClasses.cpp
-  matrix.cpp
   geom.cpp
   assetBaker.cpp
   camera.cpp
