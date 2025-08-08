@@ -131,6 +131,7 @@ class Material
 public:
 	static const uint32_t Version = 1;
 	static const uint32_t MaxMaterialTextures = 8;
+	static const uint32_t MaxExtraDataBytes = 256;
 	static const uint32_t MaxMaterialShaders = DRAWPASS_COUNT;
 
 	int32_t					uploadId;
@@ -138,6 +139,8 @@ public:
 
 private:
 	materialParms_t			p;
+	uint32_t				extraData[ MaxExtraDataBytes ];
+	uint32_t				extraByteCount;
 	uint16_t				textureBitSet;
 	uint16_t				shaderBitSet;
 
@@ -158,11 +161,33 @@ public:
 		}
 		uploadId = -1;
 		usage = MATERIAL_USAGE_UNKNOWN;
+
+		extraByteCount = 0;
+		memset( extraData, 0, MaxExtraDataBytes );
 	}
 
 	inline void SetParms( const materialParms_t& parms )
 	{
 		p = parms;
+	}
+
+	inline void SetExtraData( void* data, const uint32_t byteCount )
+	{
+		extraByteCount = Min( MaxExtraDataBytes, byteCount );
+		memcpy( extraData, data, extraByteCount );
+	}
+
+	inline void CopyExtraData( void* outData, const uint32_t byteCount )
+	{
+		if( ( byteCount == 0 ) || ( extraByteCount == 0 ) ) {
+			return;
+		}
+		memcpy( outData, extraData, Min( byteCount, extraByteCount ) );
+	}
+
+	inline uint32_t GetExtraDataByteCount() const
+	{
+		return extraByteCount;
 	}
 
 	inline const rgb32_t& Kd() const
