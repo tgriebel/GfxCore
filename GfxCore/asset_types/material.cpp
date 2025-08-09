@@ -72,6 +72,8 @@ bool Material::AddShader( const drawPass_t pass, const hdl_t hdl )
 	if ( hdl.IsValid() == false ) {
 		return false;
 	}
+	assert( pass < 16 ); // Bitset overrun
+
 	shaders[ slot ] = hdl;
 	shaderBitSet |= ( 1 << slot );
 	return true;
