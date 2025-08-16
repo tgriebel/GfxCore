@@ -33,15 +33,30 @@ class Serializer;
 
 static float _vector_trap[8] = {};
 
+/* 
+    Generic Vector Class
+*/
 template <size_t D, typename T>
 class Vector
 {
-private:
+protected:
 	static constexpr T epsilon = std::numeric_limits< T >::epsilon() * ( (T) 2.0 );
 	static const uint32_t version = 1;
 
-	T data[ D ];
 public:
+	union
+	{
+		struct
+		{
+		private:
+			T e[ D ];
+			friend class Vector<D, T>;
+		} data;
+		T x;
+		T y;
+		T z;
+		T w;
+	};
 
 	static const size_t size = D;
 
@@ -73,6 +88,49 @@ public:
 	void Serialize( Serializer* serializer );
 };
 
+/*
+	Specialized Vector Classes for 3D graphics
+*/
+template <typename T>
+class Vector4 : public Vector<4, float>
+{
+public:
+
+	Vector4() : Vector<4, T>() { }
+	explicit Vector4( const Vector<3, T>& vec, T w_ ) : Vector<4, T>( vec, w_ ) { }
+	explicit Vector4( const T& x_ ) : Vector<4, T>( x_ ) { }
+	explicit Vector4( const T& x_, const T& y_ ) : Vector<4, T>( x_, y_ ) { }
+	explicit Vector4( const T& x_, const T& y_, const T& z_ ) : Vector<4, T>( x_, y_, z_ ) { }
+	explicit Vector4( const T& x_, const T& y_, const T& z_, const T& w_ ) : Vector<4, T>( x_, y_, z_, w_ ) { }
+	explicit Vector4( T values[] ) : Vector<4, T>( values ) { }
+
+	Vector4( const Vector<4, T>& vec )
+	{
+		if ( this != &vec )
+		{
+			x = vec[ 0 ];
+			y = vec[ 1 ];
+			z = vec[ 2 ];
+			w = vec[ 3 ];
+		}
+	}
+
+	Vector4& operator=( const Vector<4, T>& vec )
+	{
+		if ( this != &vec )
+		{
+			x = vec[ 0 ];
+			y = vec[ 1 ];
+			z = vec[ 2 ];
+			w = vec[ 3 ];
+		}
+		return *this;
+	}
+};
+
+/*
+	Shorthand types
+*/
 using vec2i = Vector<2, int32_t>;
 using vec3i = Vector<3, int32_t>;
 using vec4i = Vector<4, int32_t>;
@@ -83,11 +141,15 @@ using vec2d = Vector<2, double>;
 using vec3d = Vector<3, double>;
 using vec4d = Vector<4, double>;
 
+
+/*
+	Generic Implementations
+*/
 template<size_t D, typename T>
 Vector<D, T>::Vector( const Vector<D, T>& vec )
 {
 	for ( size_t i = 0; i < D; ++i ) {
-		data[ i ] = vec.data[ i ];
+		data.e[ i ] = vec.data.e[ i ];
 	}
 }
 
@@ -96,9 +158,9 @@ template<size_t D, typename T>
 Vector<D, T>::Vector( const Vector< ( D - 1 ), T>& vec, T value )
 {
 	for ( size_t i = 0; i < ( D - 1 ); ++i ) {
-		data[ i ] = vec[ i ];
+		data.e[ i ] = vec[ i ];
 	}
-	data[ D - 1 ] = value;
+	data.e[ D - 1 ] = value;
 }
 
 
@@ -106,7 +168,7 @@ template<size_t D, typename T>
 Vector<D, T>::Vector( const Vector< ( D + 1 ), T>& vec )
 {
 	for ( size_t i = 0; i < D; ++i ) {
-		data[ i ] = vec[ i ];
+		data.e[ i ] = vec[ i ];
 	}
 }
 
@@ -115,7 +177,7 @@ template< size_t D, typename T >
 Vector<D, T>::Vector( const T& value )
 {
 	for ( size_t i = 0; i < D; ++i ) {
-		data[ i ] = value;
+		data.e[ i ] = value;
 	}
 }
 
@@ -126,8 +188,8 @@ Vector<D, T>::Vector( const T& d1, const T& d2 )
 	Zero();
 	if ( D >= 2 )
 	{
-		data[ 0 ] = d1;
-		data[ 1 ] = d2;
+		data.e[ 0 ] = d1;
+		data.e[ 1 ] = d2;
 	}
 }
 
@@ -138,9 +200,9 @@ Vector<D, T>::Vector( const T& d1, const T& d2, const T& d3 )
 	Zero();
 	if ( D >= 3 )
 	{
-		data[ 0 ] = d1;
-		data[ 1 ] = d2;
-		data[ 2 ] = d3;
+		data.e[ 0 ] = d1;
+		data.e[ 1 ] = d2;
+		data.e[ 2 ] = d3;
 	}
 }
 
@@ -151,10 +213,10 @@ Vector<D, T>::Vector( const T& d1, const T& d2, const T& d3, const T& d4 )
 	Zero();
 	if ( D >= 4 )
 	{
-		data[ 0 ] = d1;
-		data[ 1 ] = d2;
-		data[ 2 ] = d3;
-		data[ 3 ] = d4;
+		data.e[ 0 ] = d1;
+		data.e[ 1 ] = d2;
+		data.e[ 2 ] = d3;
+		data.e[ 3 ] = d4;
 	}
 }
 
@@ -164,7 +226,7 @@ Vector<D, T>::Vector( T values[] )
 {
 	for ( size_t i = 0; i < D; ++i )
 	{
-		data[ i ] = values[ i ];
+		data.e[ i ] = values[ i ];
 	}
 }
 
@@ -174,10 +236,10 @@ void Vector<D, T>::FlushDenorms()
 {
 	for ( size_t i = 0; i < D; ++i )
 	{
-		const int code = std::fpclassify( data[ i ] );
+		const int code = std::fpclassify( data.e[ i ] );
 		if ( ( code == FP_SUBNORMAL ) || ( code == FP_NAN ) )
 		{
-			data[ i ] = static_cast<T>( 0.0 );
+			data.e[ i ] = static_cast<T>( 0.0 );
 		}
 	}
 }
@@ -188,7 +250,7 @@ T Vector<D, T>::Length() const
 {
 	T mag = 0.0;
 	for ( size_t i = 0; i < D; ++i ) {
-		mag += data[ i ] * data[ i ];
+		mag += data.e[ i ] * data.e[ i ];
 	}
 	return sqrt( mag );
 }
@@ -206,9 +268,9 @@ Vector<D, T> Vector<D, T>::Normalize() const
 
 	for ( size_t i = 0; i < D; ++i )
 	{
-		v.data[ i ] = data[ i ] / m;
-		if ( fabs( v.data[ i ] ) <= v.epsilon ) {
-			v.data[ i ] = 0.0;
+		v.data.e[ i ] = data.e[ i ] / m;
+		if ( fabs( v.data.e[ i ] ) <= v.epsilon ) {
+			v.data.e[ i ] = 0.0;
 		}
 	}
 	return v;
@@ -220,7 +282,7 @@ Vector<D, T> Vector<D, T>::Reverse() const
 {
 	Vector< D, T> v;
 	for ( size_t i = 0; i < D; ++i ) {
-		v.data[ i ] = -data[ i ];
+		v.data.e[ i ] = -data.e[ i ];
 	}
 	return v;
 }
@@ -230,7 +292,7 @@ template<size_t D, typename T>
 void Vector<D, T>::Zero()
 {
 	for ( size_t i = 0; i < D; ++i ) {
-		data[ i ] = static_cast<T>( 0.0 );
+		data.e[ i ] = static_cast<T>( 0.0 );
 	}
 }
 
@@ -243,7 +305,7 @@ const T& Vector<D, T>::operator[]( const size_t i ) const
 		assert( false );
 		return *reinterpret_cast<T*>( &_vector_trap[ 0 ] );
 	}
-	return data[ i ];
+	return data.e[ i ];
 }
 
 
@@ -255,7 +317,7 @@ T& Vector<D, T>::operator[]( const size_t i )
 		assert( false );
 		return *reinterpret_cast<T*>( &_vector_trap[ 0 ] );
 	}
-	return data[ i ];
+	return data.e[ i ];
 }
 
 
@@ -264,7 +326,7 @@ Vector<D, T>& Vector< D, T >::operator=( const Vector<D, T>& vec )
 {
 	if( this != &vec ) {
 		for ( size_t i = 0; i < D; ++i ) {
-			data[ i ] = vec.data[ i ];
+			data.e[ i ] = vec.data.e[ i ];
 		}
 	}
 	return *this;
@@ -275,7 +337,7 @@ template<size_t D, typename T>
 Vector<D, T>& Vector<D, T>::operator+=( const Vector<D, T>& u )
 {
 	for ( size_t i = 0; i < D; ++i ) {
-		data[ i ] += u.data[ i ];
+		data.e[ i ] += u.data.e[ i ];
 	}
 	return *this;
 }
@@ -285,7 +347,7 @@ template<size_t D, typename T>
 Vector<D, T>& Vector<D, T>::operator-=( const Vector<D, T>& u )
 {
 	for ( size_t i = 0; i < D; ++i ) {
-		data[ i ] -= u.data[ i ];
+		data.e[ i ] -= u.data.e[ i ];
 	}
 	return *this;
 }
@@ -295,7 +357,7 @@ template<size_t D, typename T>
 Vector<D, T>& Vector< D, T >::operator*=( T& s )
 {
 	for ( size_t i = 0; i < D; ++i ) {
-		data[ i ] *= s;
+		data.e[ i ] *= s;
 	}
 	return *this;
 }
@@ -305,7 +367,7 @@ template<size_t D, typename T>
 Vector<D, T>& Vector<D, T>::operator/=( T& s )
 {
 	for ( size_t i = 0; i < D; ++i ) {
-		data[ i ] /= s;
+		data.e[ i ] /= s;
 	}
 	return *this;
 }

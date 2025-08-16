@@ -55,7 +55,7 @@ void Vector<D, T>::Serialize( Serializer* serializer )
 		throw std::runtime_error( "Wrong vector length." );
 	}
 	for ( size_t i = 0; i < D; ++i ) {
-		s->Next( data[i] );
+		s->Next( data.e[i] );
 	}
 }
 
