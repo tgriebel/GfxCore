@@ -192,5 +192,8 @@
     <ClInclude Include="external\MikkTSpace\mikktspace.h">
       <Filter>External\MikkTSpace</Filter>
     </ClInclude>
+    <ClInclude Include="GfxCore\math\vector4.h">
+      <Filter>Math</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

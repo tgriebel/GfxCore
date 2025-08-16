@@ -149,7 +149,7 @@ public:
 	mat4x4f		GetAxis() const;
 	mat4x4f		GetViewMatrix() const;
 	mat4x4f		GetPerspectiveMatrix( const bool inverseZ = true ) const;
-	mat4x4f		GetOrthogonalMatrix( const float left, const float right, const float top, const float bottom );
+	mat4x4f		GetOrthogonalMatrix( const float left, const float right, const float top, const float bottom ) const;
 	
 	// Movement
 	void		SetPosition( const vec3f& angles );

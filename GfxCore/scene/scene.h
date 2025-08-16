@@ -73,7 +73,8 @@ private:
 	uint64_t					frameNumber;
 public:
 	Camera*						mainCamera;
-	Camera						cameras[ 7 ];
+	Camera						camera2D;
+	Camera						cameras[ 7 ]; // TODO: There isn't much value having a generic set of cameras. This should be defined by the child-class scene instead
 	std::string					envMap;
 	std::string					diffuseIblMap;
 	std::string					specIblMap;

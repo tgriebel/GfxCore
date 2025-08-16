@@ -266,6 +266,7 @@
     <ClInclude Include="GfxCore\math\matrix.h" />
     <ClInclude Include="GfxCore\math\quaternion.h" />
     <ClInclude Include="GfxCore\math\vector.h" />
+    <ClInclude Include="GfxCore\math\vector4.h" />
     <ClInclude Include="GfxCore\primitives\geom.h" />
     <ClInclude Include="GfxCore\primitives\ray.h" />
     <ClInclude Include="GfxCore\scene\assetBaker.h" />
