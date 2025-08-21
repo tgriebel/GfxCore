@@ -45,8 +45,9 @@ bool AreBakedAssetsEnabled()
 }
 
 #ifdef SERIALIZE_IMPLEMENTATIONS
+
 template<size_t D, typename T>
-void Vector<D, T>::Serialize( Serializer* serializer )
+void Serialize( Serializer* serializer, Vector<D, T>& v )
 {
 	Serializer* s = reinterpret_cast<Serializer*>( serializer );
 	uint32_t length = D;
@@ -55,7 +56,7 @@ void Vector<D, T>::Serialize( Serializer* serializer )
 		throw std::runtime_error( "Wrong vector length." );
 	}
 	for ( size_t i = 0; i < D; ++i ) {
-		s->Next( data.e[i] );
+		s->Next( v[ i ] );
 	}
 }
 

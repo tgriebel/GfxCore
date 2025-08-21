@@ -1,7 +1,7 @@
 /*
 * MIT License
 *
-* Copyright( c ) 2013-2023 Thomas Griebel
+* Copyright( c ) 2013-2025 Thomas Griebel
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this softwareand associated documentation files( the "Software" ), to deal
 * in the Software without restriction, including without limitation the rights
@@ -21,47 +21,28 @@
 * SOFTWARE.
 */
 
-#ifndef MATRIX_H
-#define MATRIX_H
+#pragma once
 
 #include <math.h>
 #include "vector.h"
 
 //------------------------------------------------------------------------//
-// Matrix Class and matrix functions
+// Matrix class and matrix functions
 //------------------------------------------------------------------------//
 
-template< size_t N, typename T>
-class MatrixRow
+template< size_t M, size_t N, typename T>
+class Matrix
 {
 private:
+	Vector<N, T> data[ M ];
+	static constexpr T Epsilon = std::numeric_limits< T >::epsilon() * ( (T) 2.0 );
 
-	T row[ N ];
-
-public:
-
-	inline T& operator[]( size_t i )
-	{
-		return row[ i ];
-	}
-
-	inline const T& operator[]( size_t i ) const
-	{
-		return row[ i ];
-	}
-};
-
-template< size_t M, size_t N, typename T>
-class Matrix {
-
-private:
-	MatrixRow<N, T> data[ M ];
-	static constexpr T epsilon = std::numeric_limits< T >::epsilon() * ( (T) 2.0 );
+	static_assert( sizeof( data ) == ( M * N * sizeof( T ) ), "Must be plain-old-data." );
 
 public:
 
-	static const size_t Rows = N;
-	static const size_t Cols = M;
+	static const size_t RowCount = N;
+	static const size_t ColumnCount = M;
 
 	Matrix( T diagonalValue = static_cast<T>( 0.0 ) )
 	{
@@ -85,51 +66,49 @@ public:
 		}
 	}
 
+	static Matrix<N, M, T> Identity()
+	{
+		return Matrix<N, M, T>( 1.0f );
+	}
+
+	static Matrix<N, M, T> Zero()
+	{
+		return Matrix<N, M, T>( 0.0f );
+	}
+
 	Matrix<N, M, T>	Transpose( void );
 	Matrix<N, M, T>	Transpose( void ) const;
 	bool IsInvertible() const;
 	bool IsOrthonormal( const float epsilon ) const;
-	// Matrix<M, N, T>	Inverse(bool&);
 
-	MatrixRow<N, T>& operator[]( const size_t i );
-	const MatrixRow<N, T>& operator[]( const size_t i ) const;
+	Vector<N, T>& operator[]( const size_t i );
+	const Vector<N, T>& operator[]( const size_t i ) const;
 };
 
-template< size_t N, typename T>
-class MatrixSubViewRow
-{
-private:
-
-	T columns[ N ];
-
-public:
-
-	inline T& operator[]( size_t i )
-	{
-		return columns[ i ];
-	}
-
-	inline const T& operator[]( size_t i ) const
-	{
-		return columns[ i ];
-	}
-};
-
-template< size_t M, size_t N, typename T>
-class MatrixSubView
-{
-private:
-
-	size_t i, j;
-	Matrix<M, N, T>& refMatrix;
-
-public:
-
-	MatrixSubView( const Matrix< M, N, T>& m, const size_t col_mask, const size_t row_mask ) : i( col_mask ), j( row_mask ), refMatrix( m ) {}
-
-	MatrixSubViewRow<N, T>& operator[]( size_t i );
-	const MatrixSubViewRow<N, T>& operator[]( size_t i ) const;
-};
+// Convenience class for taking subsets of a matrix to avoid copies
+// TODO: Matrix functions should take in views
+//template< size_t SourceM, size_t SourceN, size_t M, size_t N, typename T>
+//class MatrixView
+//{
+//	static_assert( ( SourceM >= M ) && ( SourceN >= N ) ), "MatrixView must be subset of source matrix." );
+//
+//private:
+//	size_t i, j;
+//	Matrix<SourceM, SourceN, T>& refMatrix;
+//
+//public:
+//
+//	static const size_t RowCount = N;
+//	static const size_t ColumnCount = M;
+//
+//	MatrixView( const Matrix< SourceM, SourceN, T>& m, const size_t colOffset, const size_t rowOffset ) : 
+//		i( colOffset ),
+//		j( rowOffset ),
+//		refMatrix( m ) {}
+//
+//	Vector<N, T>& operator[]( size_t i );
+//	const Vector<N, T>& operator[]( size_t i ) const;
+//};
 
 template< typename T>
 T Det( Matrix<2, 2, T> m );
@@ -138,15 +117,12 @@ T Det( Matrix<3, 3, T> m );
 template< typename T>
 T Det( Matrix<4, 4, T> m );
 
-typedef Matrix<2, 2, double>	mat2x2d;
-typedef Matrix<2, 2, float>		mat2x2f;
-
-typedef Matrix<3, 3, double>	mat3x3d;
-typedef Matrix<3, 3, float>		mat3x3f;
-
-typedef Matrix<4, 4, double>	mat4x4d;
-typedef Matrix<4, 4, float>		mat4x4f;
-
+using mat2x2f = Matrix<2, 2, float>;
+using mat2x2d = Matrix<2, 2, double>;
+using mat3x3f = Matrix<3, 3, float>;
+using mat3x3d = Matrix<3, 3, double>;
+using mat4x4f = Matrix<4, 4, float>;
+using mat4x4d = Matrix<4, 4, double>;
 
 template< size_t M, size_t N, typename T>
 Matrix<N, M, T> Matrix<M, N, T>::Transpose( void )
@@ -209,14 +185,14 @@ bool Matrix<M, N, T>::IsOrthonormal( const float epsilon ) const
 
 
 template< size_t M, size_t N, typename T>
-MatrixRow<N, T>& Matrix<M, N, T>::operator[]( const size_t i )
+Vector<N, T>& Matrix<M, N, T>::operator[]( const size_t i )
 {
 	return data[ i ];
 }
 
 
 template< size_t M, size_t N, typename T>
-const MatrixRow<N, T>& Matrix<M, N, T>::operator[]( const size_t i ) const
+const Vector<N, T>& Matrix<M, N, T>::operator[]( const size_t i ) const
 {
 	return data[ i ];
 }
@@ -336,14 +312,14 @@ Vector<N, T> operator*( const Matrix<M, N, T>& m, const Vector<M, T>& u )
 
 
 template< typename T>
-T Det( Matrix<2, 2, T> m )
+T Det( const Matrix<2, 2, T>& m )
 {
 	return m[ 0 ][ 0 ] * m[ 1 ][ 1 ] - m[ 1 ][ 0 ] * m[ 0 ][ 1 ];
 }
 
 
 template< typename T>
-T Det( Matrix<3, 3, T> m )
+T Det( const Matrix<3, 3, T>& m )
 {
 	T cof00[] = { m[ 1 ][ 1 ], m[ 1 ][ 2 ], m[ 2 ][ 1 ], m[ 2 ][ 2 ] };
 	T cof01[] = { m[ 1 ][ 0 ], m[ 1 ][ 2 ], m[ 2 ][ 0 ], m[ 2 ][ 2 ] };
@@ -354,7 +330,7 @@ T Det( Matrix<3, 3, T> m )
 
 
 template< typename T>
-T Det( Matrix<4, 4, T> m )
+T Det( const Matrix<4, 4, T>& m )
 {
 	T cof00[] = { m[ 1 ][ 1 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ],  m[ 2 ][ 1 ], m[ 2 ][ 2 ], m[ 2 ][ 3 ],  m[ 3 ][ 1 ], m[ 3 ][ 2 ], m[ 3 ][ 3 ] };
 	T cof01[] = { m[ 1 ][ 0 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ],  m[ 2 ][ 0 ], m[ 2 ][ 2 ], m[ 2 ][ 3 ],  m[ 3 ][ 0 ], m[ 3 ][ 2 ], m[ 3 ][ 3 ] };
@@ -366,7 +342,7 @@ T Det( Matrix<4, 4, T> m )
 
 
 template< typename T>
-Matrix<4, 4, T> CofactorMatrix( Matrix<4, 4, T> m )
+Matrix<4, 4, T> CofactorMatrix( const Matrix<4, 4, T>& m )
 {
 
 	// 00 01 02 03
@@ -580,4 +556,3 @@ Matrix<4, 4, T> CreateMatrix4x4(	T m00, T m01, T m02, T m03,
 
 	return m;
 }
-#endif
