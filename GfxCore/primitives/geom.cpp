@@ -219,10 +219,10 @@ void CreateRayTraceModel( AssetManager& assets, Entity* ent, RtModel* outInstanc
 		for ( uint32_t vertIx = 0; vertIx < vertCount; ++vertIx )
 		{
 			const vertex_t& vertex = surf.vertices[ vertIx ];
-			centroid += outInstance->transform * vec4f( vec3f( vertex.pos ), 1.0 );
+			centroid += outInstance->transform * vec4f( vec3f( vertex.pos.xyz ), 1.0 );
 		}
 
-		outInstance->centroid = vec3f( centroid / (float)( vertCount ) );
+		outInstance->centroid = vec3f( centroid.xyz / (float)( vertCount ) );
 
 		const hdl_t materialId = ( overrideMaterial != INVALID_HDL ) ? overrideMaterial : surf.materialHdl;
 
@@ -246,13 +246,13 @@ void CreateRayTraceModel( AssetManager& assets, Entity* ent, RtModel* outInstanc
 			v1.pos = outInstance->transform * v1.pos;
 			v2.pos = outInstance->transform * v2.pos;
 
-			v0.bitangent = outInstance->transform * vec4f( v0.bitangent, 0.0f );
-			v1.bitangent = outInstance->transform * vec4f( v1.bitangent, 0.0f );
-			v2.bitangent = outInstance->transform * vec4f( v2.bitangent, 0.0f );
+			v0.bitangent = ( outInstance->transform * vec4f( v0.bitangent, 0.0f ) ).xyz;
+			v1.bitangent = ( outInstance->transform * vec4f( v1.bitangent, 0.0f ) ).xyz;
+			v2.bitangent = ( outInstance->transform * vec4f( v2.bitangent, 0.0f ) ).xyz;
 
-			v0.tangent = outInstance->transform * vec4f( v0.tangent, 0.0f );
-			v1.tangent = outInstance->transform * vec4f( v1.tangent, 0.0f );
-			v2.tangent = outInstance->transform * vec4f( v2.tangent, 0.0f );
+			v0.tangent = ( outInstance->transform * vec4f( v0.tangent, 0.0f ) ).xyz;
+			v1.tangent = ( outInstance->transform * vec4f( v1.tangent, 0.0f ) ).xyz;
+			v2.tangent = ( outInstance->transform * vec4f( v2.tangent, 0.0f ) ).xyz;
 
 			v0.normal = Cross( v0.tangent, v0.bitangent );
 			v1.normal = Cross( v1.tangent, v1.bitangent );

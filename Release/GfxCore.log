@@ -1,14 +1,5 @@
-﻿  GfxCore.cpp
-  gpuProgram.cpp
-  material.cpp
-  model.cpp
-  texture.cpp
-  color.cpp
-  io.cpp
-  serializeClasses.cpp
+﻿  io.cpp
   geom.cpp
-  assetBaker.cpp
-  camera.cpp
   entity.cpp
   scene.cpp
   GfxCore.vcxproj -> C:\Users\thoma\source\repos\GfxCore\Release\GfxCore.lib

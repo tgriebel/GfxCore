@@ -320,7 +320,7 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 			vertex.pos[ 1 ] = attrib.vertices[ 3 * index.vertex_index + 1 ];
 			vertex.pos[ 2 ] = attrib.vertices[ 3 * index.vertex_index + 2 ];
 
-			model.surfs[ model.surfCount ].centroid += vec3f( vertex.pos );
+			model.surfs[ model.surfCount ].centroid += vec3f( vertex.pos.xyz );
 
 			model.bounds.Expand( vec3f( vertex.pos[ 0 ], vertex.pos[ 1 ], vertex.pos[ 2 ] ) );
 
@@ -379,8 +379,8 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 			vertex_t& v1 = model.surfs[ model.surfCount ].vertices[ indices[ 1 ] ];
 			vertex_t& v2 = model.surfs[ model.surfCount ].vertices[ indices[ 2 ] ];
 
-			const vec3f edge0 = vec3f( v1.pos - v0.pos );
-			const vec3f edge1 = vec3f( v2.pos - v0.pos );
+			const vec3f edge0 = vec3f( v1.pos.xyz - v0.pos.xyz );
+			const vec3f edge1 = vec3f( v2.pos.xyz - v0.pos.xyz );
 
 			const vec3f faceNormal = ( v0.normal + v1.normal + v2.normal ).Normalize();
 			vec3f faceTangent;

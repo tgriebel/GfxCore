@@ -40,7 +40,7 @@ void Entity::ExpandBounds( const AABB& modelBounds )
 
 vec3f Entity::GetOrigin() const
 {
-	return vec3f( translation );
+	return vec3f( translation.xyz );
 }
 
 

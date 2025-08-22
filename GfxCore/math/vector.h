@@ -241,13 +241,6 @@ public:
 		y = vec.y;
 		z = z_;
 	}
-
-	Vector( const Vector<4, T>& vec )
-	{
-		x = vec.x;
-		y = vec.y;
-		z = vec.z;
-	}
 };
 
 template <typename T>

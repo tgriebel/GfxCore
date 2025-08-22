@@ -61,9 +61,6 @@
     <ClCompile Include="GfxCore\io\serializeClasses.cpp">
       <Filter>IO</Filter>
     </ClCompile>
-    <ClCompile Include="GfxCore\math\matrix.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
     <ClCompile Include="GfxCore\primitives\geom.cpp">
       <Filter>Primitives</Filter>
     </ClCompile>
@@ -192,7 +189,10 @@
     <ClInclude Include="external\MikkTSpace\mikktspace.h">
       <Filter>External\MikkTSpace</Filter>
     </ClInclude>
-    <ClInclude Include="GfxCore\math\vector4.h">
+    <ClInclude Include="GfxCore\math\sparseMatrix.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="GfxCore\math\sparseVector.h">
       <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>
