@@ -103,11 +103,11 @@ Color BlendColor( const Color& src, const Color& dest, const blendMode_t blendMo
 		}
 		case blendMode_t::INVSRCCOLOR:
 		{
-			return src.Inverse();
+			return src.m_LUI();
 		}
 		case blendMode_t::INVDESTCOLOR:
 		{
-			return dest.Inverse();
+			return dest.m_LUI();
 		}
 		case blendMode_t::ADD:
 		{

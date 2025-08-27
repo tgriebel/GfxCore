@@ -31,7 +31,6 @@
 #include <syscore/systemUtils.h>
 #include <syscore/common.h>
 
-
 class ShaderBindSet;
 class Serializer;
 

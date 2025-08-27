@@ -421,9 +421,9 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 		const int vertexCount = static_cast<int>( model.surfs[ model.surfCount ].vertices.size() );
 		for ( int i = 0; i < vertexCount; ++i ) {
 			vertex_t& v = model.surfs[ model.surfCount ].vertices[ i ];
-			v.tangent.FlushDenorms();
-			v.bitangent.FlushDenorms();
-			v.normal.FlushDenorms();
+			FlushDenorms( v.tangent );
+			FlushDenorms( v.bitangent );
+			FlushDenorms( v.normal );
 
 			// Gram-Schmidt orthogonalize
 			v.normal = v.normal.Normalize();

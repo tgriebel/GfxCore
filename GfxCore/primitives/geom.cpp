@@ -162,9 +162,9 @@ void CreateRayTraceModel( ResourceManager& rm, const uint32_t modelIx, const mat
 				interpretedBitangent += bitangent;
 			}
 
-			interpretedNormal.FlushDenorms();
-			interpretedTangent.FlushDenorms();
-			interpretedBitangent.FlushDenorms();
+			FlushDenorms( interpretedNormal );
+			FlushDenorms( interpretedTangent );
+			FlushDenorms( interpretedBitangent );
 
 			vertex->normal = interpretedNormal.Normalize();
 			vertex->tangent = interpretedTangent.Normalize();

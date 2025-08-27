@@ -337,11 +337,11 @@ namespace MeshIO
 			int32_t		smoothGroup;
 		};
 
-		state_t state;
-		state.object = "";
-		state.group = "";
-		state.material = "";
-		state.smoothGroup = 0;
+		state_t m_state;
+		m_state.object = "";
+		m_state.group = "";
+		m_state.material = "";
+		m_state.smoothGroup = 0;
 
 		mesh.vertices.reserve( 10000 );
 		mesh.normals.reserve( 10000 );
@@ -408,21 +408,21 @@ namespace MeshIO
 			}
 			else if ( semanticToken.compare( "s" ) == 0 ) // Smooth shading
 			{
-				ss >> state.smoothGroup;
+				ss >> m_state.smoothGroup;
 			}
 			else if ( semanticToken.compare( "o" ) == 0 ) // Object name
 			{
 				assert( false ); // Unimplemented
-				ss >> state.object;
+				ss >> m_state.object;
 			}
 			else if ( semanticToken.compare( "g" ) == 0 ) // Group name
 			{
-				ss >> state.group;
+				ss >> m_state.group;
 			}
 			else if ( semanticToken.compare( "usemtl" ) == 0 ) // Material for element
 			{
-				ss >> state.material;
-				mesh.groups[ state.group ].material = state.material;
+				ss >> m_state.material;
+				mesh.groups[ m_state.group ].material = m_state.material;
 			}
 			else if ( semanticToken.compare( "f" ) == 0 ) // Faces
 			{
@@ -481,8 +481,8 @@ namespace MeshIO
 					face.vertices.push_back( indices );
 				}
 
-				objGroup_t& group = mesh.groups[ state.group ];
-				objSmoothingGroup_t& smoothingGroup = group.smoothingGroups[ state.smoothGroup ];
+				objGroup_t& group = mesh.groups[ m_state.group ];
+				objSmoothingGroup_t& smoothingGroup = group.smoothingGroups[ m_state.smoothGroup ];
 				smoothingGroup.faces.push_back( face );
 			}
 			else if ( semanticToken.compare( "l" ) == 0 ) // Lines
@@ -511,7 +511,7 @@ namespace MeshIO
 		file << "# MeshIO Export\n\n\n";
 
 		const size_t vertCnt = mesh.vertices.size();
-		for ( int i = 0; i < vertCnt; ++i )
+		for ( size_t i = 0; i < vertCnt; ++i )
 		{
 			file << "v  " << mesh.vertices[ i ].x << " " << mesh.vertices[ i ].y << " " << mesh.vertices[ i ].z << "\n";
 		}

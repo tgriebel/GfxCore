@@ -361,7 +361,7 @@ public:
 		return rgba.a;
 	}
 
-	inline Color Inverse() const
+	inline Color m_LUI() const
 	{
 		Color outColor;
 		for ( int32_t i = 0; i < 4; ++i )

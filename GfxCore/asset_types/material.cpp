@@ -22,8 +22,8 @@
 */
 
 #include "material.h"
-#include <syscore/serializer.h>
-#include <syscore/systemUtils.h>
+#include <Syscore/serializer.h>
+#include <Syscore/systemUtils.h>
 #include "../io/serializeClasses.h"
 #include "../scene/assetManager.h"
 

@@ -34,10 +34,10 @@ template< size_t M, size_t N, typename T>
 class Matrix
 {
 private:
-	Vector<N, T> data[ M ];
+	Vector<N, T> rows[ M ];
 	static constexpr T Epsilon = std::numeric_limits< T >::epsilon() * ( (T) 2.0 );
 
-	static_assert( sizeof( data ) == ( M * N * sizeof( T ) ), "Must be plain-old-data." );
+	static_assert( sizeof( rows ) == ( M * N * sizeof( T ) ), "Must be plain-old-data." );
 
 public:
 
@@ -50,7 +50,7 @@ public:
 		{
 			for ( size_t i = 0; i < M; ++i )
 			{
-				data[ j ][ i ] = ( i == j ) ? diagonalValue : static_cast<T>( 0.0 );
+				rows[ j ][ i ] = ( i == j ) ? diagonalValue : static_cast<T>( 0.0 );
 			}
 		}
 	}
@@ -61,7 +61,7 @@ public:
 		{
 			for ( size_t i = 0; i < M; ++i )
 			{
-				data[ j ][ i ] = values[ i + ( j * N ) ];
+				rows[ j ][ i ] = values[ i + ( j * N ) ];
 			}
 		}
 	}
@@ -86,36 +86,48 @@ public:
 };
 
 // Convenience class for taking subsets of a matrix to avoid copies
-// TODO: Matrix functions should take in views
-//template< size_t SourceM, size_t SourceN, size_t M, size_t N, typename T>
-//class MatrixView
-//{
+// TODO: Define matrix functions in terms of MatrixView, polymorphism, or templatize them
+template< size_t SourceM, size_t SourceN, size_t M, size_t N, typename T>
+class MatrixView
+{
 //	static_assert( ( SourceM >= M ) && ( SourceN >= N ) ), "MatrixView must be subset of source matrix." );
-//
-//private:
-//	size_t i, j;
-//	Matrix<SourceM, SourceN, T>& refMatrix;
-//
-//public:
-//
-//	static const size_t RowCount = N;
-//	static const size_t ColumnCount = M;
-//
-//	MatrixView( const Matrix< SourceM, SourceN, T>& m, const size_t colOffset, const size_t rowOffset ) : 
-//		i( colOffset ),
-//		j( rowOffset ),
-//		refMatrix( m ) {}
-//
-//	Vector<N, T>& operator[]( size_t i );
-//	const Vector<N, T>& operator[]( size_t i ) const;
-//};
+
+private:
+	size_t i, j;
+	Vector<N, T>* rows[ M ]; // Allows for discontinuous memory
+
+public:
+
+	static const size_t RowCount = N;
+	static const size_t ColumnCount = M;
+
+	MatrixView( const Matrix< SourceM, SourceN, T>& m, const size_t colOffset, const size_t rowOffset ) : 
+		i( colOffset ),
+		j( rowOffset )
+	{
+		for ( size_t r = rowOffset; r < M; ++r )
+		{
+			rows[ r ] = reinterpret_cast< Vector<N, T>* >( &m[ r ] );
+		}
+	}
+
+	Vector<N, T>& operator[]( size_t i )
+	{
+		return rows[ i ];
+	}
+
+	const Vector<N, T>& operator[]( size_t i ) const
+	{
+		return rows[ i ];
+	}
+};
 
 template< typename T>
-T Det( Matrix<2, 2, T> m );
+T Det( const Matrix<2, 2, T>& m );
 template< typename T>
-T Det( Matrix<3, 3, T> m );
+T Det( const Matrix<3, 3, T>& m );
 template< typename T>
-T Det( Matrix<4, 4, T> m );
+T Det( const Matrix<4, 4, T>& m );
 
 using mat2x2f = Matrix<2, 2, float>;
 using mat2x2d = Matrix<2, 2, double>;
@@ -131,7 +143,7 @@ Matrix<N, M, T> Matrix<M, N, T>::Transpose( void )
 	for ( size_t c = 0; c < N; ++c ) {
 		for ( size_t r = 0; r < M; ++r )
 		{
-			mt[ c ][ r ] = data[ r ][ c ];
+			mt[ c ][ r ] = rows[ r ][ c ];
 		}
 	}
 	return mt;
@@ -146,7 +158,7 @@ Matrix<N, M, T> Matrix<M, N, T>::Transpose( void ) const
 	{
 		for ( size_t r = 0; r < M; ++r )
 		{
-			mt[ c ][ r ] = data[ r ][ c ];
+			mt[ c ][ r ] = rows[ r ][ c ];
 		}
 	}
 	return mt;
@@ -187,14 +199,14 @@ bool Matrix<M, N, T>::IsOrthonormal( const float epsilon ) const
 template< size_t M, size_t N, typename T>
 Vector<N, T>& Matrix<M, N, T>::operator[]( const size_t i )
 {
-	return data[ i ];
+	return rows[ i ];
 }
 
 
 template< size_t M, size_t N, typename T>
 const Vector<N, T>& Matrix<M, N, T>::operator[]( const size_t i ) const
 {
-	return data[ i ];
+	return rows[ i ];
 }
 
 
@@ -311,6 +323,33 @@ Vector<N, T> operator*( const Matrix<M, N, T>& m, const Vector<M, T>& u )
 }
 
 
+template< size_t M, size_t N, typename T>
+void Flush( Matrix<M, N, T>& m, const T tolerance )
+{
+	for ( uint32_t r = 0; r < M; ++r ) {
+		Flush( m[ r ], tolerance );
+	}
+}
+
+
+template< size_t M, size_t N, typename T>
+void Fill( Matrix<M, N, T>& m, const T& value )
+{
+	for ( uint32_t r = 0; r < M; ++r ) {
+		Fill( m[ r ], value );
+	}
+}
+
+
+template< size_t M, size_t N, typename T>
+void FillRandom( Matrix<M, N, T>& m )
+{
+	for ( uint32_t r = 0; r < M; ++r ) {
+		FillRandom( m[ r ] );
+	}
+}
+
+
 template< typename T>
 T Det( const Matrix<2, 2, T>& m )
 {
@@ -381,7 +420,7 @@ Matrix<4, 4, T> CofactorMatrix( const Matrix<4, 4, T>& m )
 }
 
 template< typename T>
-Matrix<3, 3, T> Inverse( const Matrix<3, 3, T>& m, bool& invertible )
+Matrix<3, 3, T> m_LUI( const Matrix<3, 3, T>& m, bool& invertible )
 {
 	T det_val = Det( m );
 
@@ -392,14 +431,14 @@ Matrix<3, 3, T> Inverse( const Matrix<3, 3, T>& m, bool& invertible )
 }
 
 template< typename T>
-Matrix<4, 4, T> Inverse( const Matrix<4, 4, T>& m, bool& invertible )
+Matrix<4, 4, T> m_LUI( const Matrix<4, 4, T>& m, bool& invertible )
 {
 	T det_val = Det( m );
 
 	if ( det_val == 0 ) { invertible = false; return Matrix<4, 4, T>(); }
 	invertible = true;
 
-	return ( CofactorMatrix( m ).transpose() ) * ( 1. / det_val ); // TODO: transpose of cofactor matrix not transpose of matrix
+	return ( CofactorMatrix( m ).Transpose() ) * ( static_cast<T>( 1.0 ) / det_val ); // TODO: transpose of cofactor matrix not transpose of matrix
 }
 
 template< size_t M, size_t N, typename T>
@@ -424,17 +463,35 @@ Matrix<M, N, T> Identity()
 }
 
 
+template< size_t N, typename T>
+bool IsIdentity( const Matrix<N, N, T>& m, const T tolerance )
+{
+	for ( size_t r = 0; r < N; ++r )
+	{
+		if( fabs( m[ r ][ r ] - 1.0f ) > tolerance ) {
+			return false;
+		} else {
+			continue;
+		}
+
+		for ( size_t c = 0; c < N; ++c ) {
+			if( fabs( m[ r ][ c ] ) > tolerance ) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+
 template< size_t M, size_t N, typename T >
 std::ostream& operator<<( std::ostream& stream, const Matrix<M, N, T>& m )
 {
-	for ( size_t r( 0 ); r < M; ++r ) {
-		stream << "[";
-		for ( size_t c( 0 ); c < N; ++c ) {
-			stream << " " << m[ r ][ c ];
-		}
-		stream << "]" << std::endl;
+	stream << "[";
+	for ( size_t r = 0; r < M; ++r ) {
+		stream << m[ r ] << ( ( r + 1 < M ) ? ",\n" : "" );
 	}
-
+	stream << "]";
 	return stream;
 }
 

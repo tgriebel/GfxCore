@@ -35,6 +35,9 @@
     <Filter Include="External\MikkTSpace">
       <UniqueIdentifier>{c162d6d0-a26c-4cea-aa60-0fa4a17d4da3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Test Driver\Unit Tests">
+      <UniqueIdentifier>{0c7bf5af-6788-48d0-bb37-b611924749f3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GfxCore.cpp">
@@ -87,6 +90,9 @@
     </ClCompile>
     <ClCompile Include="GfxCore\image\image.cpp">
       <Filter>Image</Filter>
+    </ClCompile>
+    <ClCompile Include="unitTests\matrixVectorTests.cpp">
+      <Filter>Test Driver\Unit Tests</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

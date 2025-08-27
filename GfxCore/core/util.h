@@ -54,6 +54,7 @@ union packFp32_t
 };
 
 
+[[nodiscard]]
 inline uint16_t PackFloat32( const float unpacked )
 {
 	packFp32_t full;
@@ -73,6 +74,7 @@ inline uint16_t PackFloat32( const float unpacked )
 }
 
 
+[[nodiscard]]
 inline float UnpackFloat32( const uint16_t packed )
 {
 	packFp32_t full;
@@ -94,6 +96,7 @@ inline float UnpackFloat32( const uint16_t packed )
 }
 
 
+[[nodiscard]]
 inline mat4x4f ComputeRotationX( const float degrees )
 {
 	const float theta = Radians( degrees );
@@ -104,6 +107,7 @@ inline mat4x4f ComputeRotationX( const float degrees )
 }
 
 
+[[nodiscard]]
 inline mat4x4f ComputeRotationY( const float degrees )
 {
 	const float theta = Radians( degrees );
@@ -114,6 +118,7 @@ inline mat4x4f ComputeRotationY( const float degrees )
 }
 
 
+[[nodiscard]]
 inline mat4x4f ComputeRotationZ( const float degrees )
 {
 	const float theta = Radians( degrees );
@@ -124,6 +129,7 @@ inline mat4x4f ComputeRotationZ( const float degrees )
 }
 
 
+[[nodiscard]]
 inline mat4x4f ComputeRotationZYX( const float xDegrees, const float yDegrees, const float zDegrees )
 {
 	const float alpha = Radians( xDegrees );
@@ -154,6 +160,7 @@ inline void SetTranslation( mat4x4f& inoutMatrix, const vec3f& translation )
 }
 
 
+[[nodiscard]]
 inline mat4x4f ComputeScale( const vec3f& scale )
 {
 	mat4x4f mat;
@@ -258,67 +265,75 @@ static inline void ImageToBitmap( const ImageBuffer<float>& image, Bitmap& bitma
 }
 
 
+[[nodiscard]]
 static inline Color Vec3ToColor( const vec3f& v )
 {
 	return Color( static_cast<float>( v[ 0 ] ), static_cast<float>( v[ 1 ] ), static_cast<float>( v[ 2 ] ), 1.0f );
 }
 
 
+[[nodiscard]]
 static inline Color Vec4ToColor( const vec4f& v )
 {
 	return Color( static_cast<float>( v[ 0 ] ), static_cast<float>( v[ 1 ] ), static_cast<float>( v[ 2 ] ), static_cast<float>( v[ 3 ] ) );
 }
 
 
+[[nodiscard]]
 static inline vec4f ColorToVector( const Color& c )
 {
 	return vec4f( c[ 0 ], c[ 1 ], c[ 2 ], c[ 3 ] );
 }
 
 
+[[nodiscard]]
+static inline vec2f PointOnCircle( const float t, const float radius )
+{
+	const float alpha = t * 2.0f * 3.14159f;
+	return vec2f( radius * cos( alpha ), radius * sin( alpha ) );
+}
+
+
+[[nodiscard]]
+static inline vec3f PointOnSphere( const float u, const float v, const float radius = 1.0f )
+{
+	const float theta = u * 2.0f * 3.14159f;
+	const float phi = v * 3.14159f;
+
+	vec3f point;
+	point.x = radius * sin( phi ) * cos( theta );
+	point.y = radius * sin( phi ) * sin( theta );
+	point.z = radius * cos( phi );
+
+	return point;
+}
+
+
+[[nodiscard]]
 static inline float Random()
 {
 	return ( rand() / static_cast<float>( RAND_MAX ) );
 }
 
 
-static inline void RandomPointOnCircle( float& u, float& v )
+[[nodiscard]]
+static inline vec2f RandomPointOnCircle( const float radius = 1.0f )
 {
-	const float r = Random();
-	const float alpha = r * 2.0f * 3.14159f;
-	u = cos( alpha );
-	v = sin( alpha );
+	return PointOnCircle( Random(), radius );
 }
 
 
-static inline void RandomPointOnSphere( float& theta, float& phi )
+[[nodiscard]]
+static inline vec3f RandPlanePoint( const vec3f& X, const vec3f& Y )
 {
-	float u = Random();
-	float v = Random();
-
-	theta = 2.0f * 3.14159f;
-	phi = acos( 2.0f * v - 1.0f );
+	const vec3f vec = X.Normalize() * Random() + Y.Normalize() * Random();
+	return vec;
 }
 
-static inline void RandSpherePoint( const float radius, vec3f& outPoint )
-{
-	float theta;
-	float phi;
-	RandomPointOnSphere( theta, phi );
-
-	outPoint[ 0 ] = radius * sin( phi ) * cos( theta );
-	outPoint[ 1 ] = radius * sin( phi ) * sin( theta );
-	outPoint[ 2 ] = radius * cos( phi );
-}
-
-static inline void RandPlanePoint( vec2f& outPoint )
-{
-	outPoint[ 0 ] = Random();
-	outPoint[ 1 ] = Random();
-}
 
 // Fowler–Noll–Vo Hash - fnv1a - 32bits
 // https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
+[[nodiscard]]
 static inline uint32_t Hash( const uint8_t* bytes, const uint32_t sizeBytes )
 {
 	uint32_t result = 2166136261;
@@ -331,6 +346,7 @@ static inline uint32_t Hash( const uint8_t* bytes, const uint32_t sizeBytes )
 
 
 // Polynomial Rolling hash
+[[nodiscard]]
 static constexpr inline uint64_t Hash( const char* s, const int length )
 {
 	const int p = 31;
@@ -346,31 +362,40 @@ static constexpr inline uint64_t Hash( const char* s, const int length )
 }
 
 
+[[nodiscard]]
 static inline uint64_t Hash( const std::string& s )
 {
 	return Hash( s.c_str(), static_cast<int>( s.length() ) );
 }
 
-static inline vec3f RandomVector( float r = 1.0f )
-{
-	float theta;
-	float phi;
-	RandomPointOnSphere( theta, phi );
 
-	vec3f v;
-	v[ 0 ] = r * sin( phi ) * cos( theta );
-	v[ 1 ] = r * sin( phi ) * sin( theta );
-	v[ 2 ] = r * cos( phi );
-	return v;
+template<typename T>
+[[nodiscard]]
+static inline Vector<3, T> RandomVector( T r = (T)1.0 )
+{
+	const float u = Random();
+	const float v = Random();
+
+	const float theta = u * 2.0f * 3.14159f;
+	const float phi = acos( 2.0f * v - 1.0f );
+
+	Vector<3, T> point;
+	point.x = r * sin( phi ) * cos( theta );
+	point.y = r * sin( phi ) * sin( theta );
+	point.z = r * cos( phi );
+
+	return point;
 }
 
 
+[[nodiscard]]
 static inline vec3f ReflectVector( const vec3f& n, const vec3f& v )
 {
 	return ( 2.0f * Dot( v, n ) * n - v );
 }
 
 
+[[nodiscard]]
 static inline vec3f RefractVector( const vec3f& uv, const vec3f& n, float refractionRatio = 1.0f )
 {
 	const float dot = std::min( Dot( uv.Reverse(), n ), 1.0f );

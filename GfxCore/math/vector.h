@@ -39,6 +39,9 @@ template<size_t D, typename T>
 void FlushDenorms( Vector<D, T>& v );
 
 template<size_t D, typename T>
+void Flush( Vector<D, T>& v, const T tolerance );
+
+template<size_t D, typename T>
 [[nodiscard]]
 T Length( const Vector<D, T>& v );
 
@@ -52,6 +55,9 @@ Vector<D, T> Reverse( const Vector<D, T>& u );
 
 template<size_t D, typename T>
 void Fill( Vector<D, T>& v, const T& value );
+
+template<size_t D, typename T>
+void FillRandom( Vector<D, T>& v );
 
 template<size_t D, typename T>
 void Copy( const Vector<D, T>& src, Vector<D, T>& dst );
@@ -126,7 +132,6 @@ static float _vector_trap[ 8 ] = {};
                             inline Vector<D, T>     Normalize()	                    const { return ::Normalize( *this ); }							\
                             inline Vector<D, T>     Reverse()	                    const { return ::Reverse( *this ); }							\
                             inline void			    Fill( const T& value )		          { ::Fill( *this, value ); }								\
-                            inline void             FlushDenorms()                        { ::FlushDenorms( *this ); }								\
                             inline const T&         operator[]( const size_t i )    const { TRAP( i, D ) return elements[ i ]; }					\
                             inline T&               operator[]( const size_t i )          { TRAP( i, D ) return elements[ i ]; }					\
 							inline Vector<D, T>&    operator=( const Vector<D, T>& u )    { if ( this != &u ) { Copy( u, *this ); } return *this; }	\
@@ -339,6 +344,19 @@ void FlushDenorms( Vector<D, T>& v )
 
 
 template<size_t D, typename T>
+void Flush( Vector<D, T>& v, const T tolerance )
+{
+	for ( size_t i = 0; i < D; ++i )
+	{
+		if ( fabs( v[ i ] ) < tolerance )
+		{
+			v[ i ] = static_cast<T>( 0.0 );
+		}
+	}
+}
+
+
+template<size_t D, typename T>
 T Length( const Vector<D, T>& v )
 {
 	T mag = 0.0;
@@ -386,6 +404,15 @@ void Fill( Vector<D, T>& v, const T& value )
 {
 	for ( size_t i = 0; i < D; ++i ) {
 		v[ i ] = value;
+	}
+}
+
+
+template<size_t D, typename T>
+void FillRandom( Vector<D, T>& v )
+{
+	for ( size_t i = 0; i < D; ++i ) {
+		v[ i ] = ( rand() / static_cast<T>( RAND_MAX ) );
 	}
 }
 
@@ -553,7 +580,7 @@ bool operator==( const Vector<D, T>& u, const Vector<D, T>& v )
 
 
 template<size_t D, typename T>
-bool operator !=( const Vector<D, T>& u, const Vector<D, T>& v )
+bool operator!=( const Vector<D, T>& u, const Vector<D, T>& v )
 {
 	return !( u == v );
 }
@@ -570,6 +597,13 @@ template<size_t D, typename T>
 Vector<D, T> operator-( const Vector<D, T>& u, const Vector<D, T>& v )
 {
 	return Subtract( u, v );
+}
+
+
+template<size_t D, typename T>
+Vector<D, T> operator-( const Vector<D, T>& u )
+{
+	return Reverse( u );
 }
 
 

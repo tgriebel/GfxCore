@@ -1,5 +1,19 @@
-﻿  io.cpp
+﻿  mikktspace.c
+  GfxCore.cpp
+  gpuProgram.cpp
+  material.cpp
+  model.cpp
+  texture.cpp
+  bitmap.cpp
+  color.cpp
+  image.cpp
+  io.cpp
+  meshIO.cpp
+  serializeClasses.cpp
   geom.cpp
+  assetBaker.cpp
+  camera.cpp
   entity.cpp
   scene.cpp
+  matrixVectorTests.cpp
   GfxCore.vcxproj -> C:\Users\thoma\source\repos\GfxCore\Release\GfxCore.lib

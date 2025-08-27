@@ -147,29 +147,29 @@ Quaternion<T> Quaternion<T>::operator-()
 
 
 template <typename T>
-void Rotate( const Quaternion<T>& Q, Vector<3, T>& P)
+void Rotate( const Quaternion<T>& Q, Vector<3, T>& m_P)
 {
-	Quaternion<T> V( P );
+	Quaternion<T> V( m_P );
 
 	V = Mult( Mult( Q, V ), Q.conjugate() );
 
-	P[0] = V.x;
-	P[1] = V.y;
-	P[2] = V.z;
+	m_P[0] = V.x;
+	m_P[1] = V.y;
+	m_P[2] = V.z;
 }
 
 
 template <typename T>
-void Rotate( const T theta, const Vector<3, T>& axis, Vector<3, T>& P )
+void Rotate( const T theta, const Vector<3, T>& axis, Vector<3, T>& m_P )
 {
-	Quaternion<T> V( P );
+	Quaternion<T> V( m_P );
 	Quaternion<T> R( theta, axis );
 
 	V = R * V * R.conjugate();
 
-	P[0] = V.x;
-	P[1] = V.y;
-	P[2] = V.z;
+	m_P[0] = V.x;
+	m_P[1] = V.y;
+	m_P[2] = V.z;
 }
 
 

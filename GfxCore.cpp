@@ -29,7 +29,13 @@
 #include <mutex>
 #include "gfxcore/core/common.h"
 #include "gfxcore/core/assetLib.h"
+#include "gfxcore/scene/assetManager.h"
+
+AssetManager g_assets; // This is a mistake. Move all asset and scene stuff out of this project
+
+void RunMatrixSolverTests();
 
 int main()
 {
+	RunMatrixSolverTests();
 }
