@@ -34,8 +34,10 @@
 AssetManager g_assets; // This is a mistake. Move all asset and scene stuff out of this project
 
 void RunMatrixSolverTests();
+void RunMatrixMultiplyTests();
 
 int main()
 {
 	RunMatrixSolverTests();
+	RunMatrixMultiplyTests();
 }

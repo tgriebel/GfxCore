@@ -35,20 +35,21 @@ class Matrix
 {
 private:
 	Vector<N, T> rows[ M ];
-	static constexpr T Epsilon = std::numeric_limits< T >::epsilon() * ( (T) 2.0 );
+	static constexpr T Epsilon = std::numeric_limits< T >::epsilon() * ( (T)2.0 );
 
 	static_assert( sizeof( rows ) == ( M * N * sizeof( T ) ), "Must be plain-old-data." );
 
 public:
 
-	static const size_t RowCount = N;
-	static const size_t ColumnCount = M;
+	static const size_t RowCount = M;
+	static const size_t ColumnCount = N;
+	using TMatrix = Matrix<M, N, T>;
 
 	Matrix( T diagonalValue = static_cast<T>( 0.0 ) )
 	{
-		for ( size_t j = 0; j < N; ++j )
+		for ( size_t j = 0; j < RowCount; ++j )
 		{
-			for ( size_t i = 0; i < M; ++i )
+			for ( size_t i = 0; i < ColumnCount; ++i )
 			{
 				rows[ j ][ i ] = ( i == j ) ? diagonalValue : static_cast<T>( 0.0 );
 			}
@@ -57,27 +58,29 @@ public:
 
 	Matrix( const T values[] )
 	{
-		for ( size_t j = 0; j < N; ++j )
+		for ( size_t j = 0; j < RowCount; ++j )
 		{
-			for ( size_t i = 0; i < M; ++i )
+			for ( size_t i = 0; i < ColumnCount; ++i )
 			{
 				rows[ j ][ i ] = values[ i + ( j * N ) ];
 			}
 		}
 	}
 
-	static Matrix<N, M, T> Identity()
+	static Matrix<M, N, T> Identity()
 	{
-		return Matrix<N, M, T>( 1.0f );
+		return Matrix<M, N, T>( 1.0f );
 	}
 
-	static Matrix<N, M, T> Zero()
+	static Matrix<M, N, T> Zero()
 	{
-		return Matrix<N, M, T>( 0.0f );
+		return Matrix<M, N, T>( 0.0f );
 	}
 
-	Matrix<N, M, T>	Transpose( void );
-	Matrix<N, M, T>	Transpose( void ) const;
+	Matrix<N, M, T>	Transpose( void ) const
+	{
+		return ::Transpose<M, N, T>( *this );
+	}
 
 	Vector<N, T>& operator[]( const size_t i );
 	const Vector<N, T>& operator[]( const size_t i ) const;
@@ -88,7 +91,7 @@ public:
 template< size_t SourceM, size_t SourceN, size_t M, size_t N, typename T>
 class MatrixView
 {
-//	static_assert( ( SourceM >= M ) && ( SourceN >= N ) ), "MatrixView must be subset of source matrix." );
+	//	static_assert( ( SourceM >= M ) && ( SourceN >= N ) ), "MatrixView must be subset of source matrix." );
 
 private:
 	size_t i, j;
@@ -99,14 +102,19 @@ public:
 	static const size_t RowCount = N;
 	static const size_t ColumnCount = M;
 
-	MatrixView( const Matrix< SourceM, SourceN, T>& A, const size_t colOffset, const size_t rowOffset ) : 
+	MatrixView( Matrix< SourceM, SourceN, T>& A, const size_t colOffset, const size_t rowOffset ) :
 		i( colOffset ),
 		j( rowOffset )
 	{
 		for ( size_t r = rowOffset; r < M; ++r )
 		{
-			rows[ r ] = reinterpret_cast< Vector<N, T>* >( &A[ r ] );
+			rows[ r ] = reinterpret_cast<Vector<N, T>*>( &A[ r ] );
 		}
+	}
+
+	Matrix<N, M, T>	Transpose( void ) const
+	{
+		return ::Transpose< Matrix<M, N, T>, Matrix<N, M, T> >( *this );
 	}
 
 	Vector<N, T>& operator[]( size_t i )
@@ -133,34 +141,6 @@ using mat3x3f = Matrix<3, 3, float>;
 using mat3x3d = Matrix<3, 3, double>;
 using mat4x4f = Matrix<4, 4, float>;
 using mat4x4d = Matrix<4, 4, double>;
-
-template< size_t M, size_t N, typename T>
-Matrix<N, M, T> Matrix<M, N, T>::Transpose( void )
-{
-	Matrix<N, M, T> MT;
-	for ( size_t c = 0; c < N; ++c ) {
-		for ( size_t r = 0; r < M; ++r )
-		{
-			MT[ c ][ r ] = rows[ r ][ c ];
-		}
-	}
-	return MT;
-}
-
-
-template< size_t M, size_t N, typename T>
-Matrix<N, M, T> Matrix<M, N, T>::Transpose( void ) const
-{
-	Matrix<N, M, T> MT;
-	for ( size_t c = 0; c < N; ++c )
-	{
-		for ( size_t r = 0; r < M; ++r )
-		{
-			MT[ c ][ r ] = rows[ r ][ c ];
-		}
-	}
-	return MT;
-}
 
 
 template< size_t M, size_t N, typename T>
@@ -225,7 +205,7 @@ Matrix<M, N, T> operator/( const Matrix<M, N, T>& A, T s )
 }
 
 
-template< size_t M1, size_t N1, size_t N2, typename T>
+template<size_t M1, size_t N1, size_t N2, typename T>
 [[nodiscard]]
 Matrix<M1, N2, T> operator*( const Matrix<M1, N1, T>& A, const Matrix<N1, N2, T>& B )
 {
@@ -244,14 +224,14 @@ Matrix<M1, N2, T> operator*( const Matrix<M1, N1, T>& A, const Matrix<N1, N2, T>
 }
 
 
-template< size_t M, size_t N, typename T>
+template<size_t M, size_t N, typename T>
 [[nodiscard]]
 Matrix<M, N, T> operator*( const Matrix<M, N, T>& A, T s )
 {
 	Matrix<M, N, T> B;
-	for ( size_t c = 0; c < N; ++c ) {
-		for ( size_t r = 0; r < M; ++r ) {
-			B[ c ][ r ] = A[ c ][ r ] * s;
+	for ( size_t r = 0; r < Matrix<M, N, T>::RowCount; ++r ) {
+		for ( size_t c = 0; c < Matrix<M, N, T>::ColumnCount; ++c ) {
+			B[ r ][ c ] = A[ r ][ c ] * s;
 		}
 	}
 	return	B;
@@ -298,10 +278,25 @@ Vector<N, T> operator*( const Matrix<M, N, T>& A, const Vector<M, T>& u )
 }
 
 
+template<size_t M, size_t N, typename T>
+Matrix<N, M, T> Transpose( const Matrix<M, N, T>& A )
+{
+	Matrix<N, M, T> AT;
+	for ( size_t c = 0; c < Matrix<M, N, T>::ColumnCount; ++c )
+	{
+		for ( size_t r = 0; r < Matrix<M, N, T>::RowCount; ++r )
+		{
+			AT[ c ][ r ] = A[ r ][ c ];
+		}
+	}
+	return AT;
+}
+
+
 template< size_t M, size_t N, typename T>
 void Flush( Matrix<M, N, T>& A, const T tolerance )
 {
-	for ( uint32_t r = 0; r < M; ++r ) {
+	for ( uint32_t r = 0; r < Matrix<M, N, T>::RowCount; ++r ) {
 		Flush( A[ r ], tolerance );
 	}
 }
@@ -310,7 +305,7 @@ void Flush( Matrix<M, N, T>& A, const T tolerance )
 template< size_t M, size_t N, typename T>
 void Fill( Matrix<M, N, T>& A, const T& value )
 {
-	for ( uint32_t r = 0; r < M; ++r ) {
+	for ( uint32_t r = 0; r < Matrix<M, N, T>::RowCount; ++r ) {
 		Fill( A[ r ], value );
 	}
 }
@@ -319,7 +314,7 @@ void Fill( Matrix<M, N, T>& A, const T& value )
 template< size_t M, size_t N, typename T>
 void FillRandom( Matrix<M, N, T>& A )
 {
-	for ( uint32_t r = 0; r < M; ++r ) {
+	for ( uint32_t r = 0; r < Matrix<M, N, T>::RowCount; ++r ) {
 		FillRandom( A[ r ] );
 	}
 }
@@ -429,13 +424,13 @@ Matrix<4, 4, T> Invert( const Matrix<4, 4, T>& A, bool& invertible )
 	return ( CofactorMatrix( A ).Transpose() ) * ( static_cast<T>( 1.0 ) / det_val );
 }
 
-template< size_t M, size_t N, typename T>
+template<size_t M, size_t N, typename T>
 T Convolution( const Matrix<M, N, T>& A, const Matrix<M, N, T>& B )
 {
 	T sum = 0;
-	for ( size_t r = 0; r < M; ++r )
+	for ( size_t r = 0; r < Matrix<M, N, T>::RowCount; ++r )
 	{
-		for ( size_t c = 0; c < N; ++c )
+		for ( size_t c = 0; c < Matrix<M, N, T>::ColumnCount; ++c )
 		{
 			sum += A[ r ][ c ] * B[ r ][ c ];
 		}
@@ -444,7 +439,7 @@ T Convolution( const Matrix<M, N, T>& A, const Matrix<M, N, T>& B )
 }
 
 
-template< size_t M, size_t N, typename T>
+template<size_t M, size_t N, typename T>
 [[nodiscard]]
 Matrix<M, N, T> Identity()
 {
@@ -452,30 +447,36 @@ Matrix<M, N, T> Identity()
 }
 
 
-template< size_t M, size_t N, typename T>
+template<size_t N, typename T>
 [[nodiscard]]
 bool IsInvertible( const Matrix<N, N, T>& m )
 {
+	static_assert( Matrix<N, N, T>::RowCount == Matrix<N, N, T>::ColumnCount, "Must be square." );
+
 	return ( Det( m ) != 0 );
 }
 
 
-template< size_t M, size_t N, typename T>
+template<size_t N, typename T>
 [[nodiscard]]
-bool IsOrthonormal( const Matrix<N, N, T>& A, const float tolerance )
+bool IsOrthonormal( const Matrix<N, N, T>& A, const T tolerance )
 {
-	Matrix<M, N, T> I = A * A.Transpose();
+	static_assert( Matrix<N, N, T>::RowCount == Matrix<N, N, T>::ColumnCount, "Must be square." );
+
+	Matrix<N, N, T> I = A * A.Transpose();
 	return IsIdentity( I, tolerance );
 }
 
 
-template< size_t N, typename T>
+template<size_t N, typename T>
 [[nodiscard]]
 bool IsIdentity( const Matrix<N, N, T>& A, const T tolerance )
 {
-	for ( size_t r = 0; r < N; ++r )
+	static_assert( Matrix<N, N, T>::RowCount == Matrix<N, N, T>::ColumnCount, "Must be square." );
+
+	for ( size_t r = 0; r < Matrix<N, N, T>::RowCount; ++r )
 	{
-		for ( size_t c = 0; c < N; ++c )
+		for ( size_t c = 0; c < Matrix<N, N, T>::ColumnCount; ++c )
 		{
 			if ( ( c == r ) && ( fabs( A[ r ][ c ] - 1.0 ) > tolerance ) )
 			{
@@ -491,12 +492,12 @@ bool IsIdentity( const Matrix<N, N, T>& A, const T tolerance )
 }
 
 
-template< size_t M, size_t N, typename T >
+template<size_t M, size_t N, typename T>
 std::ostream& operator<<( std::ostream& stream, const Matrix<M, N, T>& A )
 {
 	stream << "[";
-	for ( size_t r = 0; r < M; ++r ) {
-		stream << A[ r ] << ( ( r + 1 < M ) ? ",\n" : "" );
+	for ( size_t r = 0; r < Matrix<M, N, T>::RowCount; ++r ) {
+		stream << A[ r ] << ( ( r + 1 < Matrix<M, N, T>::RowCount ) ? ",\n" : "" );
 	}
 	stream << "]";
 	return stream;
