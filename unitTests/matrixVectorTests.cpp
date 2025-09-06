@@ -3,129 +3,143 @@
 #include "../gfxcore/math/matrixSolvers.h"
 #include "../gfxcore/core/util.h"
 
-void ScanVectorsLUSolver( const mat4x4f& A, const float tolerance, const float delta )
+struct testContext_t
 {
-	float length = 1.0f;
+	uint32_t testNum;
+	uint32_t testCount;
+	uint32_t testsPassed;
+};
 
-	uint32_t testsPasses = 0;
-	uint32_t testCount = 0;
 
-	mat4x4f LU = A;
-	LUPSolver<4, float> solver( A, LU, tolerance );
+class TestKernel
+{
+public:
+	virtual bool Run( testContext_t& context ) = 0;
+	virtual const char* Name() = 0;
+};
 
-	float v = delta;
 
-	while( v <= ( 1.0f - delta ) )
+class QRDecompositionTest final : public TestKernel
+{
+public:
+	const char* Name() override
 	{
-		float u = 0.0f;
-		while ( u <= 1.0f )
+		return "Matrix QR";
+	}
+
+	bool Run( testContext_t& context ) override
+	{
+		float errorTol = 0.0001f;
+
+		mat4x4f A = RandomSolveableMatrix();
+
+		mat4x4f Q, R;
+		QR( A, Q, R );
+
+		const float error = fabs( GrandSum( Q * R - A ) / 16.0f );
+
+		if ( ( error <= errorTol ) && IsOrthonormal( Q, errorTol ) ) {
+			return true;
+		}
+		return false;
+	}
+};
+
+
+class LUPDecompositionTest final : public TestKernel
+{
+private:
+
+	void ScanVectorsLUSolver( const mat4x4f& A, const float tolerance, const float delta )
+	{
+		float length = 1.0f;
+
+		uint32_t testsPasses = 0;
+		uint32_t testCount = 0;
+
+		mat4x4f LU = A;
+		LUPSolver<4, float> solver( A, LU, tolerance );
+
+		float v = delta;
+
+		while ( v <= ( 1.0f - delta ) )
 		{
-			vec4f x( RandomVector( length ), 1.0f );
+			float u = 0.0f;
+			while ( u <= 1.0f )
+			{
+				vec4f x( RandomVector( length ), 1.0f );
+
+				vec4f b = A * x;
+
+				vec4f x2;
+				bool ret = solver.Solve( b, x2 );
+				if ( !ret )
+				{
+					std::cout << "Solve Failed" << std::endl;
+					continue;
+				}
+
+				const float error = ( ( A * x2 ) - b ).Length();
+
+				if ( error < tolerance ) {
+					++testsPasses;
+				}
+				else {
+					std::cout << "LU Solve with Unit Vectors Failed: " << x << " " << x2 << " (" << error << " )" << std::endl;
+				}
+				++testCount;
+				u += delta;
+			}
+			v += delta;
+		}
+		if ( testsPasses != testCount ) {
+			std::cout << "LU Solve with Unit Vectors: " << testsPasses << " tests passed out of " << testCount << std::endl;
+		}
+	}
+
+	void RandomVectorLUSolver( const mat4x4f& A, const float tolerance, const uint32_t testCount )
+	{
+		uint32_t testsPasses = 0;
+
+		mat4x4f LU = A;
+
+		LUPSolver<4, float> solver( A, LU, tolerance );
+
+		for ( uint32_t t = 0; t < testCount; ++t )
+		{
+			vec4f x( RandomVector( 1.0f ), 1.0f );
 
 			vec4f b = A * x;
 
 			vec4f x2;
-			bool ret = solver.Solve( b, x2 );
-			if ( !ret )
-			{
-				std::cout << "Solve Failed" << std::endl;
-				continue;
-			}
+			solver.Solve( b, x2 );
 
 			const float error = ( ( A * x2 ) - b ).Length();
 
-			if ( error < tolerance ) {
-				++testsPasses;
-			} else {
-				std::cout << "LU Solve with Unit Vectors Failed: " << x << " " << x2 << " (" << error << " )" << std::endl;
+			if ( error > tolerance ) {
+				std::cout << "X: " << x << ", Solved X: " << x2 << std::endl;
 			}
-			++testCount;
-			u += delta;
-		}	
-		v += delta;
+			else {
+				++testsPasses;
+			}
+		}
+
+		if ( testsPasses != testCount ) {
+			std::cout << "LU Solve with Random Unit Vectors: " << testsPasses << " tests passed out of " << testCount << std::endl;
+		}
 	}
-	if ( testsPasses != testCount ) {
-		std::cout << "LU Solve with Unit Vectors: " << testsPasses << " tests passed out of " << testCount << std::endl;
-	}
-}
 
-void RandomVectorLUSolver( const mat4x4f& A, const float tolerance, const uint32_t testCount )
-{
-	uint32_t testsPasses = 0;
-
-	mat4x4f LU = A;
-
-	LUPSolver<4, float> solver( A, LU, tolerance );
-
-	for ( uint32_t t = 0; t < testCount; ++t )
+public:
+	const char* Name() override
 	{
-		vec4f x( RandomVector( 1.0f ), 1.0f );
-
-		vec4f b = A * x;
-
-		vec4f x2;
-		solver.Solve( b, x2 );
-
-		const float error = ( ( A * x2 ) - b ).Length();
-
-		if ( error > tolerance ) {
-			std::cout << "X: " << x << ", Solved X: " << x2 << std::endl;
-		} else {
-			++testsPasses;
-		}
+		return "LUP Solver";
 	}
 
-	if( testsPasses != testCount ) {
-		std::cout << "LU Solve with Random Unit Vectors: " << testsPasses << " tests passed out of " << testCount << std::endl;
-	}
-}
-
-
-mat4x4f RandomMatrix()
-{
-	mat4x4f M;
-
-	for ( uint32_t r = 0; r < 4; ++r ) {
-		for ( uint32_t c = 0; c < 4; ++c ) {
-			M[ r ][ c ] = Random();
-		}
-	}
-
-	float sum = 0.0f;
-	for ( uint32_t c = 0; c < 4; ++c ) {
-		sum += fabs( M[ 0 ][ c ] );
-	}
-
-	for ( uint32_t c = 0; c < 4; ++c ) {
-		M[ c ][ c ] += sum;
-	}
-
-	return M;
-}
-
-
-void RunMatrixSolverTests()
-{
-	float errorTol = 0.00001f;
-
-	uint32_t testsPasses = 0;
-	uint32_t testCount = 1000;
-
-	uint32_t testNumber = 0;
-
-	while( testNumber < testCount )
+	bool Run( testContext_t& context ) override
 	{
-		mat4x4f A = RandomMatrix();
+		float errorTol = 0.0001f;
 
-		bool invertible;
-		mat4x4f IA = m_LUI( A, invertible );
-
-		mat4x4f I = A * IA;
-		Flush( I, errorTol );
-
-		if( !( invertible && IsIdentity( I, errorTol ) ) ) {
-			continue;
-		}
+		mat4x4f A = RandomSolveableMatrix();
 
 		mat4x4f LU = A;
 
@@ -134,16 +148,206 @@ void RunMatrixSolverTests()
 		const mat4x4f& inverseFromLU = solver.Inverse();
 
 		const bool identiyCheck = IsIdentity( A * inverseFromLU, 0.00001f );
-		
+
 		if ( identiyCheck == false || solver.Determinant() == 0.0f ) {
 			std::cout << inverseFromLU << " " << solver.Determinant() << std::endl;
 		}
 
-		//A = mat4x4f( 3.0f );
-
 		RandomVectorLUSolver( A, errorTol, 1000 );
 		ScanVectorsLUSolver( A, errorTol, 0.01f );
-
-		++testNumber;
 	}
+};
+
+
+class MatrixIdentityTest final : public TestKernel
+{
+private:
+
+	mat4x4f I;
+	float errorTol = 0.00001f;
+
+public:
+
+	MatrixIdentityTest()
+	{
+		I = mat4x4f::Identity();
+	}
+
+	const char* Name() override
+	{
+		return "Matrix Identity";
+	}
+
+	bool Run( testContext_t& context ) override
+	{
+		vec4f x( RandomVector( 1.0f ), 1.0f );
+
+		vec4f b = I * x;
+
+		const float error = ( x - b ).Length();
+
+		if ( error <= errorTol ) {
+			return true;
+		}
+		return false;
+	}
+};
+
+
+class MatrixScaleTest final : public TestKernel
+{
+private:
+
+	mat4x4f I;
+	float errorTol = 0.00001f;
+
+public:
+
+	MatrixScaleTest()
+	{
+		mat4x4f I = mat4x4f::Identity();
+	}
+
+	const char* Name() override
+	{
+		return "Matrix Scale";
+	}
+
+	bool Run( testContext_t& context ) override
+	{
+		const float s = static_cast<float>( context.testNum ) - ( context.testCount / 2.0f );
+		const mat4x4f A = s * mat4x4f::Identity();
+
+		const vec4f x( RandomVector( 1.0f ), 1.0f );
+
+		vec4f b = A * x;
+
+		const float error = ( s * x - b ).Length();
+
+		if ( error <= errorTol ) {
+			return true;
+		}
+		return false;
+	}
+};
+
+
+class MatrixMultiplyTest final : public TestKernel
+{
+private:
+
+	mat4x4f I;
+	float errorTol = 0.0001f;
+
+public:
+
+	MatrixMultiplyTest()
+	{
+		mat4x4f I = mat4x4f::Identity();
+	}
+
+	const char* Name() override
+	{
+		return "Matrix Multiply";
+	}
+
+	bool Run( testContext_t& context ) override
+	{
+		const float percentDone = context.testNum / static_cast<float>( context.testCount );
+		const float degrees = Degrees( 2.0f * percentDone * PI );
+		const mat4x4f A = ComputeRotationX( degrees );
+
+		const vec4f x( 0.0f, 1.0f, 0.0f, 0.0f );
+
+		vec4f b = A * x;
+
+		const float angle = Angle( x, b );
+		const float adjustedDegrees = ( degrees > 180.0f ) ? ( 360.0f - degrees ) : degrees;
+
+		const float error = fabs( angle - adjustedDegrees );
+
+		if ( error <= errorTol ) {
+			return true;
+		}
+		return false;
+	}
+};
+
+
+void RunHarness( TestKernel* test, const uint32_t testCount )
+{
+	testContext_t context;
+
+	context.testNum = 0;
+	context.testsPassed = 0;
+	context.testCount = testCount;
+
+	while ( context.testNum < context.testCount )
+	{
+		context.testsPassed += test->Run( context ) ? 1 : 0;
+		++context.testNum;
+	}
+
+	if ( context.testsPassed != context.testCount ) {
+		std::cout << test->Name() << ": " << context.testsPassed << " tests passed out of " << context.testCount << std::endl;
+	}
+
+	delete test;
+}
+
+
+//template <size_t D, typename T, typename S>
+//class Vector
+//{
+//public:
+//
+//	union
+//	{
+//		T elements[ D ];
+//	};
+//
+//	VECTOR_COMMON( D, T, S )
+//};
+
+void RunMatrixTests()
+{
+	mat4x4f A( 1.0f );
+	mat4x4f B( 2.0f );
+	Flush( A, 0.0001f );
+
+	mat4x4f C = A * 10.0f;
+	C = C / 2.0f;
+	C = 2.0f * C;
+
+	mat4x4f S0 = CreateMatrix4x4( 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f );
+
+ 	MatrixV< 4, 4, 3, 3, float > matrixView( S0, 1, 1 );
+
+	mat3x3f S1 = CreateMatrix3x3( 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f );
+	MatrixV< 3, 3, 2, 2, float > cof00( S1, 0, 0 );
+
+	std::cout << Det( cof00 ) << std::endl;
+
+	std::cout << C << std::endl;
+	std::cout << S0 << std::endl;
+	std::cout << matrixView << std::endl;
+
+	//MatrixView< 4, 4, 3, 3, float> matrixView( A, 0, 0 );
+
+	//matrixView = matrixView * matrixView;
+
+	RunHarness( new MatrixIdentityTest(), 100 );
+	RunHarness( new MatrixScaleTest(), 100 );
+	RunHarness( new MatrixMultiplyTest(), 100 );
+	RunHarness( new QRDecompositionTest(), 100 );
+//	RunHarness( new LUPDecompositionTest(), 100 );
+}
+
+
+void RunVectorTests()
+{
+	vec4f v0( 1.0f, 2.0f, 3.0f, 4.0f );
+	vec4f v1( 5.0f, 6.0f, 7.0f, 8.0f );
+
+	std::cout << ( v0 + v1 ) << std::endl;
 }

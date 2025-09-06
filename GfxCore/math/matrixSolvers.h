@@ -22,15 +22,15 @@ template< size_t N, typename T>
 class LUPSolver
 {
 private:
-    const Matrix<N, N, T>&  m_A;
-    Matrix<N, N, T>&        m_LU;
-    Matrix<N, N, T>         m_I;
-    Matrix<N, N, T>         m_P;
-    T                       m_det;
-    uint32_t                m_pivotIndices[ N + 1 ]; // Implicitly stored to avoid explicit multiplications
-    uint32_t                m_rowExchanges;
-    luStateBits_t           m_state;
-    T                       m_tolerance;
+    const MatrixP<N, N, T>&   m_A;
+    MatrixP<N, N, T>&         m_LU;
+    MatrixP<N, N, T>          m_I;
+    MatrixP<N, N, T>          m_P;
+    T                           m_det;
+    uint32_t                    m_pivotIndices[ N + 1 ]; // Implicitly stored to avoid explicit multiplications
+    uint32_t                    m_rowExchanges;
+    luStateBits_t               m_state;
+    T                           m_tolerance;
 
     void    ComputeDecomposition();
     void    ComputeInverse();
@@ -43,10 +43,10 @@ public:
         return ( m_state != luStateBits_t::LU_UNKNOWN ) && !HasFlags( m_state, luStateBits_t::LU_FAILED );
     }
 
-    LUPSolver( const Matrix<N, N, T>& A, Matrix<N, N, T>& LU, const T tolerance ) : m_A( A ), m_LU( LU ), m_tolerance( tolerance )
+    LUPSolver( const MatrixP<N, N, T>& A, MatrixP<N, N, T>& LU, const T tolerance ) : m_A( A ), m_LU( LU ), m_tolerance( tolerance )
     {
-        m_I = Matrix<N, N, T>( 1.0 );
-        m_P = Matrix<N, N, T>( 0.0 );
+        m_I = MatrixP<N, N, T>( 1.0 );
+        m_P = MatrixP<N, N, T>( 0.0 );
 
         m_rowExchanges = 0;
         m_state = luStateBits_t::LU_UNKNOWN;
@@ -57,30 +57,30 @@ public:
         ComputeDeterminant();
     }
 
-    const Matrix<N, N, T>&  LU() const;
-    const Matrix<N, N, T>&  P() const;
-    const Matrix<N, N, T>&  Inverse() const;
-    T                       Determinant() const;
-    bool                    Solve( const Vector<N, T>& b, Vector<N, T>& x ) const;
+    const MatrixP<N, N, T>&     LU() const;
+    const MatrixP<N, N, T>&     P() const;
+    const MatrixP<N, N, T>&     Inverse() const;
+    T                           Determinant() const;
+    bool                        Solve( const Vector<N, T, PodStorage>& b, Vector<N, T, PodStorage>& x ) const;
 };
 
 
 template< size_t N, typename T>
-const Matrix<N, N, T>& LUPSolver<N, T>::LU() const
+const MatrixP<N, N, T>& LUPSolver<N, T>::LU() const
 {
     return m_LU;
 }
 
 
 template< size_t N, typename T>
-const Matrix<N, N, T>& LUPSolver<N, T>::P() const
+const MatrixP<N, N, T>& LUPSolver<N, T>::P() const
 {
     return m_P;
 }
 
 
 template< size_t N, typename T>
-const Matrix<N, N, T>& LUPSolver<N, T>::Inverse() const
+const MatrixP<N, N, T>& LUPSolver<N, T>::Inverse() const
 {
     return m_I;
 }
@@ -140,7 +140,7 @@ void LUPSolver<N, T>::ComputeDecomposition()
             m_pivotIndices[ iMax ] = j;
 
             // Pivot rows, original implementation used pointer to row
-            Vector<N, T> row = m_LU[ i ];
+            Vector<N, T, PodStorage> row = m_LU[ i ];
             m_LU[ i ] = m_LU[ iMax ];
             m_LU[ iMax ] = row;
 
@@ -171,7 +171,7 @@ void LUPSolver<N, T>::ComputeDecomposition()
 /* Solves for `x` in `A * x = b`
  */
 template< size_t N, typename T>
-bool LUPSolver<N, T>::Solve( const Vector<N, T>& b, Vector<N, T>& x ) const
+bool LUPSolver<N, T>::Solve( const Vector<N, T, PodStorage>& b, Vector<N, T, PodStorage>& x ) const
 {
     if( IsValid() == false )
     {
@@ -252,4 +252,28 @@ void LUPSolver<N, T>::ComputeDeterminant()
     m_state |= luStateBits_t::LU_DETERMINENT_COMPUTED;
     m_det = ( m_rowExchanges - N ) % 2 == 0 ? det : -det;
     m_det = ( fabs( m_det ) < m_tolerance ) ? (T)0.0 : m_det;
+}
+
+
+// https://www.math.uci.edu/~ttrogdon/105A/html/Lecture23.html
+template<size_t N, typename T, typename S>
+void QR( const Matrix<N, N, T, S>& A, Matrix<N, N, T, S>& Q, Matrix<N, N, T, S>& R )
+{
+    Matrix<N, N, T, S> V;
+
+    // Matrix indices assume row-major, algorithm uses columns
+    V = A.Transpose();
+
+    for ( uint32_t j = 0; j < N; ++j )
+    {
+        R[ j ][ j ] = V[ j ].Length();
+        Q[ j ] = V[ j ] / R[ j ][ j ];
+
+        for ( uint32_t k = j + 1; k < N; ++k )
+        {
+            R[ j ][ k ] = Dot( Q[ j ], V[ k ] );
+            V[ k ] = V[ k ] - R[ j ][ k ] * Q[ j ];
+        }
+    }
+    Q = Q.Transpose();
 }

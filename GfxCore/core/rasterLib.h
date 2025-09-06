@@ -170,7 +170,7 @@ inline void ApplyBlur( Bitmap& bitmap, Bitmap& output )
 	const uint32_t kernelWidth = 3;
 	const uint32_t kernelSize = ( kernelWidth * kernelWidth );
 
-	using matKern_t = Matrix<kernelWidth, kernelWidth, int32_t>;
+	using matKern_t = MatrixP<kernelWidth, kernelWidth, int32_t>;
 
 	matKern_t kernel( values );
 	float divisor = 1; // shouldn't blur more than # pixels in covolution
@@ -197,7 +197,7 @@ inline void ApplyBlur( Bitmap& bitmap, Bitmap& output )
 					rChannel[ v ] = Color( kValues[ v ] ).AsRgba8().r;
 				}
 
-				Matrix<3, 3, int32_t> rSample( rChannel );
+				MatrixP<3, 3, int32_t> rSample( rChannel );
 				rSum = Convolution( rSample, kernel );
 				rSum = (int32_t) ( (float) rSum / divisor );
 			}

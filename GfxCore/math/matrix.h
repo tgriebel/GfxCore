@@ -26,24 +26,56 @@
 #include <math.h>
 #include "vector.h"
 
+// Dummy types for template specialization
+template<size_t M, size_t N>
+class CofactorMatrixStorage {};
+
 //------------------------------------------------------------------------//
 // Matrix class and matrix functions
 //------------------------------------------------------------------------//
 
-template< size_t M, size_t N, typename T>
+// Generic Matrix template. Can be specialized for plain-old-data, views, and sparse matrix types
+template<size_t M, size_t N, typename T, typename StorageType>
 class Matrix
 {
+public:
+	Matrix<N, M, T, StorageType> Transpose( void ) const
+	{
+		return ::Transpose<M, N, T, StorageType>( *this );
+	}
+
+	Vector<N, T, StorageType>& operator[]( const size_t rowIndex )
+	{
+		static_assert( 0, "Abstract Template" );
+		return Vector<N, T, StorageType>();
+	}
+
+	const Vector<N, T, StorageType>& operator[]( const size_t rowIndex ) const
+	{
+		static_assert( 0, "Abstract Template" );
+		return Vector<N, T, StorageType>();
+	}
+};
+
+
+template< size_t M, size_t N, typename T>
+class Matrix<M, N, T, PodStorage>
+{
+public:
+
+	static const size_t RowCount = M;
+	static const size_t ColumnCount = N;
+	using Type = Matrix<M, N, T, PodStorage>;
+	using TransposeType = Matrix<N, M, T, PodStorage>;
+	using RowType = Vector<N, T, PodStorage>;
+
 private:
-	Vector<N, T> rows[ M ];
+	RowType rows[ M ];
 	static constexpr T Epsilon = std::numeric_limits< T >::epsilon() * ( (T)2.0 );
 
 	static_assert( sizeof( rows ) == ( M * N * sizeof( T ) ), "Must be plain-old-data." );
 
 public:
-
-	static const size_t RowCount = M;
-	static const size_t ColumnCount = N;
-	using TMatrix = Matrix<M, N, T>;
 
 	Matrix( T diagonalValue = static_cast<T>( 0.0 ) )
 	{
@@ -67,104 +99,133 @@ public:
 		}
 	}
 
-	static Matrix<M, N, T> Identity()
+	static constexpr Type Identity()
 	{
-		return Matrix<M, N, T>( 1.0f );
+		return Type( 1.0f );
 	}
 
-	static Matrix<M, N, T> Zero()
+	static constexpr Type Zero()
 	{
-		return Matrix<M, N, T>( 0.0f );
+		return Type( 0.0f );
 	}
 
-	Matrix<N, M, T>	Transpose( void ) const
+	inline TransposeType Transpose( void ) const
 	{
-		return ::Transpose<M, N, T>( *this );
+		return ::Transpose<M, N, T, PodStorage>( *this );
 	}
 
-	Vector<N, T>& operator[]( const size_t i );
-	const Vector<N, T>& operator[]( const size_t i ) const;
+	inline RowType& operator[]( const size_t rowIndex )
+	{
+		return rows[ rowIndex ];
+	}
+
+	inline const RowType& operator[]( const size_t rowIndex ) const
+	{
+		return rows[ rowIndex ];
+	}
 };
 
-// Convenience class for taking subsets of a matrix to avoid copies
-// TODO: Define matrix functions in terms of MatrixView, polymorphism, or templatize them
-template< size_t SourceM, size_t SourceN, size_t M, size_t N, typename T>
-class MatrixView
+
+template<size_t SourceM, size_t SourceN, size_t M, size_t N, typename T>
+class Matrix< M, N, T, ViewStorage<SourceM, SourceN> >
 {
-	//	static_assert( ( SourceM >= M ) && ( SourceN >= N ) ), "MatrixView must be subset of source matrix." );
-
-private:
-	size_t i, j;
-	Vector<N, T>* rows[ M ]; // Allows for discontinuous memory
-
 public:
 
 	static const size_t RowCount = N;
 	static const size_t ColumnCount = M;
+	using SourceType = Matrix<SourceM, SourceN, T, PodStorage>;
+	using Type = Matrix<M, N, T, ViewStorage<SourceM, SourceN> >;
+	using TransposeType = Matrix<N, M, T, PodStorage>;
+	using RowType = Vector<N, T, PodStorage >;
 
-	MatrixView( Matrix< SourceM, SourceN, T>& A, const size_t colOffset, const size_t rowOffset ) :
-		i( colOffset ),
-		j( rowOffset )
+private:
+	size_t sourceRow;
+	size_t sourceCol;
+	RowType* rows[ M ]; // Allows for discontinuous memory
+
+	Matrix();
+
+public:
+
+	Matrix( SourceType& A, const size_t rowOffset = 0, const size_t colOffset = 0 )
 	{
-		for ( size_t r = rowOffset; r < M; ++r )
+		// Clamp so last element doesn't exceed max
+		sourceRow = ( SourceM - M );
+		sourceRow = ( sourceRow > rowOffset ) ? rowOffset : sourceRow;
+
+		sourceCol = ( SourceN - N );
+		sourceCol = ( sourceCol > colOffset ) ? colOffset : sourceCol;
+
+		size_t viewRowIndex = 0;
+		for ( size_t r = sourceRow; r < ( sourceRow + M ); ++r )
 		{
-			rows[ r ] = reinterpret_cast<Vector<N, T>*>( &A[ r ] );
+			rows[ viewRowIndex ] = reinterpret_cast<RowType*>( &( A[ r ][ sourceCol ] ) );
+			++viewRowIndex;
 		}
 	}
 
-	Matrix<N, M, T>	Transpose( void ) const
+	inline TransposeType Transpose( void ) const
 	{
-		return ::Transpose< Matrix<M, N, T>, Matrix<N, M, T> >( *this );
+		return ::Transpose<M, N, T, PodStorage>( *this );
 	}
 
-	Vector<N, T>& operator[]( size_t i )
+	inline RowType& operator[]( const size_t rowIndex )
 	{
-		return rows[ i ];
+		return *rows[ rowIndex ];
 	}
 
-	const Vector<N, T>& operator[]( size_t i ) const
+	inline const RowType& operator[]( const size_t rowIndex ) const
 	{
-		return rows[ i ];
+		return *rows[ rowIndex ];
 	}
 };
 
+
+template<size_t M, size_t N, typename T>
+using MatrixP = Matrix<M, N, T, PodStorage>;
+
+template<size_t SourceM, size_t SourceN, size_t M, size_t N, typename T>
+using MatrixV = Matrix< M, N, T, ViewStorage<SourceM, SourceN> >;
+
+//template<size_t M, size_t N, typename T>
+//using MatrixC = Matrix< M, N, T, CofactorMatrixStorage<M, N> >;
+
+//template<size_t M, size_t N, typename T>
+//using MatrixS = Matrix<M, N, T, SparseStorage>;
+
+template<typename T>
+using Matrix2 = MatrixP<2, 2, T>;
+
+template<typename T>
+using Matrix3 = MatrixP<3, 3, T>;
+
+template<typename T>
+using Matrix4 = MatrixP<4, 4, T>;
+
+using mat2x2f = MatrixP<2, 2, float>;
+using mat2x2d = MatrixP<2, 2, double>;
+using mat3x3f = MatrixP<3, 3, float>;
+using mat3x3d = MatrixP<3, 3, double>;
+using mat4x4f = MatrixP<4, 4, float>;
+using mat4x4d = MatrixP<4, 4, double>;
+
+
+template<typename T, typename S>
+T Det( const Matrix<2, 2, T, S>& A );
 template< typename T>
-T Det( const Matrix<2, 2, T>& A );
+T Det( const MatrixP<3, 3, T>& A );
 template< typename T>
-T Det( const Matrix<3, 3, T>& A );
-template< typename T>
-T Det( const Matrix<4, 4, T>& A );
-
-using mat2x2f = Matrix<2, 2, float>;
-using mat2x2d = Matrix<2, 2, double>;
-using mat3x3f = Matrix<3, 3, float>;
-using mat3x3d = Matrix<3, 3, double>;
-using mat4x4f = Matrix<4, 4, float>;
-using mat4x4d = Matrix<4, 4, double>;
+T Det( const MatrixP<4, 4, T>& A );
 
 
-template< size_t M, size_t N, typename T>
-Vector<N, T>& Matrix<M, N, T>::operator[]( const size_t i )
-{
-	return rows[ i ];
-}
-
-
-template< size_t M, size_t N, typename T>
-const Vector<N, T>& Matrix<M, N, T>::operator[]( const size_t i ) const
-{
-	return rows[ i ];
-}
-
-
-template< size_t M, size_t N, typename T>
+template< size_t M, size_t N, typename T, typename S>
 [[nodiscard]]
-Matrix<M, N, T> operator+( const Matrix<M, N, T>& A, const Matrix<M, N, T>& B )
+Matrix<M, N, T, S> operator+( const Matrix<M, N, T, S>& A, const Matrix<M, N, T, S>& B )
 {
-	Matrix<M, N, T> C;
-	for ( size_t c( 0 ); c < N; ++c )
+	Matrix<M, N, T, S> C;
+	for ( size_t c = 0; c < N; ++c )
 	{
-		for ( size_t r( 0 ); r < M; ++r )
+		for ( size_t r = 0; r < M; ++r )
 		{
 			C[ c ][ r ] = A[ c ][ r ] + B[ c ][ r ];
 		}
@@ -173,14 +234,14 @@ Matrix<M, N, T> operator+( const Matrix<M, N, T>& A, const Matrix<M, N, T>& B )
 }
 
 
-template< size_t M, size_t N, typename T>
+template< size_t M, size_t N, typename T, typename S>
 [[nodiscard]]
-Matrix<M, N, T> operator-( const Matrix<M, N, T>& A, const Matrix<M, N, T>& B )
+Matrix<M, N, T, S> operator-( const Matrix<M, N, T, S>& A, const Matrix<M, N, T, S>& B )
 {
-	Matrix<M, N, T> C;
-	for ( size_t c( 0 ); c < N; ++c )
+	Matrix<M, N, T, S> C;
+	for ( size_t c = 0; c < N; ++c )
 	{
-		for ( size_t r( 0 ); r < M; ++r )
+		for ( size_t r = 0; r < M; ++r )
 		{
 			C[ c ][ r ] = A[ c ][ r ] - B[ c ][ r ];
 		}
@@ -189,11 +250,11 @@ Matrix<M, N, T> operator-( const Matrix<M, N, T>& A, const Matrix<M, N, T>& B )
 }
 
 
-template< size_t M, size_t N, typename T>
+template< size_t M, size_t N, typename T, typename S>
 [[nodiscard]]
-Matrix<M, N, T> operator/( const Matrix<M, N, T>& A, T s )
+Matrix<M, N, T, S> operator/( const Matrix<M, N, T, S>& A, T s )
 {
-	Matrix<M, N, T> B;
+	Matrix<M, N, T, S> B;
 	for ( size_t c = 0; c < M; ++c )
 	{
 		for ( size_t r = 0; r < N; ++r )
@@ -205,11 +266,11 @@ Matrix<M, N, T> operator/( const Matrix<M, N, T>& A, T s )
 }
 
 
-template<size_t M1, size_t N1, size_t N2, typename T>
+template<size_t M1, size_t N1, size_t N2, typename T, typename S>
 [[nodiscard]]
-Matrix<M1, N2, T> operator*( const Matrix<M1, N1, T>& A, const Matrix<N1, N2, T>& B )
+Matrix<M1, N2, T, S> operator*( const Matrix<M1, N1, T, S>& A, const Matrix<N1, N2, T, S>& B )
 {
-	Matrix<M1, N2, T> C;
+	Matrix<M1, N2, T, S> C;
 	for ( size_t r = 0; r < M1; ++r )
 	{
 		for ( size_t c = 0; c < N2; ++c )
@@ -224,13 +285,13 @@ Matrix<M1, N2, T> operator*( const Matrix<M1, N1, T>& A, const Matrix<N1, N2, T>
 }
 
 
-template<size_t M, size_t N, typename T>
+template<size_t M, size_t N, typename T, typename S>
 [[nodiscard]]
-Matrix<M, N, T> operator*( const Matrix<M, N, T>& A, T s )
+Matrix<M, N, T, S> operator*( const Matrix<M, N, T, S>& A, T s )
 {
-	Matrix<M, N, T> B;
-	for ( size_t r = 0; r < Matrix<M, N, T>::RowCount; ++r ) {
-		for ( size_t c = 0; c < Matrix<M, N, T>::ColumnCount; ++c ) {
+	Matrix<M, N, T, S> B;
+	for ( size_t r = 0; r < M; ++r ) {
+		for ( size_t c = 0; c < N; ++c ) {
 			B[ r ][ c ] = A[ r ][ c ] * s;
 		}
 	}
@@ -238,17 +299,17 @@ Matrix<M, N, T> operator*( const Matrix<M, N, T>& A, T s )
 }
 
 
-template< size_t M, size_t N, typename T>
+template<size_t M, size_t N, typename T, typename S>
 [[nodiscard]]
-Matrix<M, N, T> operator*( T s, const Matrix<M, N, T>& A )
+Matrix<M, N, T, S> operator*( T s, const Matrix<M, N, T, S>& A )
 {
 	return A * s;
 }
 
 
-template< size_t M, size_t N, typename T>
+template<size_t M, size_t N, typename T, typename S>
 [[nodiscard]]
-Vector<N, T> operator*( const Vector<N, T>& u, const Matrix<M, N, T>& A )
+Vector<N, T, S> operator*( const Vector<N, T, S>& u, const Matrix<M, N, T, S>& A )
 {
 	Vector< N, T > v;
 	for ( size_t c = 0; c < N; ++c )
@@ -262,11 +323,11 @@ Vector<N, T> operator*( const Vector<N, T>& u, const Matrix<M, N, T>& A )
 }
 
 
-template< size_t M, size_t N, typename T>
+template<size_t M, size_t N, typename T, typename S>
 [[nodiscard]]
-Vector<N, T> operator*( const Matrix<M, N, T>& A, const Vector<M, T>& u )
+Vector<N, T, S> operator*( const Matrix<M, N, T, S>& A, const Vector<M, T, S>& u )
 {
-	Vector< N, T > v;
+	Vector<N, T, S> v;
 	for ( size_t r = 0; r < M; ++r )
 	{
 		for ( size_t c = 0; c < N; ++c )
@@ -278,13 +339,13 @@ Vector<N, T> operator*( const Matrix<M, N, T>& A, const Vector<M, T>& u )
 }
 
 
-template<size_t M, size_t N, typename T>
-Matrix<N, M, T> Transpose( const Matrix<M, N, T>& A )
+template<size_t M, size_t N, typename T, typename S>
+Matrix<N, M, T, S> Transpose( const Matrix<M, N, T, S>& A )
 {
-	Matrix<N, M, T> AT;
-	for ( size_t c = 0; c < Matrix<M, N, T>::ColumnCount; ++c )
+	Matrix<N, M, T, S> AT;
+	for ( size_t c = 0; c < N; ++c )
 	{
-		for ( size_t r = 0; r < Matrix<M, N, T>::RowCount; ++r )
+		for ( size_t r = 0; r < M; ++r )
 		{
 			AT[ c ][ r ] = A[ r ][ c ];
 		}
@@ -293,36 +354,65 @@ Matrix<N, M, T> Transpose( const Matrix<M, N, T>& A )
 }
 
 
-template< size_t M, size_t N, typename T>
-void Flush( Matrix<M, N, T>& A, const T tolerance )
+template<size_t M, size_t N, typename T, typename S>
+void Flush( Matrix<M, N, T, S>& A, const T tolerance )
 {
-	for ( uint32_t r = 0; r < Matrix<M, N, T>::RowCount; ++r ) {
+	for ( uint32_t r = 0; r < M; ++r ) {
 		Flush( A[ r ], tolerance );
 	}
 }
 
 
-template< size_t M, size_t N, typename T>
-void Fill( Matrix<M, N, T>& A, const T& value )
+template<size_t M, size_t N, typename T, typename S>
+void Fill( Matrix<M, N, T, S>& A, const T& value )
 {
-	for ( uint32_t r = 0; r < Matrix<M, N, T>::RowCount; ++r ) {
+	for ( uint32_t r = 0; r < M; ++r ) {
 		Fill( A[ r ], value );
 	}
 }
 
 
-template< size_t M, size_t N, typename T>
-void FillRandom( Matrix<M, N, T>& A )
+template<size_t M, size_t N, typename T, typename S>
+void FillRandom( Matrix<M, N, T, S>& A )
 {
-	for ( uint32_t r = 0; r < Matrix<M, N, T>::RowCount; ++r ) {
+	for ( uint32_t r = 0; r < M; ++r ) {
 		FillRandom( A[ r ] );
 	}
 }
 
 
-template< typename T>
+template<size_t N, typename T, typename S>
 [[nodiscard]]
-T Det( const Matrix<2, 2, T>& A )
+T Trace( const Matrix<N, N, T, S>& A )
+{
+	T sum( 0 );
+	for ( uint32_t i = 0; i < N; ++i )
+	{
+		sum += A[ i ][ i ];
+	}
+	return sum;
+}
+
+
+template<size_t M, size_t N, typename T, typename S>
+[[nodiscard]]
+T GrandSum( const Matrix<M, N, T, S>& A )
+{
+	T sum( 0 );
+	for ( uint32_t r = 0; r < M; ++r )
+	{
+		for ( uint32_t c = 0; c < N; ++c )
+		{
+			sum += A[ r ][ c ];
+		}
+	}
+	return sum;
+}
+
+
+template<typename T, typename S>
+[[nodiscard]]
+T Det( const Matrix<2, 2, T, S>& A )
 {
 	return A[ 0 ][ 0 ] * A[ 1 ][ 1 ] - A[ 1 ][ 0 ] * A[ 0 ][ 1 ];
 }
@@ -330,32 +420,32 @@ T Det( const Matrix<2, 2, T>& A )
 
 template< typename T>
 [[nodiscard]]
-T Det( const Matrix<3, 3, T>& A )
+T Det( const MatrixP<3, 3, T>& A )
 {
 	T cof00[] = { A[ 1 ][ 1 ], A[ 1 ][ 2 ], A[ 2 ][ 1 ], A[ 2 ][ 2 ] };
 	T cof01[] = { A[ 1 ][ 0 ], A[ 1 ][ 2 ], A[ 2 ][ 0 ], A[ 2 ][ 2 ] };
 	T cof02[] = { A[ 1 ][ 0 ], A[ 1 ][ 1 ], A[ 2 ][ 0 ], A[ 2 ][ 1 ] };
 
-	return A[ 0 ][ 0 ] * Det( Matrix< 2, 2, T >( cof00 ) ) - A[ 0 ][ 1 ] * Det( Matrix< 2, 2, T >( cof01 ) ) + A[ 0 ][ 2 ] * Det( Matrix< 2, 2, T >( cof02 ) );
+	return A[ 0 ][ 0 ] * Det( MatrixP< 2, 2, T >( cof00 ) ) - A[ 0 ][ 1 ] * Det( MatrixP<2, 2, T>( cof01 ) ) + A[ 0 ][ 2 ] * Det( MatrixP<2, 2, T>( cof02 ) );
 }
 
 
 template< typename T>
 [[nodiscard]]
-T Det( const Matrix<4, 4, T>& A )
+T Det( const MatrixP<4, 4, T>& A )
 {
 	T cof00[] = { A[ 1 ][ 1 ], A[ 1 ][ 2 ], A[ 1 ][ 3 ],  A[ 2 ][ 1 ], A[ 2 ][ 2 ], A[ 2 ][ 3 ],  A[ 3 ][ 1 ], A[ 3 ][ 2 ], A[ 3 ][ 3 ] };
 	T cof01[] = { A[ 1 ][ 0 ], A[ 1 ][ 2 ], A[ 1 ][ 3 ],  A[ 2 ][ 0 ], A[ 2 ][ 2 ], A[ 2 ][ 3 ],  A[ 3 ][ 0 ], A[ 3 ][ 2 ], A[ 3 ][ 3 ] };
 	T cof02[] = { A[ 1 ][ 0 ], A[ 1 ][ 1 ], A[ 1 ][ 3 ],  A[ 2 ][ 0 ], A[ 2 ][ 1 ], A[ 2 ][ 3 ],  A[ 3 ][ 0 ], A[ 3 ][ 1 ], A[ 3 ][ 3 ] };
 	T cof03[] = { A[ 1 ][ 0 ], A[ 1 ][ 1 ], A[ 1 ][ 2 ],  A[ 2 ][ 0 ], A[ 2 ][ 1 ], A[ 2 ][ 2 ],  A[ 3 ][ 0 ], A[ 3 ][ 1 ], A[ 3 ][ 2 ] };
 
-	return A[ 0 ][ 0 ] * Det( Matrix< 3, 3, T >( cof00 ) ) - A[ 0 ][ 1 ] * Det( Matrix< 3, 3, T >( cof01 ) ) + A[ 0 ][ 2 ] * Det( Matrix< 3, 3, T >( cof02 ) ) - A[ 0 ][ 3 ] * Det( Matrix< 3, 3, T >( cof03 ) );
+	return A[ 0 ][ 0 ] * Det( MatrixP<3, 3, T>( cof00 ) ) - A[ 0 ][ 1 ] * Det( MatrixP<3, 3, T>( cof01 ) ) + A[ 0 ][ 2 ] * Det( MatrixP<3, 3, T>( cof02 ) ) - A[ 0 ][ 3 ] * Det( MatrixP<3, 3, T>( cof03 ) );
 }
 
 
 template< typename T>
 [[nodiscard]]
-Matrix<4, 4, T> CofactorMatrix( const Matrix<4, 4, T>& A )
+MatrixP<4, 4, T> CofactorMatrix( const MatrixP<4, 4, T>& A )
 {
 	// 00 01 02 03
 	// 10 11 12 13
@@ -384,53 +474,54 @@ Matrix<4, 4, T> CofactorMatrix( const Matrix<4, 4, T>& A )
 	T minor32[] = { A[ 0 ][ 0 ], A[ 0 ][ 1 ], A[ 0 ][ 3 ],  A[ 1 ][ 0 ], A[ 1 ][ 1 ], A[ 1 ][ 3 ],  A[ 2 ][ 0 ], A[ 2 ][ 1 ], A[ 2 ][ 3 ] };
 	T minor33[] = { A[ 0 ][ 0 ], A[ 0 ][ 1 ], A[ 0 ][ 2 ],  A[ 1 ][ 0 ], A[ 1 ][ 1 ], A[ 1 ][ 2 ],  A[ 2 ][ 0 ], A[ 2 ][ 1 ], A[ 2 ][ 2 ] };
 
-	T values[] = { Det( Matrix< 3, 3, T >( minor00 ) ), -Det( Matrix< 3, 3, T >( minor01 ) ), Det( Matrix< 3, 3, T >( minor02 ) ), -Det( Matrix< 3, 3, T >( minor03 ) ),
-						-Det( Matrix< 3, 3, T >( minor10 ) ), Det( Matrix< 3, 3, T >( minor11 ) ), -Det( Matrix< 3, 3, T >( minor12 ) ), Det( Matrix< 3, 3, T >( minor13 ) ),
-						Det( Matrix< 3, 3, T >( minor20 ) ), -Det( Matrix< 3, 3, T >( minor21 ) ), Det( Matrix< 3, 3, T >( minor22 ) ), -Det( Matrix< 3, 3, T >( minor23 ) ),
-						-Det( Matrix< 3, 3, T >( minor30 ) ), Det( Matrix< 3, 3, T >( minor31 ) ), -Det( Matrix< 3, 3, T >( minor32 ) ), Det( Matrix< 3, 3, T >( minor33 ) ) };
+	T values[] = {	Det( MatrixP< 3, 3, T >( minor00 ) ), -Det( MatrixP< 3, 3, T >( minor01 ) ), Det( MatrixP< 3, 3, T >( minor02 ) ), -Det( MatrixP< 3, 3, T >( minor03 ) ),
+					-Det( MatrixP< 3, 3, T >( minor10 ) ), Det( MatrixP< 3, 3, T >( minor11 ) ), -Det( MatrixP< 3, 3, T >( minor12 ) ), Det( MatrixP< 3, 3, T >( minor13 ) ),
+					Det( MatrixP< 3, 3, T >( minor20 ) ), -Det( MatrixP< 3, 3, T >( minor21 ) ), Det( MatrixP< 3, 3, T >( minor22 ) ), -Det( MatrixP< 3, 3, T >( minor23 ) ),
+					-Det( MatrixP< 3, 3, T >( minor30 ) ), Det( MatrixP< 3, 3, T >( minor31 ) ), -Det( MatrixP< 3, 3, T >( minor32 ) ), Det( MatrixP< 3, 3, T >( minor33 ) ) };
 
-	return mat4x4f( values );
+	return MatrixP<4, 4, T>( values );
 }
 
-template< typename T>
+
+template< typename T, typename S>
 [[nodiscard]]
-Matrix<3, 3, T> Invert( const Matrix<3, 3, T>& A, bool& invertible )
+Matrix<3, 3, T, S> Invert( const Matrix<3, 3, T, S>& A, bool& invertible )
 {
 	T det_val = Det( A );
 
 	if ( det_val == 0 )
 	{
 		invertible = false;
-		return Matrix<3, 3, T>();
+		return Matrix<3, 3, T, S>();
 	}
 	invertible = true;
 	assert( false ); // TODO: transpose of cofactor matrix not transpose of matrix
 	return A.Transpose() * ( 1. / det_val );
 }
 
-template< typename T>
+template< typename T, typename S>
 [[nodiscard]]
-Matrix<4, 4, T> Invert( const Matrix<4, 4, T>& A, bool& invertible )
+Matrix<4, 4, T, S> Invert( const Matrix<4, 4, T, S>& A, bool& invertible )
 {
 	T det_val = Det( A );
 
 	if ( det_val == 0 )
 	{
 		invertible = false;
-		return Matrix<4, 4, T>();
+		return Matrix<4, 4, T, S>();
 	}
 	invertible = true;
 
 	return ( CofactorMatrix( A ).Transpose() ) * ( static_cast<T>( 1.0 ) / det_val );
 }
 
-template<size_t M, size_t N, typename T>
-T Convolution( const Matrix<M, N, T>& A, const Matrix<M, N, T>& B )
+template<size_t M, size_t N, typename T, typename S>
+T Convolution( const Matrix<M, N, T, S>& A, const Matrix<M, N, T, S>& B )
 {
 	T sum = 0;
-	for ( size_t r = 0; r < Matrix<M, N, T>::RowCount; ++r )
+	for ( size_t r = 0; r < M; ++r )
 	{
-		for ( size_t c = 0; c < Matrix<M, N, T>::ColumnCount; ++c )
+		for ( size_t c = 0; c < N; ++c )
 		{
 			sum += A[ r ][ c ] * B[ r ][ c ];
 		}
@@ -439,44 +530,38 @@ T Convolution( const Matrix<M, N, T>& A, const Matrix<M, N, T>& B )
 }
 
 
-template<size_t M, size_t N, typename T>
+template<size_t M, size_t N, typename T, typename S>
 [[nodiscard]]
-Matrix<M, N, T> Identity()
+Matrix<M, N, T, S> Identity()
 {
-	return Matrix<M, N, T>( static_cast<T>( 1.0 ) );
+	return Matrix<M, N, T, S>( static_cast<T>( 1.0 ) );
 }
 
 
-template<size_t N, typename T>
+template<size_t N, typename T, typename S>
 [[nodiscard]]
-bool IsInvertible( const Matrix<N, N, T>& m )
+bool IsInvertible( const Matrix<N, N, T, S>& m )
 {
-	static_assert( Matrix<N, N, T>::RowCount == Matrix<N, N, T>::ColumnCount, "Must be square." );
-
 	return ( Det( m ) != 0 );
 }
 
 
-template<size_t N, typename T>
+template<size_t N, typename T, typename S>
 [[nodiscard]]
-bool IsOrthonormal( const Matrix<N, N, T>& A, const T tolerance )
+bool IsOrthonormal( const Matrix<N, N, T, S>& A, const T tolerance )
 {
-	static_assert( Matrix<N, N, T>::RowCount == Matrix<N, N, T>::ColumnCount, "Must be square." );
-
-	Matrix<N, N, T> I = A * A.Transpose();
+	Matrix<N, N, T, S> I = A * A.Transpose();
 	return IsIdentity( I, tolerance );
 }
 
 
-template<size_t N, typename T>
+template<size_t N, typename T, typename S>
 [[nodiscard]]
-bool IsIdentity( const Matrix<N, N, T>& A, const T tolerance )
+bool IsIdentity( const Matrix<N, N, T, S>& A, const T tolerance )
 {
-	static_assert( Matrix<N, N, T>::RowCount == Matrix<N, N, T>::ColumnCount, "Must be square." );
-
-	for ( size_t r = 0; r < Matrix<N, N, T>::RowCount; ++r )
+	for ( size_t r = 0; r < N; ++r )
 	{
-		for ( size_t c = 0; c < Matrix<N, N, T>::ColumnCount; ++c )
+		for ( size_t c = 0; c < N; ++c )
 		{
 			if ( ( c == r ) && ( fabs( A[ r ][ c ] - 1.0 ) > tolerance ) )
 			{
@@ -492,23 +577,23 @@ bool IsIdentity( const Matrix<N, N, T>& A, const T tolerance )
 }
 
 
-template<size_t M, size_t N, typename T>
-std::ostream& operator<<( std::ostream& stream, const Matrix<M, N, T>& A )
+template<size_t M, size_t N, typename T, typename S>
+std::ostream& operator<<( std::ostream& stream, const Matrix<M, N, T, S>& A )
 {
 	stream << "[";
-	for ( size_t r = 0; r < Matrix<M, N, T>::RowCount; ++r ) {
-		stream << A[ r ] << ( ( r + 1 < Matrix<M, N, T>::RowCount ) ? ",\n" : "" );
+	for ( size_t r = 0; r < M; ++r ) {
+		stream << A[ r ] << ( ( r + 1 < M ) ? ",\n" : "" );
 	}
 	stream << "]";
 	return stream;
 }
 
-template< typename T >
+template<typename T>
 [[nodiscard]]
-Matrix<2, 2, T> CreateMatrix2x2(	T m00, T m01,
+MatrixP<2, 2, T> CreateMatrix2x2(	T m00, T m01,
 									T m10, T m11 )
 {
-	Matrix<2, 2, T> A;
+	MatrixP<2, 2, T> A;
 
 	A[ 0 ][ 0 ] = m00;
 	A[ 0 ][ 1 ] = m01;
@@ -519,13 +604,13 @@ Matrix<2, 2, T> CreateMatrix2x2(	T m00, T m01,
 	return A;
 }
 
-template< typename T >
+template<typename T>
 [[nodiscard]]
-Matrix<3, 3, T> CreateMatrix3x3(	T m00, T m01, T m02,
+MatrixP<3, 3, T> CreateMatrix3x3(	T m00, T m01, T m02,
 									T m10, T m11, T m12,
 									T m20, T m21, T m22 )
 {
-	Matrix<3, 3, T> A;
+	MatrixP<3, 3, T> A;
 
 	A[ 0 ][ 0 ] = m00;
 	A[ 0 ][ 1 ] = m01;
@@ -543,11 +628,11 @@ Matrix<3, 3, T> CreateMatrix3x3(	T m00, T m01, T m02,
 }
 
 
-template< typename T >
+template<typename T, typename S>
 [[nodiscard]]
-Matrix<3, 3, T> CreateMatrix3x3( const Vector<3, T>& X, const Vector<3, T>& Y, const Vector<3, T>& Z )
+MatrixP<3, 3, T> CreateMatrix3x3( const Vector<3, T, S>& X, const Vector<3, T, S>& Y, const Vector<3, T, S>& Z )
 {
-	Matrix<3, 3, T> A;
+	MatrixP<3, 3, T> A;
 
 	A[ 0 ][ 0 ] = X[ 0 ];
 	A[ 0 ][ 1 ] = Y[ 0 ];
@@ -565,11 +650,11 @@ Matrix<3, 3, T> CreateMatrix3x3( const Vector<3, T>& X, const Vector<3, T>& Y, c
 }
 
 
-template< typename T >
+template<typename T, typename S>
 [[nodiscard]]
-Matrix<4, 4, T> CreateMatrix4x4( const Vector<4, T>& X, const Vector<4, T>& Y, const Vector<4, T>& Z, const Vector<4, T>& W )
+MatrixP<4, 4, T> CreateMatrix4x4( const Vector<4, T, S>& X, const Vector<4, T, S>& Y, const Vector<4, T, S>& Z, const Vector<4, T, S>& W )
 {
-	Matrix<4, 4, T> A;
+	MatrixP<4, 4, T> A;
 
 	A[ 0 ][ 0 ] = X[ 0 ];
 	A[ 0 ][ 1 ] = Y[ 0 ];
@@ -595,13 +680,13 @@ Matrix<4, 4, T> CreateMatrix4x4( const Vector<4, T>& X, const Vector<4, T>& Y, c
 }
 
 
-template< typename T >
-Matrix<4, 4, T> CreateMatrix4x4(	T m00, T m01, T m02, T m03,
+template<typename T>
+MatrixP<4, 4, T> CreateMatrix4x4(	T m00, T m01, T m02, T m03,
 									T m10, T m11, T m12, T m13,
 									T m20, T m21, T m22, T m23,
 									T m30, T m31, T m32, T m33 )
 {
-	Matrix<4, 4, T> A;
+	MatrixP<4, 4, T> A;
 
 	A[ 0 ][ 0 ] = m00;
 	A[ 0 ][ 1 ] = m01;

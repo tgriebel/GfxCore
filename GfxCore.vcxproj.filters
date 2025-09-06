@@ -94,6 +94,9 @@
     <ClCompile Include="unitTests\matrixVectorTests.cpp">
       <Filter>Test Driver\Unit Tests</Filter>
     </ClCompile>
+    <ClCompile Include="GfxCore\core\util.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GfxCore\asset_types\gpuProgram.h">
@@ -199,6 +202,9 @@
       <Filter>Math</Filter>
     </ClInclude>
     <ClInclude Include="GfxCore\math\sparseVector.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="GfxCore\math\matrixSolvers.h">
       <Filter>Math</Filter>
     </ClInclude>
   </ItemGroup>

@@ -96,10 +96,11 @@ inline float UnpackFloat32( const uint16_t packed )
 }
 
 
+template<typename T>
 [[nodiscard]]
-inline mat4x4f ComputeRotationX( const float degrees )
+inline Matrix4<T> ComputeRotationX( const T degrees )
 {
-	const float theta = Radians( degrees );
+	const T theta = Radians( degrees );
 	return CreateMatrix4x4( 1.0f,	0.0f,			0.0f,			0.0f,
 							0.0f,	cos( theta ),	-sin( theta ),	0.0f,
 							0.0f,	sin( theta ),	cos( theta ),	0.0f,
@@ -107,10 +108,11 @@ inline mat4x4f ComputeRotationX( const float degrees )
 }
 
 
+template<typename T>
 [[nodiscard]]
-inline mat4x4f ComputeRotationY( const float degrees )
+inline Matrix4<T> ComputeRotationY( const T degrees )
 {
-	const float theta = Radians( degrees );
+	const T theta = Radians( degrees );
 	return CreateMatrix4x4( cos( theta ),	0.0f,	sin( theta ),	0.0f,
 							0.0f,			1.0f,	0.0f,			0.0f,
 							-sin( theta ),	0.0f,	cos( theta ),	0.0f,
@@ -118,10 +120,11 @@ inline mat4x4f ComputeRotationY( const float degrees )
 }
 
 
+template<typename T>
 [[nodiscard]]
-inline mat4x4f ComputeRotationZ( const float degrees )
+inline Matrix4<T> ComputeRotationZ( const T degrees )
 {
-	const float theta = Radians( degrees );
+	const T theta = Radians( degrees );
 	return CreateMatrix4x4( cos( theta ),	-sin( theta ),	0.0f, 0.0f,
 							sin( theta ),	cos( theta ),	0.0f, 0.0f,
 							0.0f,			0.0f,			1.0f, 0.0f,
@@ -129,20 +132,21 @@ inline mat4x4f ComputeRotationZ( const float degrees )
 }
 
 
+template<typename T>
 [[nodiscard]]
-inline mat4x4f ComputeRotationZYX( const float xDegrees, const float yDegrees, const float zDegrees )
+inline Matrix4<T> ComputeRotationZYX( const T xDegrees, const T yDegrees, const T zDegrees )
 {
-	const float alpha = Radians( xDegrees );
-	const float beta = Radians( yDegrees );
-	const float gamma = Radians( zDegrees );
+	const T alpha = Radians( xDegrees );
+	const T beta = Radians( yDegrees );
+	const T gamma = Radians( zDegrees );
 
-	const float cosAlpha = cos( alpha );
-	const float cosBeta = cos( beta );
-	const float cosGamma = cos( gamma );
+	const T cosAlpha = cos( alpha );
+	const T cosBeta = cos( beta );
+	const T cosGamma = cos( gamma );
 
-	const float sinAlpha = sin( alpha );
-	const float sinBeta = sin( beta );
-	const float sinGamma = sin( gamma );
+	const T sinAlpha = sin( alpha );
+	const T sinBeta = sin( beta );
+	const T sinGamma = sin( gamma );
 
 	return CreateMatrix4x4( cosBeta * cosGamma,		sinAlpha * sinBeta * cosGamma - cosAlpha * sinGamma,	cosAlpha * sinBeta * cosGamma + sinAlpha * sinGamma,	0.0f,
 							cosBeta * sinGamma,		sinAlpha * sinBeta * sinGamma + cosAlpha * cosGamma,	cosAlpha * sinBeta * sinGamma - sinAlpha * cosGamma,	0.0f,
@@ -334,32 +338,12 @@ static inline vec3f RandPlanePoint( const vec3f& X, const vec3f& Y )
 // Fowler–Noll–Vo Hash - fnv1a - 32bits
 // https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
 [[nodiscard]]
-static inline uint32_t Hash( const uint8_t* bytes, const uint32_t sizeBytes )
-{
-	uint32_t result = 2166136261;
-	const uint32_t prime = 16777619;
-	for ( uint32_t i = 0; i < sizeBytes; ++i ) {
-		result = ( result ^ bytes[ i ] ) * prime;
-	}
-	return result;
-}
+uint32_t Hash( const uint8_t* bytes, const uint32_t sizeBytes );
 
 
 // Polynomial Rolling hash
 [[nodiscard]]
-static constexpr inline uint64_t Hash( const char* s, const int length )
-{
-	const int p = 31;
-	const int m = static_cast<int>( 1e9 + 9 );
-	uint64_t hash = 0;
-	uint64_t pN = 1;
-	for ( int i = 0; i < length; ++i )
-	{
-		hash = ( hash + ( s[ i ] - (uint64_t)'a' + 1ull ) * pN ) % m;
-		pN = ( pN * p ) % m;
-	}
-	return hash;
-}
+uint64_t Hash( const char* s, const int length );
 
 
 [[nodiscard]]
@@ -371,7 +355,7 @@ static inline uint64_t Hash( const std::string& s )
 
 template<typename T>
 [[nodiscard]]
-static inline Vector<3, T> RandomVector( T r = (T)1.0 )
+static inline VectorP<3, T> RandomVector( T r = (T)1.0 )
 {
 	const float u = Random();
 	const float v = Random();
@@ -379,12 +363,23 @@ static inline Vector<3, T> RandomVector( T r = (T)1.0 )
 	const float theta = u * 2.0f * 3.14159f;
 	const float phi = acos( 2.0f * v - 1.0f );
 
-	Vector<3, T> point;
+	VectorP<3, T> point;
 	point.x = r * sin( phi ) * cos( theta );
 	point.y = r * sin( phi ) * sin( theta );
 	point.z = r * cos( phi );
 
 	return point;
+}
+
+
+[[nodiscard]]
+mat4x4f RandomSolveableMatrix();
+
+
+[[nodiscard]]
+static inline mat4x4f RandomOrthonormalMatrix()
+{
+	return ComputeRotationZYX( 360.0f * Random(), 360.0f * Random(), 360.0f * Random() );
 }
 
 

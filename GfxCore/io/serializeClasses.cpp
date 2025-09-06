@@ -46,8 +46,8 @@ bool AreBakedAssetsEnabled()
 
 #ifdef SERIALIZE_IMPLEMENTATIONS
 
-template<size_t D, typename T>
-void Serialize( Serializer* serializer, Vector<D, T>& v )
+template<size_t D, typename T, typename S>
+void Serialize( Serializer* serializer, Vector<D, T, S>& v )
 {
 	Serializer* s = reinterpret_cast<Serializer*>( serializer );
 	uint32_t length = D;

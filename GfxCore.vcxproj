@@ -231,6 +231,7 @@
     <ClCompile Include="GfxCore\asset_types\material.cpp" />
     <ClCompile Include="GfxCore\asset_types\model.cpp" />
     <ClCompile Include="GfxCore\asset_types\texture.cpp" />
+    <ClCompile Include="GfxCore\core\util.cpp" />
     <ClCompile Include="GfxCore\image\bitmap.cpp" />
     <ClCompile Include="GfxCore\image\color.cpp" />
     <ClCompile Include="GfxCore\image\image.cpp" />
@@ -268,6 +269,7 @@
     <ClInclude Include="GfxCore\io\meshIO.h" />
     <ClInclude Include="GfxCore\io\serializeClasses.h" />
     <ClInclude Include="GfxCore\math\matrix.h" />
+    <ClInclude Include="GfxCore\math\matrixSolvers.h" />
     <ClInclude Include="GfxCore\math\quaternion.h" />
     <ClInclude Include="GfxCore\math\sparseMatrix.h" />
     <ClInclude Include="GfxCore\math\sparseVector.h" />

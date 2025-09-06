@@ -147,7 +147,7 @@ Quaternion<T> Quaternion<T>::operator-()
 
 
 template <typename T>
-void Rotate( const Quaternion<T>& Q, Vector<3, T>& m_P)
+void Rotate( const Quaternion<T>& Q, VectorP<3, T>& m_P)
 {
 	Quaternion<T> V( m_P );
 
@@ -160,7 +160,7 @@ void Rotate( const Quaternion<T>& Q, Vector<3, T>& m_P)
 
 
 template <typename T>
-void Rotate( const T theta, const Vector<3, T>& axis, Vector<3, T>& m_P )
+void Rotate( const T theta, const VectorP<3, T>& axis, VectorP<3, T>& m_P )
 {
 	Quaternion<T> V( m_P );
 	Quaternion<T> R( theta, axis );
@@ -213,8 +213,8 @@ Quaternion<T> Slerp( const Quaternion<T>& quat1, const Quaternion<T>& quat2, con
 }
 
 
-template< typename T >
-Vector<3, T> ToEuler( const Quaternion<T>& q )
+template<typename T>
+VectorP<3, T> ToEuler( const Quaternion<T>& q )
 {
 	T p = 0.0;
 	T h = 0.0;
@@ -233,7 +233,7 @@ Vector<3, T> ToEuler( const Quaternion<T>& q )
 		h = atan2( T( q.x * q.z + q.w * q.y ), T( 0.5 - q.x * q.x - q.y * q.y ) );
 		b = atan2( T( q.x * q.y + q.w * q.z ), T( 0.5 - q.x * q.x - q.z * q.z ) );
 	}	
-	return Vector<3, T>( p * ( T(180.0) / PI ), h * ( T(180.0) / PI ), b * ( T(180.0) / PI ) );
+	return VectorP<3, T>( p * ( T(180.0) / PI ), h * ( T(180.0) / PI ), b * ( T(180.0) / PI ) );
 }
 
 
