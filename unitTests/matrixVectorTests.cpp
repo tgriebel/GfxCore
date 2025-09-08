@@ -50,7 +50,7 @@ class LUPDecompositionTest final : public TestKernel
 {
 private:
 
-	void ScanVectorsLUSolver( const mat4x4f& A, const float tolerance, const float delta )
+	bool ScanVectorsLUSolver( const mat4x4f& A, const float tolerance, const float delta )
 	{
 		float length = 1.0f;
 
@@ -84,20 +84,15 @@ private:
 				if ( error < tolerance ) {
 					++testsPasses;
 				}
-				else {
-					std::cout << "LU Solve with Unit Vectors Failed: " << x << " " << x2 << " (" << error << " )" << std::endl;
-				}
 				++testCount;
 				u += delta;
 			}
 			v += delta;
 		}
-		if ( testsPasses != testCount ) {
-			std::cout << "LU Solve with Unit Vectors: " << testsPasses << " tests passed out of " << testCount << std::endl;
-		}
+		return ( testsPasses == testCount );
 	}
 
-	void RandomVectorLUSolver( const mat4x4f& A, const float tolerance, const uint32_t testCount )
+	bool RandomVectorLUSolver( const mat4x4f& A, const float tolerance, const uint32_t testCount )
 	{
 		uint32_t testsPasses = 0;
 
@@ -116,17 +111,11 @@ private:
 
 			const float error = ( ( A * x2 ) - b ).Length();
 
-			if ( error > tolerance ) {
-				std::cout << "X: " << x << ", Solved X: " << x2 << std::endl;
-			}
-			else {
+			if ( error <= tolerance ) {
 				++testsPasses;
 			}
 		}
-
-		if ( testsPasses != testCount ) {
-			std::cout << "LU Solve with Random Unit Vectors: " << testsPasses << " tests passed out of " << testCount << std::endl;
-		}
+		return ( testsPasses == testCount );
 	}
 
 public:
@@ -149,12 +138,17 @@ public:
 
 		const bool identiyCheck = IsIdentity( A * inverseFromLU, 0.00001f );
 
-		if ( identiyCheck == false || solver.Determinant() == 0.0f ) {
+		if ( identiyCheck == false || solver.Determinant() == 0.0f )
+		{
 			std::cout << inverseFromLU << " " << solver.Determinant() << std::endl;
+			return false;
 		}
 
-		RandomVectorLUSolver( A, errorTol, 1000 );
-		ScanVectorsLUSolver( A, errorTol, 0.01f );
+		bool ret = true;
+		ret = ret && RandomVectorLUSolver( A, errorTol, 1000 );
+		ret = ret && ScanVectorsLUSolver( A, errorTol, 0.01f );
+
+		return ret;
 	}
 };
 
@@ -340,7 +334,7 @@ void RunMatrixTests()
 	RunHarness( new MatrixScaleTest(), 100 );
 	RunHarness( new MatrixMultiplyTest(), 100 );
 	RunHarness( new QRDecompositionTest(), 100 );
-//	RunHarness( new LUPDecompositionTest(), 100 );
+	RunHarness( new LUPDecompositionTest(), 100 );
 }
 
 
