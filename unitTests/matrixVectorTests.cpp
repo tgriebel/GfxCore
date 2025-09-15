@@ -289,19 +289,295 @@ void RunHarness( TestKernel* test, const uint32_t testCount )
 	delete test;
 }
 
+#include <unordered_map>
 
-//template <size_t D, typename T, typename S>
-//class Vector
-//{
-//public:
-//
-//	union
-//	{
-//		T elements[ D ];
-//	};
-//
+template <size_t D, typename T>
+class Vector<D, T, SparseStorage>
+{
+public:
+
+	template <typename T>
+	class SparseVectorElement
+	{
+	private:
+		Vector<D, T, SparseStorage>&	vectorRef;
+		uint32_t						vectorIndex = D;
+		T								value = static_cast<T>( 0.0 );
+
+	public:
+
+		SparseVectorElement( Vector<D, T, SparseStorage>& vec, const uint32_t index ) : vectorRef( vec ), vectorIndex( index )
+		{}
+
+		SparseVectorElement( Vector<D, T, SparseStorage>& vec, const uint32_t index, const T v ) : vectorRef( vec ), vectorIndex( index )
+		{
+			value = v;
+		}
+
+		inline SparseVectorElement<T>& operator=( const T& _value )
+		{
+			if( vectorIndex == D ) {
+				return *this;
+			}
+
+			value = _value;
+
+			vectorRef.Set( vectorIndex, value );
+
+			return *this;
+		}
+
+		inline const T Value() const
+		{
+			return value;
+		}
+	};
+
+	static const uint32_t KernelSize = 4;
+	typedef Vector<KernelSize, T, PodStorage> kernel_t;
+
+	struct node_t
+	{
+		kernel_t	kernel;
+		uint32_t	index;
+		node_t*		next;
+	};
+
+private:
+
+	using bitMask_t = uint64_t;
+
+	static constexpr uint32_t	MaxKernels = ( D + KernelSize - 1 ) / KernelSize;
+
+	static constexpr uint32_t	BitsPerBitMask = ( 8 * sizeof( bitMask_t ) );
+	static constexpr uint32_t	BitMaskCount = ( MaxKernels + BitsPerBitMask - 1 ) / BitsPerBitMask;
+
+	bitMask_t								bitMask[ BitMaskCount ];
+	std::unordered_map<size_t, kernel_t*>	indirectionMap;
+	node_t*									list[ BitMaskCount ]; // Skip-list
+	SparseVectorElement<T>					zero;
+
+	void Set( const uint32_t index, const T& _value )
+	{
+		const uint32_t kernelIndex = ( index / KernelSize );
+
+		const uint32_t bitMaskIndex = ( index / BitsPerBitMask );
+
+		node_t* p = nullptr;
+		node_t* n = list[ bitMaskIndex ];
+		node_t* k = nullptr;
+
+		while ( ( n != nullptr ) && ( n != list[ bitMaskIndex + 1 ] ) )
+		{
+			if ( n->index == kernelIndex )
+			{
+				k = n;
+				break;
+			}
+			else if( n->index > kernelIndex )
+			{
+				k = new node_t();
+				k->index = kernelIndex;
+				k->next = n;
+				if( n == list[ bitMaskIndex ] )
+				{
+					list[ bitMaskIndex ] = k;
+				}
+				break;
+			}
+			else
+			{
+				if( n->next == nullptr )
+				{
+					k = new node_t();
+					k->index = kernelIndex;
+					k->next = nullptr;
+					n->next = k;
+					break;
+				}
+				p = n;
+
+				if( n->next == nullptr ) {
+					n = ( bitMaskIndex == ( BitMaskCount - 1 ) ) ? nullptr : list[ bitMaskIndex + 1 ];
+				} else {
+					n = n->next;
+				}
+			}
+		}
+
+		// First node
+		if( k == nullptr )
+		{
+			k = new node_t();
+			k->index = kernelIndex;
+			k->next = nullptr;
+			list[ bitMaskIndex ] = k;
+		}
+
+		bitMask[ bitMaskIndex ] |= ( 1ull << kernelIndex );
+
+		const uint32_t kernelElementIndex = ( index % KernelSize );
+		k->kernel[ kernelElementIndex ] = _value;
+	}
+
+public:
+
+	inline const T operator[]( const uint32_t i ) const
+	{
+		TRAP( i, D );
+
+		const uint32_t kernelIndex = ( i / KernelSize );
+		const uint32_t bitMaskIndex = ( i / BitsPerBitMask );
+
+		if ( ( bitMask[ bitMaskIndex ] & ( 1ull << kernelIndex ) ) == 0 )
+		{
+			return static_cast<T>( 0.0 );
+		}
+
+		node_t* n = list[ bitMaskIndex ];
+		node_t* k = nullptr;
+
+		while ( ( n != nullptr ) && ( n != list[ bitMaskIndex + 1 ] ) )
+		{
+			if ( n->index == kernelIndex )
+			{
+				k = n;
+				break;
+			}
+			n = n->next;
+		}
+		
+		const kernel_t& kernelVector = k->kernel;
+		const uint32_t kernelElementIndex = ( i % KernelSize );
+
+		return kernelVector[ kernelElementIndex ];
+	}
+
+	inline SparseVectorElement<T> operator[]( const uint32_t i )
+	{
+		if ( i >= D )
+		{
+			assert( false );
+			return zero;
+		}
+
+		const uint32_t kernelIndex = ( i / KernelSize );
+		const uint32_t bitMaskIndex = ( i / BitsPerBitMask );
+
+		if ( ( bitMask[ bitMaskIndex ] & ( 1ull << kernelIndex ) ) == 0 )
+		{
+			return SparseVectorElement<T>( *this, i );
+		}
+
+		node_t* n = list[ bitMaskIndex ];
+		node_t* k = nullptr;
+
+		while ( ( n != nullptr ) && ( n != list[ bitMaskIndex + 1 ] ) )
+		{
+			if ( n->index == kernelIndex )
+			{
+				k = n;
+				break;
+			}
+			n = n->next;
+		}
+
+		kernel_t& kernelVector = k->kernel;
+		const uint32_t kernelElementIndex = ( i % KernelSize );
+	
+		return SparseVectorElement<T>( *this, i, kernelVector[ kernelElementIndex ] );
+	}
+
+	Vector() : zero( *this, D, 0 )
+	{};
+
+	node_t *const List() const
+	{
+		return list[ 0 ]; // Last node in a given linked list[n] links to the start of next head list[n + 1]
+	}
+
+//	VECTOR_INIT( D, T, SparseStorage )
+
 //	VECTOR_COMMON( D, T, S )
-//};
+
+	~Vector()
+	{
+		assert( 0 ); // TODO
+	}
+
+	friend class SparseVectorElement<T>;
+};
+
+//template <typename D>
+//using SparseElementFloat = Vector<D, float, SparseStorage>::SparseVectorElement<float>;
+
+template <size_t SourceDim, size_t Dim, typename T>
+class Vector< Dim, T, ViewStorage<SourceDim, Dim> >
+{
+public:
+
+	static const size_t SourceSize = SourceDim;
+	static const size_t Size = Dim;
+	using SourceType = Vector<Dim, T, PodStorage>;
+	using Type = Vector<Dim, T, ViewStorage<SourceDim, Dim> >;
+
+private:
+
+	size_t sourceOffset;
+	T* elements;
+
+	Vector();
+
+public:
+
+	Vector( SourceType& v, const size_t offset = 0 )
+	{
+		// Clamp so last element doesn't exceed max
+		sourceOffset = ( SourceDim - Dim );
+		sourceOffset = ( sourceOffset > offset ) ? offset : sourceOffset;
+
+		elements = reinterpret_cast<Type*>( &( v[ sourceOffset ] ) );
+	}
+
+	inline const T& operator[]( const size_t i ) const
+	{
+		return elements[ i ];
+	}
+	
+	inline T& operator[]( const size_t i )
+	{
+		return elements[ i ];
+	}
+};
+
+template <size_t D, typename T, typename S>
+T Dot( const Vector<D, T, SparseStorage>& u, const Vector<D, T, S>& v )
+{
+	using kernel_t = typename Vector<D, T, SparseStorage>::kernel_t;
+	using node_t = typename Vector<D, T, SparseStorage>::node_t;
+
+	node_t* n = u.List();
+
+	T dot( 0.0 );
+	while( n )
+	{
+		Dot( n->kernel, *reinterpret_cast<const kernel_t*>( &v + n->index ) );
+		n = n->next;
+	}
+	return dot;
+}
+
+//template <size_t D, typename T>
+//[[nodiscard]]
+//Vector<D, T, SparseStorage> Multiply( const Vector<D, T, SparseStorage>& a, const T& b )
+//{
+//	Vector<D, T, SparseStorage> c;
+//
+//	for ( size_t i = 0; i < D; ++i ) {
+//		c[ i ] = a[ i ] * b;
+//	}
+//	return c;
+//}
 
 void RunMatrixTests()
 {
@@ -319,6 +595,24 @@ void RunMatrixTests()
 
 	mat3x3f S1 = CreateMatrix3x3( 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f );
 	MatrixV< 3, 3, 2, 2, float > cof00( S1, 0, 0 );
+
+	Vector<1000, float, SparseStorage> sparseVec;
+
+	//SparseElementFloat element = sparseVec[ 100 ];
+	//element = 1.0f;
+
+	for( uint32_t i = 0; i < 50; ++i )
+	{
+		sparseVec[ 8 * i ] = (float)i;//( 200.0f - i ) + 0.2f;
+	}
+
+	const Vector<1000, float, SparseStorage>& sparseVecConst = sparseVec;
+
+	Vector<1000, float, PodStorage> realVec;
+
+	Dot( sparseVecConst, realVec );
+
+	std::cout << sparseVecConst[ 100 ] << std::endl;
 
 	std::cout << Det( cof00 ) << std::endl;
 
