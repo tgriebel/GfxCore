@@ -351,6 +351,7 @@ private:
 
 	static constexpr uint32_t	BitsPerBitMask = ( 8 * sizeof( bitMask_t ) );
 	static constexpr uint32_t	BitMaskCount = ( MaxKernels + BitsPerBitMask - 1 ) / BitsPerBitMask;
+	static constexpr uint32_t	ElementsPerBitMask = ( BitsPerBitMask * KernelSize );
 
 	bitMask_t								bitMask[ BitMaskCount ];
 	std::unordered_map<size_t, kernel_t*>	indirectionMap;
@@ -360,58 +361,60 @@ private:
 	void Set( const uint32_t index, const T& _value )
 	{
 		const uint32_t kernelIndex = ( index / KernelSize );
-
-		const uint32_t bitMaskIndex = ( index / BitsPerBitMask );
+		const uint32_t bitMaskIndex = ( index / ElementsPerBitMask );
 
 		node_t* p = nullptr;
 		node_t* n = list[ bitMaskIndex ];
-		node_t* k = nullptr;
-
-		while ( ( n != nullptr ) && ( n != list[ bitMaskIndex + 1 ] ) )
+		
+		// Find previous and next nodes
+		while ( n != nullptr )
 		{
 			if ( n->index == kernelIndex )
 			{
-				k = n;
+				p = n;
 				break;
 			}
 			else if( n->index > kernelIndex )
 			{
-				k = new node_t();
-				k->index = kernelIndex;
-				k->next = n;
-				if( n == list[ bitMaskIndex ] )
-				{
-					list[ bitMaskIndex ] = k;
-				}
 				break;
 			}
-			else
+			else if ( n->index < kernelIndex )
 			{
-				if( n->next == nullptr )
-				{
-					k = new node_t();
-					k->index = kernelIndex;
-					k->next = nullptr;
-					n->next = k;
-					break;
-				}
 				p = n;
+				n = n->next;
 
-				if( n->next == nullptr ) {
-					n = ( bitMaskIndex == ( BitMaskCount - 1 ) ) ? nullptr : list[ bitMaskIndex + 1 ];
-				} else {
-					n = n->next;
+				node_t* skipCheck = ( bitMaskIndex == ( BitMaskCount - 1 ) ) ? nullptr : list[ bitMaskIndex + 1 ];
+				while ( skipCheck != nullptr )
+				{
+					if ( n == skipCheck ) {
+						n = nullptr;
+					}
+					skipCheck = list[ bitMaskIndex + 1 ];
 				}
 			}
 		}
 
-		// First node
-		if( k == nullptr )
+		// Insert new node or assign to found node
+		node_t* k = nullptr;
+		if( p != n )
 		{
 			k = new node_t();
 			k->index = kernelIndex;
-			k->next = nullptr;
+			k->next = n;
+		} else {
+			k = n;
+		}
+
+		// Link to next node in skiplist
+		if ( n == nullptr ) { // TODO: needs to loop skip pointer to pointer if null
+			k->next = ( bitMaskIndex == ( BitMaskCount - 1 ) ) ? nullptr : list[ bitMaskIndex + 1 ];
+		}
+
+		// Link list head or previous node
+		if( p == nullptr ) {
 			list[ bitMaskIndex ] = k;
+		} else {
+			p->next = k;
 		}
 
 		bitMask[ bitMaskIndex ] |= ( 1ull << kernelIndex );
@@ -422,17 +425,29 @@ private:
 
 public:
 
-	inline const T operator[]( const uint32_t i ) const
+	inline const bool IsZeroPage( const uint32_t i ) const
 	{
-		TRAP( i, D );
+		if ( i >= D ) {
+			return true;
+		}
 
 		const uint32_t kernelIndex = ( i / KernelSize );
-		const uint32_t bitMaskIndex = ( i / BitsPerBitMask );
+		const uint32_t bitMaskIndex = ( i / ElementsPerBitMask );
 
-		if ( ( bitMask[ bitMaskIndex ] & ( 1ull << kernelIndex ) ) == 0 )
-		{
+		if ( ( bitMask[ bitMaskIndex ] & ( 1ull << kernelIndex ) ) == 0 ) {
+			return true;
+		}
+		return false;
+	}
+
+	inline const T operator[]( const size_t i ) const
+	{
+		if( IsZeroPage( i ) ) {
 			return static_cast<T>( 0.0 );
 		}
+
+		const uint32_t kernelIndex = ( i / KernelSize );
+		const uint32_t bitMaskIndex = ( i / ElementsPerBitMask );
 
 		node_t* n = list[ bitMaskIndex ];
 		node_t* k = nullptr;
@@ -453,21 +468,14 @@ public:
 		return kernelVector[ kernelElementIndex ];
 	}
 
-	inline SparseVectorElement<T> operator[]( const uint32_t i )
+	inline SparseVectorElement<T> operator[]( const size_t i )
 	{
-		if ( i >= D )
-		{
-			assert( false );
-			return zero;
+		if ( IsZeroPage( i ) ) {
+			return SparseVectorElement<T>( *this, i );
 		}
 
 		const uint32_t kernelIndex = ( i / KernelSize );
-		const uint32_t bitMaskIndex = ( i / BitsPerBitMask );
-
-		if ( ( bitMask[ bitMaskIndex ] & ( 1ull << kernelIndex ) ) == 0 )
-		{
-			return SparseVectorElement<T>( *this, i );
-		}
+		const uint32_t bitMaskIndex = ( i / ElementsPerBitMask );
 
 		node_t* n = list[ bitMaskIndex ];
 		node_t* k = nullptr;
@@ -511,45 +519,6 @@ public:
 //template <typename D>
 //using SparseElementFloat = Vector<D, float, SparseStorage>::SparseVectorElement<float>;
 
-template <size_t SourceDim, size_t Dim, typename T>
-class Vector< Dim, T, ViewStorage<SourceDim, Dim> >
-{
-public:
-
-	static const size_t SourceSize = SourceDim;
-	static const size_t Size = Dim;
-	using SourceType = Vector<Dim, T, PodStorage>;
-	using Type = Vector<Dim, T, ViewStorage<SourceDim, Dim> >;
-
-private:
-
-	size_t sourceOffset;
-	T* elements;
-
-	Vector();
-
-public:
-
-	Vector( SourceType& v, const size_t offset = 0 )
-	{
-		// Clamp so last element doesn't exceed max
-		sourceOffset = ( SourceDim - Dim );
-		sourceOffset = ( sourceOffset > offset ) ? offset : sourceOffset;
-
-		elements = reinterpret_cast<Type*>( &( v[ sourceOffset ] ) );
-	}
-
-	inline const T& operator[]( const size_t i ) const
-	{
-		return elements[ i ];
-	}
-	
-	inline T& operator[]( const size_t i )
-	{
-		return elements[ i ];
-	}
-};
-
 template <size_t D, typename T, typename S>
 T Dot( const Vector<D, T, SparseStorage>& u, const Vector<D, T, S>& v )
 {
@@ -561,11 +530,13 @@ T Dot( const Vector<D, T, SparseStorage>& u, const Vector<D, T, S>& v )
 	T dot( 0.0 );
 	while( n )
 	{
-		Dot( n->kernel, *reinterpret_cast<const kernel_t*>( &v + n->index ) );
-		n = n->next;
+		kernel_t rhs = *Cast<D, kernel_t::Size, kernel_t::ValueType>( v, n->index );
+		Dot( n->kernel, rhs );
+ 		n = n->next;
 	}
 	return dot;
 }
+
 
 //template <size_t D, typename T>
 //[[nodiscard]]
@@ -601,18 +572,23 @@ void RunMatrixTests()
 	//SparseElementFloat element = sparseVec[ 100 ];
 	//element = 1.0f;
 
-	for( uint32_t i = 0; i < 50; ++i )
+	for( uint32_t i = 0; i < 1000; ++i )
 	{
-		sparseVec[ 8 * i ] = (float)i;//( 200.0f - i ) + 0.2f;
+		sparseVec[ i ] = (float)i;//( 200.0f - i ) + 0.2f;
 	}
 
 	const Vector<1000, float, SparseStorage>& sparseVecConst = sparseVec;
 
 	Vector<1000, float, PodStorage> realVec;
 
+	for ( uint32_t i = 0; i < 1000; ++i )
+	{
+		realVec[ i ] = (float)i;
+	}
+
 	Dot( sparseVecConst, realVec );
 
-	std::cout << sparseVecConst[ 100 ] << std::endl;
+	std::cout << sparseVecConst << std::endl;
 
 	std::cout << Det( cof00 ) << std::endl;
 

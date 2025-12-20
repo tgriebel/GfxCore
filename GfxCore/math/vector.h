@@ -32,6 +32,14 @@
 
 class Serializer;
 
+// Dummy types for template specialization
+class PodStorage {};
+
+template<size_t M, size_t N>
+class ViewStorage {};
+
+class SparseStorage {};
+
 template <size_t D, typename T, typename S>
 class Vector;
 
@@ -96,30 +104,44 @@ template<size_t D, typename T, typename S>
 [[nodiscard]]
 Vector<D, T, S> Multiply( const T& a, const Vector<D, T, S>& b );
 
-template<size_t D, typename T, typename S>
+template<size_t D, typename T>
 [[nodiscard]]
-const Vector<D, T, S> *const Cast( const T values[ D ] )
+const Vector<D, T, PodStorage> *const Cast( const T values[ D ] )
 {
-	return reinterpret_cast< const Vector<D, T, S> *const >( values );
+	return reinterpret_cast< const Vector<D, T, PodStorage> *const >( values );
 }
 
-template<size_t D, typename T, typename S>
+template<size_t D, typename T>
 [[nodiscard]]
-Vector<D, T, S> * Cast( T values[ D ] )
+Vector<D, T, PodStorage> * Cast( T values[ D ] )
 {
-	return reinterpret_cast< Vector<D, T, S>* >( values );
+	return reinterpret_cast< Vector<D, T, PodStorage>* >( values );
+}
+
+template<size_t SourceDim, size_t Dim, typename T>
+[[nodiscard]]
+Vector<Dim, T, PodStorage>* const Cast( Vector<SourceDim, T, PodStorage>& v, const size_t offset = 0 )
+{
+	static_assert( SourceDim >= Dim, "Must be equal or smaller than source dimensions." );
+
+	assert( ( offset + Dim ) <= SourceDim );
+
+	return reinterpret_cast<Vector<Dim, T, PodStorage>*>( &( v[ offset ] ) );
+}
+
+template<size_t SourceDim, size_t Dim, typename T>
+[[nodiscard]]
+const Vector<Dim, T, PodStorage>* const Cast( const Vector<SourceDim, T, PodStorage>& v, const size_t offset = 0 )
+{
+	static_assert( SourceDim >= Dim, "Must be equal or smaller than source dimensions" );
+
+	assert( ( offset + Dim ) <= SourceDim );
+
+	return reinterpret_cast<const Vector<Dim, T, PodStorage>*>( &( v[ offset ] ) );
 }
 
 template <size_t D, typename T, typename S>
 void Serialize( Serializer* serializer, Vector<D, T, S>& v );
-
-// Dummy types for template specialization
-class PodStorage {};
-
-template<size_t M, size_t N>
-class ViewStorage {};
-
-class SparseStorage {};
 
 #define SAFE_OPERATORS _DEBUG
 
@@ -134,8 +156,9 @@ static float _vector_trap[ 8 ] = {};
 #define TRAP( index, LENGTH )
 #endif
 
-#define VECTOR_CORE(D,T,S) static constexpr T Epsilon = std::numeric_limits< T >::epsilon() * ( (T)2.0 );													\
+#define VECTOR_CORE(D,T,S)  static constexpr T Epsilon = std::numeric_limits< T >::epsilon() * ( (T)2.0 );													\
 							static const size_t Size = D;																									\
+							typedef T ValueType;																											\
                             inline T					Length()                        const	{ return ::Length( *this ); }								\
                             inline Vector<D, T, S>		Normalize()	                    const	{ return ::Normalize( *this ); }							\
                             inline Vector<D, T, S>		Reverse()						const	{ return ::Reverse( *this ); }								\
