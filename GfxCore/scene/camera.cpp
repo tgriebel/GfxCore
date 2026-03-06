@@ -143,7 +143,7 @@ mat4x4f Camera::GetPerspectiveMatrix( const bool inverseZ ) const
 }
 
 
-mat4x4f Camera::GetOrthogonalMatrix( const float left, const float right, const float top, const float bottom ) const
+mat4x4f Camera::GetOrthographicMatrix( const float left, const float right, const float top, const float bottom ) const
 {
 	const float n = clipRegion.near;
 	const float f = clipRegion.far;
