@@ -1,9 +1,9 @@
-﻿  mikktspace.c
-  GfxCore.cpp
+﻿  GfxCore.cpp
   gpuProgram.cpp
   material.cpp
   model.cpp
   texture.cpp
+  util.cpp
   bitmap.cpp
   color.cpp
   image.cpp
@@ -16,4 +16,37 @@
   entity.cpp
   scene.cpp
   matrixVectorTests.cpp
+C:\Users\thoma\source\repos\GfxCore\unitTests\matrixVectorTests.cpp(473,1): warning C4267: 'argument': conversion from 'size_t' to 'const uint32_t', possible loss of data
+C:\Users\thoma\source\repos\GfxCore\unitTests\matrixVectorTests.cpp(472): message : while compiling class template member function 'Vector<1000,float,SparseStorage>::SparseVectorElement<T> Vector<1000,T,SparseStorage>::operator [](const size_t)'
+          with
+          [
+              T=float
+          ]
+C:\Users\thoma\source\repos\GfxCore\unitTests\matrixVectorTests.cpp(577): message : see reference to function template instantiation 'Vector<1000,float,SparseStorage>::SparseVectorElement<T> Vector<1000,T,SparseStorage>::operator [](const size_t)' being compiled
+          with
+          [
+              T=float
+          ]
+C:\Users\thoma\source\repos\GfxCore\unitTests\matrixVectorTests.cpp(570): message : see reference to class template instantiation 'Vector<1000,float,SparseStorage>' being compiled
+C:\Users\thoma\source\repos\GfxCore\unitTests\matrixVectorTests.cpp(474,1): warning C4267: 'argument': conversion from 'size_t' to 'const uint32_t', possible loss of data
+C:\Users\thoma\source\repos\GfxCore\unitTests\matrixVectorTests.cpp(477,1): warning C4267: 'initializing': conversion from 'size_t' to 'uint32_t', possible loss of data
+C:\Users\thoma\source\repos\GfxCore\unitTests\matrixVectorTests.cpp(477,1): warning C4267: 'initializing': conversion from 'size_t' to 'const uint32_t', possible loss of data
+C:\Users\thoma\source\repos\GfxCore\unitTests\matrixVectorTests.cpp(478,1): warning C4267: 'initializing': conversion from 'size_t' to 'uint32_t', possible loss of data
+C:\Users\thoma\source\repos\GfxCore\unitTests\matrixVectorTests.cpp(478,1): warning C4267: 'initializing': conversion from 'size_t' to 'const uint32_t', possible loss of data
+C:\Users\thoma\source\repos\GfxCore\unitTests\matrixVectorTests.cpp(496,1): warning C4267: 'argument': conversion from 'size_t' to 'const uint32_t', possible loss of data
+C:\Users\thoma\source\repos\GfxCore\unitTests\matrixVectorTests.cpp(445,1): warning C4267: 'argument': conversion from 'size_t' to 'const uint32_t', possible loss of data
+C:\Users\thoma\source\repos\GfxCore\unitTests\matrixVectorTests.cpp(444): message : while compiling class template member function 'const T Vector<1000,T,SparseStorage>::operator [](const size_t) const'
+          with
+          [
+              T=float
+          ]
+C:\Users\thoma\source\repos\GfxCore\gfxcore\math\vector.h(718): message : see reference to function template instantiation 'const T Vector<1000,T,SparseStorage>::operator [](const size_t) const' being compiled
+          with
+          [
+              T=float
+          ]
+C:\Users\thoma\source\repos\GfxCore\unitTests\matrixVectorTests.cpp(449,1): warning C4267: 'initializing': conversion from 'size_t' to 'uint32_t', possible loss of data
+C:\Users\thoma\source\repos\GfxCore\unitTests\matrixVectorTests.cpp(449,1): warning C4267: 'initializing': conversion from 'size_t' to 'const uint32_t', possible loss of data
+C:\Users\thoma\source\repos\GfxCore\unitTests\matrixVectorTests.cpp(450,1): warning C4267: 'initializing': conversion from 'size_t' to 'uint32_t', possible loss of data
+C:\Users\thoma\source\repos\GfxCore\unitTests\matrixVectorTests.cpp(450,1): warning C4267: 'initializing': conversion from 'size_t' to 'const uint32_t', possible loss of data
   GfxCore.vcxproj -> C:\Users\thoma\source\repos\GfxCore\Release\GfxCore.lib

@@ -69,6 +69,7 @@ enum class shaderFlags_t : uint32_t
 	USE_MSAA				= ( 1 << 0 ),
 	USE_CUBE_SAMPLER		= ( 1 << 1 ),
 	IMAGE_SHADER			= ( 1 << 2 ),
+	NO_VERTEX_BUFFER		= ( 1 << 3 ),
 };
 DEFINE_ENUM_OPERATORS( shaderFlags_t, uint32_t )
 
