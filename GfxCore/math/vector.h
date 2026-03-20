@@ -27,8 +27,8 @@
 #include <limits>
 #include <iostream>
 #include <string>
-#include <assert.h>
-#include <stdint.h>
+#include <cassert>
+#include <cstdint>
 
 class Serializer;
 
@@ -74,7 +74,7 @@ template<size_t D, typename T, typename S>
 void Copy( const T src[], Vector<D, T, S>& dst );
 
 template<size_t D, typename T, typename S>
-void Copy( const Vector<D, T, S>& src, const T dst[] );
+void Copy( const Vector<D, T, S>& src, T dst[] );
 
 template<size_t D, typename T, typename S>
 [[nodiscard]]
@@ -143,14 +143,18 @@ const Vector<Dim, T, PodStorage>* const Cast( const Vector<SourceDim, T, PodStor
 template <size_t D, typename T, typename S>
 void Serialize( Serializer* serializer, Vector<D, T, S>& v );
 
-#define SAFE_OPERATORS _DEBUG
+#ifdef _DEBUG
+#define SAFE_OPERATORS 1
+#else
+#define SAFE_OPERATORS 0
+#endif
 
 #if SAFE_OPERATORS
-static float _vector_trap[ 8 ] = {};
 #define TRAP( index, LENGTH )   if ( index >= LENGTH )                                                      \
                                 {                                                                           \
+									static T vectorTrap;													\
                                     assert( false );                                                        \
-                                    return *reinterpret_cast<T*>( &_vector_trap[ 0 ] );                     \
+                                    return *reinterpret_cast<T*>( &vectorTrap );							\
                                 }
 #else
 #define TRAP( index, LENGTH )
@@ -402,7 +406,7 @@ void Flush( Vector<D, T, S>& v, const T tolerance )
 template <size_t D, typename T, typename S>
 T Length( const Vector<D, T, S>& v )
 {
-	T mag = 0.0;
+	T mag = static_cast<T>( 0 );
 	for ( size_t i = 0; i < D; ++i ) {
 		mag += v[ i ] * v[ i ];
 	}
@@ -479,7 +483,7 @@ void Copy( const T src[], Vector<D, T, S>& dst )
 
 
 template <size_t D, typename T, typename S>
-void Copy( const Vector<D, T, S>& src, const T dst[] )
+void Copy( const Vector<D, T, S>& src, T dst[] )
 {
 	for ( size_t i = 0; i < D; ++i ) {
 		dst[ i ] = src[ i ];

@@ -38,6 +38,14 @@ enum loadHandlerFlags_t
 	LOAD_HANDLER_FLAGS_REBAKE	= ( 1 << 0 ),
 };
 
+enum class loadReturn_t : uint8_t
+{
+	ALREADY_LOADED,
+	NO_LOADER,
+	LOAD_SUCCESS,
+	LOAD_FAIL
+};
+
 template< class AssetType >
 class LoadHandler
 {
@@ -75,7 +83,6 @@ class AssetInterface
 {
 protected:
 	std::string					m_name;
-	std::string					m_json;
 	hdl_t						m_handle;
 
 	bool						m_loaded;
@@ -84,20 +91,20 @@ protected:
 	bool						m_canBake;
 
 public:
-	AssetInterface() : m_name( "" ), m_loaded( false ), m_isDefault( false ), m_uploaded( false ), m_canBake( true ), m_handle( INVALID_HDL ) {}
+	AssetInterface() : m_loaded( false ), m_isDefault( false ), m_uploaded( false ), m_canBake( true ), m_handle( INVALID_HDL ) {}
 
 	AssetInterface( const hdl_t hdl ) : m_handle( hdl ), m_loaded( false ), m_isDefault( false ), m_canBake( true ), m_uploaded( false )
 	{}
 
 	AssetInterface( const std::string& _name, const bool _loaded ) :
-		m_name( _name ), m_loaded( _loaded ), m_isDefault( false ), m_uploaded( false )
+		m_name( _name ), m_loaded( _loaded ), m_isDefault( false ), m_uploaded( false ), m_canBake( true )
 	{
 		m_handle = Hash( m_name );
 	}
 
-	virtual bool Load( const bool rebake = false ) = 0;
+	virtual loadReturn_t Load( const bool rebake = false ) = 0;
 	virtual void Unload() = 0;
-	virtual void Reload( const bool rebake = false ) = 0;
+	virtual loadReturn_t Reload( const bool rebake = false ) = 0;
 	virtual bool HasLoader() const = 0;
 	virtual void Serialize( Serializer* s ) = 0;
 
@@ -106,15 +113,10 @@ public:
 		return m_name;
 	}
 
-	inline const bool SetName( std::string name )
+	inline void Rename( const std::string& newName )
 	{
-		const uint64_t hash = Hash( name );
-		if( hash == m_handle.Get() )
-		{
-			m_name = name;
-			return true;
-		}
-		return false;
+		m_name = newName;
+		m_handle = Hash( newName );
 	}
 
 	inline hdl_t Handle() const
@@ -210,11 +212,14 @@ public:
 		return m_loader ? true : false;
 	}
 
-	bool Load( const bool rebake = false ) override
+	loadReturn_t Load( const bool rebake = false ) override
 	{
-		if ( ( m_loaded == false ) && HasLoader() )
+		if( HasLoader() == false ) {
+			return loadReturn_t::NO_LOADER;
+		}
+
+		if ( m_loaded == false )
 		{
-			const uint32_t flags = m_loader->GetFlags();
 			if( rebake ) {
 				m_loader->SetFlags( LOAD_HANDLER_FLAGS_REBAKE );
 			}
@@ -222,27 +227,33 @@ public:
 			m_loaded = m_loader->Load( *this );
 
 			if ( rebake ) {
-				m_loader->SetFlags( flags );
+				m_loader->ClearFlags( LOAD_HANDLER_FLAGS_REBAKE );
 			}
-			return m_loaded;
+			return m_loaded ? loadReturn_t::LOAD_SUCCESS : loadReturn_t::LOAD_FAIL;
 		}
-		return true;
+		return loadReturn_t::ALREADY_LOADED;
 	}
 
 	void Unload() override
 	{
-		m_asset.~AssetType();
+		m_asset = AssetType{};
 		m_loaded = false;
 	}
 
-	void Reload( const bool rebake = false ) override
+	loadReturn_t Reload( const bool rebake = false ) override
 	{
 		Unload();
-		Load( rebake );	
-		QueueUpload();
+
+		const loadReturn_t ret = Load( rebake );
+
+		if( ret == loadReturn_t::LOAD_SUCCESS ) {
+			QueueUpload();
+		}
+
+		return ret;
 	}
 
-	void Serialize( Serializer* s )
+	void Serialize( Serializer* s ) override
 	{
 		m_asset.Serialize( s );
 	}

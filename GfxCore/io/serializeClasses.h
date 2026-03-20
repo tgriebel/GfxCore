@@ -38,7 +38,6 @@ bool LoadBaked( Asset<T>& asset, bakedAssetInfo_t& info, const std::string& dir,
 		s.NextString( info.date );
 
 		asset.Serialize( &s );
-		asset.SetName( info.name.c_str() );
 
 		info.sizeBytes = s.CurrentSize();
 		info.hash = Library::Handle( info.name.c_str() ).String();
