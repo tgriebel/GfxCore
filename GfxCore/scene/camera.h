@@ -70,19 +70,23 @@ private:
 	static constexpr float MaxFov = Radians( 120.0f );
 	static constexpr float MinFov = Radians( 30.0f );
 
-	mat4x4f		axis;
-	vec4f		origin;
-	float		yaw;
-	float		pitch;
-	float		roll;
-	float		aspect;
-	viewport_t	clipRegion;
-	float		viewportWidth;
-	float		viewportHeight;
-	float		fov;
-	float		halfFovX;
-	float		halfFovY;
-	float		focalLength;
+	static constexpr bool forceFlushAxisCache = false;
+
+	mat4x4f				axis;
+	mutable mat4x4f		cachedViewAxis; // Rotated basis axis. Invalidated on `yaw`, `pitch`, and `roll` writes
+	vec4f				origin;
+	float				yaw;
+	float				pitch;
+	float				roll;
+	float				aspect;
+	viewport_t			clipRegion;
+	float				viewportWidth;
+	float				viewportHeight;
+	float				fov;
+	float				halfFovX;
+	float				halfFovY;
+	float				focalLength;
+	mutable bool		isAxisCacheValid;
 
 	plane_t		GetFocalPlane() const;
 
@@ -94,7 +98,8 @@ public:
 		origin = _origin;
 		axis = _axis;
 
-		fov = Radians( _fov );
+		isAxisCacheValid = false;
+
 		clipRegion.near = _near;
 		clipRegion.far = _far;
 		yaw = 0.0f;
@@ -102,7 +107,7 @@ public:
 		roll = 0.0f;
 		focalLength = _far;
 
-		SetAspectRatio( aspectRatio );
+		SetFov( Radians( _fov ), aspectRatio );
 	}
 
 	Camera()
@@ -130,8 +135,7 @@ public:
 	}
 
 	// Viewport
-	void		SetAspectRatio( const float aspectRatio );	
-	void		SetFov( const float fieldOfView );
+	void		SetFov( const float fieldOfView, const float aspectRatio );
 	void		SetClip( const float nearDistance, const float farDistance );
 	void		SetNearClip( const float nearDistance );
 	void		SetFarClip( const float farDistance );
@@ -147,6 +151,7 @@ public:
 	vec4f		GetRight() const;
 	vec4f		GetUp() const;
 	mat4x4f		GetAxis() const;
+	void		GetAxisVectors( vec4f& forward, vec4f& right, vec4f& up ) const;
 	mat4x4f		GetViewMatrix() const;
 	mat4x4f		GetPerspectiveMatrix( const bool inverseZ = true ) const;
 	mat4x4f		GetOrthographicMatrix( const float left, const float right, const float top, const float bottom ) const;

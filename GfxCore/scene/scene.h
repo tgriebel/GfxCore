@@ -125,8 +125,7 @@ public:
 		{
 			cameras[ i ] = Camera( vec4f( 0.0f, 0.0f, 0.0f, 0.0f ) );
 			cameras[ i ].SetClip( defaultNear, defaultFar );
-			cameras[ i ].SetFov( Radians( 90.0f ) );
-			cameras[ i ].SetAspectRatio( 1.0f );
+			cameras[ i ].SetFov( Radians( 90.0f ), 1.0f );
 		}
 		cameras[ IMAGE_CUBE_FACE_X_POS + 1 ].Pan( 0.0f * PI );
 		cameras[ IMAGE_CUBE_FACE_Y_POS + 1 ].Pan( 0.5f * PI );

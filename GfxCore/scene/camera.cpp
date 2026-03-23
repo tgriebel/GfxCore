@@ -1,27 +1,19 @@
 #include "camera.h"
 
 
-void Camera::SetAspectRatio( const float aspectRatio )
-{
-	aspect = aspectRatio;
-	halfFovX = tan( 0.5f * fov );
-	halfFovY = tan( 0.5f * fov ) / aspectRatio;
-	viewportWidth = 2.0f * halfFovX;
-	viewportHeight = 2.0f * halfFovY;
-}
-
-
 float Camera::GetAspectRatio() const
 {
 	return aspect;
 }
 
 
-void Camera::SetFov( const float fieldOfView )
+void Camera::SetFov( const float fieldOfView, const float aspectRatio )
 {
 	fov = Clamp( fieldOfView, MinFov, MaxFov );
+	aspect = aspectRatio;
+
 	halfFovX = tan( 0.5f * fov );
-	halfFovY = tan( 0.5f * fov ) / aspect;
+	halfFovY = tan( 0.5f * fov ) / aspectRatio;
 	viewportWidth = 2.0f * halfFovX;
 	viewportHeight = 2.0f * halfFovY;
 }
@@ -95,20 +87,27 @@ vec4f Camera::GetOrigin() const
 
 mat4x4f Camera::GetAxis() const
 {
-	mat4x4f view = ( ComputeRotationY( Degrees( -yaw ) ) * axis ); // TODO: check if rotation mat is right direction. Just flipped the sign for now
-	view = ( ComputeRotationX( Degrees( -pitch ) ) * view );
-	view = ( ComputeRotationZ( Degrees( -roll ) ) * view );
-	return view;
+	if( isAxisCacheValid ) {
+		return cachedViewAxis;
+	}
+
+	cachedViewAxis = ( ComputeRotationY( Degrees( -yaw ) ) * axis ); // TODO: check if rotation mat is right direction. Just flipped the sign for now
+	cachedViewAxis = ( ComputeRotationX( Degrees( -pitch ) ) * cachedViewAxis );
+	cachedViewAxis = ( ComputeRotationZ( Degrees( -roll ) ) * cachedViewAxis );
+
+	isAxisCacheValid = forceFlushAxisCache ? false : true;
+
+	return cachedViewAxis;
 }
 
 
 mat4x4f Camera::GetViewMatrix() const
 {
-	mat4x4f view = GetAxis();
-	vec4f X = vec4f( view[ 0 ][ 0 ], view[ 0 ][ 1 ], view[ 0 ][ 2 ], view[ 0 ][ 3 ] );
-	vec4f Y = vec4f( view[ 1 ][ 0 ], view[ 1 ][ 1 ], view[ 1 ][ 2 ], view[ 1 ][ 3 ] );
-	vec4f Z = vec4f( view[ 2 ][ 0 ], view[ 2 ][ 1 ], view[ 2 ][ 2 ], view[ 2 ][ 3 ] );
-	vec4f localOrigin = vec4f( -Dot( X, origin ), -Dot( Y, origin ), -Dot( Z, origin ), 0.0f );
+	const mat4x4f& view = GetAxis();
+	const vec4f& X = view[ 0 ];
+	const vec4f& Y = view[ 1 ];
+	const vec4f& Z = view[ 2 ];
+	const vec4f& localOrigin = vec4f( -Dot( X, origin ), -Dot( Y, origin ), -Dot( Z, origin ), 0.0f );
 
 	// Column-major
 	float values[ 16 ] = { view[ 0 ][ 0 ], view[ 1 ][ 0 ], view[ 2 ][ 0 ], 0.0f,	// X
@@ -162,30 +161,42 @@ mat4x4f Camera::GetOrthographicMatrix( const float left, const float right, cons
 
 vec4f Camera::GetForward() const
 {
-	mat4x4f view = GetAxis();
-	return vec4f( view[ 2 ][ 0 ], view[ 2 ][ 1 ], view[ 2 ][ 2 ], view[ 2 ][ 3 ] ).Reverse();
+	const mat4x4f& view = GetAxis();
+	return view[ 2 ].Reverse();
 }
 
 
 vec4f Camera::GetRight() const
 {
-	mat4x4f view = GetAxis();
-	return vec4f( view[ 0 ][ 0 ], view[ 0 ][ 1 ], view[ 0 ][ 2 ], view[ 0 ][ 3 ] );
+	const mat4x4f& view = GetAxis();
+	return view[ 0 ];
 }
 
 
 vec4f Camera::GetUp() const
 {
-	mat4x4f view = GetAxis();
-	return vec4f( view[ 1 ][ 0 ], view[ 1 ][ 1 ], view[ 1 ][ 2 ], view[ 1 ][ 3 ] );
+	const mat4x4f& view = GetAxis();
+	return view[ 1 ];
+}
+
+
+void Camera::GetAxisVectors( vec4f& forward, vec4f& right, vec4f& up ) const
+{
+	const mat4x4f& view = GetAxis();
+
+	forward = view[ 2 ].Reverse();
+	right = view[ 0 ];
+	up = view[ 1 ];
 }
 
 
 void Camera::SetAngles( const vec3f& angles )
 {
-	yaw = angles[ 0 ];
-	pitch = angles[ 1 ];
-	roll = angles[ 2 ];
+	yaw = angles.x;
+	pitch = angles.y;
+	roll = angles.z;
+
+	isAxisCacheValid = false;
 }
 
 
@@ -204,18 +215,24 @@ void Camera::Translate( vec4f offset )
 void Camera::Pan( const float delta )
 {
 	yaw += delta;
+
+	isAxisCacheValid = false;
 }
 
 
 void Camera::Tilt( const float delta )
 {
 	pitch += delta;
+
+	isAxisCacheValid = false;
 }
 
 
 void Camera::Roll( const float delta )
 {
 	roll += delta;
+
+	isAxisCacheValid = false;
 }
 
 
