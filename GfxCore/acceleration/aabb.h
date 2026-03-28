@@ -24,6 +24,7 @@
 #pragma once
 
 #include <utility>
+#include <algorithm>
 #include "../math/vector.h"
 #include "../math/matrix.h"
 #include "../primitives/ray.h"

@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <algorithm>
+
 #include "../core/common.h"
 #include "../math/vector.h"
 #include "../math/matrix.h"

@@ -70,6 +70,7 @@ enum class shaderFlags_t : uint32_t
 	USE_CUBE_SAMPLER		= ( 1 << 1 ),
 	IMAGE_SHADER			= ( 1 << 2 ),
 	NO_VERTEX_BUFFER		= ( 1 << 3 ),
+	USE_MRT					= ( 1 << 4 ),
 };
 DEFINE_ENUM_OPERATORS( shaderFlags_t, uint32_t )
 
@@ -87,6 +88,7 @@ enum class shaderPermId_t : int32_t
 	NONE				= -1,
 	MSAA				= 0,
 	SKY_CUBE_SAMPLER	= 1,
+	MRT					= 2,
 	COUNT
 };
 DEFINE_ENUM_OPERATORS( shaderPermId_t, uint32_t )
@@ -94,6 +96,7 @@ DEFINE_ENUM_OPERATORS( shaderPermId_t, uint32_t )
 #define SHADER_PERM(FLAG, TAG) { shaderFlags_t::FLAG, #FLAG, TAG }
 
 static const shaderPerm_t ShaderPerms[] = {	SHADER_PERM( USE_MSAA,			"msaa" ),
+											SHADER_PERM( USE_MRT,			"mrt" ),
 											SHADER_PERM( USE_CUBE_SAMPLER,	"skycube" )};
 
 static shaderPermId_t GetPermId( const std::string& perm )
@@ -167,6 +170,9 @@ public:
 
 class GpuProgramLoader : public LoadHandler<GpuProgram>
 {
+public:
+	static constexpr uint32_t MaxPermutations = 6;
+
 private:
 	std::string		srcPath;
 	std::string		binPath;
@@ -311,7 +317,7 @@ public:
 		bindHash = Hash( setName );
 	}
 
-	void SetPerm( const std::string& permName )
+	void AddPerms( const std::string& permName )
 	{
 		perm = GetPermId( permName );
 	}
