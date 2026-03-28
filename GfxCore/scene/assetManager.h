@@ -23,46 +23,92 @@
 
 #pragma once
 
-#include "../asset_types/texture.h"
-#include "../asset_types/material.h"
-#include "../asset_types/gpuProgram.h"
-#include "../asset_types/model.h"
 #include "../core/assetLib.h"
 #include "../core/asset.h"
-
-typedef AssetLib< Model >			AssetLibModels;
-typedef AssetLib< Image >			AssetLibImages;
-typedef AssetLib< Material >		AssetLibMaterials;
-typedef AssetLib< GpuProgram >		AssetLibGpuProgram;
+#include <cassert>
 
 class AssetManager
 {
-public:
-	std::vector<Library*>		libraries;
-	AssetLibModels				modelLib = AssetLibModels( "Model" );
-	AssetLibImages				textureLib = AssetLibImages( "Image" );
-	AssetLibMaterials			materialLib = AssetLibMaterials( "Material" );
-	AssetLibGpuProgram			gpuPrograms = AssetLibGpuProgram( "Gpu Program" );
+private:
+	std::vector<Library*>	libraries;
 
-	AssetManager()
+	static inline uint32_t NextTypeId()
 	{
-		libraries.push_back( &modelLib );
-		libraries.push_back( &textureLib );
-		libraries.push_back( &materialLib );
-		libraries.push_back( &gpuPrograms );
+		static uint32_t counter = 0;
+		return counter++;
+	}
+
+	template< class T >
+	static uint32_t TypeId()
+	{
+		static uint32_t id = NextTypeId();
+		return id;
+	}
+
+public:
+	~AssetManager()
+	{
+		for ( Library* lib : libraries )
+		{
+			delete lib;
+		}
+		libraries.clear();
+	}
+
+	template< class T >
+	AssetLib<T>& RegisterLib( const char* name = "" )
+	{
+		const uint32_t id = TypeId<T>();
+		if ( id >= libraries.size() ) {
+			libraries.resize( id + 1, nullptr );
+		}
+		assert( libraries[ id ] == nullptr );
+		AssetLib<T>* lib = new AssetLib<T>( name );
+		libraries[ id ] = lib;
+		return *lib;
+	}
+
+	template< class T >
+	AssetLib<T>* GetLib()
+	{
+		const uint32_t id = TypeId<T>();
+		assert( id < libraries.size() && libraries[ id ] != nullptr );
+		return static_cast< AssetLib<T>* >( libraries[ id ] );
+	}
+
+	template< class T >
+	const AssetLib<T>* GetLib() const
+	{
+		const uint32_t id = TypeId<T>();
+		assert( id < libraries.size() && libraries[ id ] != nullptr );
+		return static_cast< const AssetLib<T>* >( libraries[ id ] );
+	}
+
+	Library* FindLibrary( const uint32_t index )
+	{
+		return ( index < libraries.size() ) ? libraries[ index ] : nullptr;
+	}
+
+	uint32_t LibraryCount() const
+	{
+		return static_cast<uint32_t>( libraries.size() );
 	}
 
 	void Clear()
 	{
-		for( auto it = libraries.begin(); it != libraries.end(); ++it ) {
-			(*it)->Clear();
+		for ( Library* lib : libraries )
+		{
+			if ( lib != nullptr ) {
+				lib->Clear();
+			}
 		}
 	}
 
 	inline bool HasPendingLoads()
 	{
-		for ( auto it = libraries.begin(); it != libraries.end(); ++it ) {
-			if( ( *it )->HasPendingLoads() ) {
+		for ( Library* lib : libraries )
+		{
+			if ( lib != nullptr && lib->HasPendingLoads() ) {
 				return true;
 			}
 		}
@@ -75,15 +121,15 @@ public:
 		while ( i < limit )
 		{
 			bool hasLoads = false;
-			for ( auto it = libraries.begin(); it != libraries.end(); ++it )
+			for ( Library* lib : libraries )
 			{
-				if ( ( *it )->HasPendingLoads() )
+				if ( lib != nullptr && lib->HasPendingLoads() )
 				{
-					( *it )->LoadAll();
+					lib->LoadAll();
 					hasLoads = true;
 				}
 			}
-			if( hasLoads == false ) {
+			if ( hasLoads == false ) {
 				break;
 			}
 			++i;

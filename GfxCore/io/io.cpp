@@ -34,8 +34,10 @@
 
 #include "../scene/scene.h"
 #include "../scene/assetManager.h"
+#include "../image/image.h"
 #include "../asset_types/model.h"
 #include "../asset_types/texture.h"
+#include "../asset_types/material.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "../../external/tiny_obj_loader.h"
@@ -254,29 +256,29 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 			if( name.length() == 0 ) {
 				continue;
 			}
-			assets.textureLib.AddDeferred( name.c_str(), pImgLoader_t( new ImageLoader( texturePath, name, supportedTextures[ i ].isLinear ) ) );
+			assets.GetLib<Image>()->AddDeferred( name.c_str(), pImgLoader_t( new ImageLoader( texturePath, name, supportedTextures[ i ].isLinear ) ) );
 		}
 		
 		Material mat;
 		if( material.dissolve == 1.0f )
 		{
-			mat.AddShader( DRAWPASS_SHADOW, AssetLibGpuProgram::Handle( "Shadow" ) );
-			mat.AddShader( DRAWPASS_DEPTH, AssetLibGpuProgram::Handle( "LitDepth" ) );
-			mat.AddShader( DRAWPASS_OPAQUE, AssetLibGpuProgram::Handle( "LitOpaque" ) );
+			mat.AddShader( DRAWPASS_SHADOW, AssetLib<GpuProgram>::Handle( "Shadow" ) );
+			mat.AddShader( DRAWPASS_DEPTH, AssetLib<GpuProgram>::Handle( "LitDepth" ) );
+			mat.AddShader( DRAWPASS_OPAQUE, AssetLib<GpuProgram>::Handle( "LitOpaque" ) );
 		} else {
-			mat.AddShader( DRAWPASS_TRANS, AssetLibGpuProgram::Handle( "LitTrans" ) );
+			mat.AddShader( DRAWPASS_TRANS, AssetLib<GpuProgram>::Handle( "LitTrans" ) );
 		}
-		mat.AddShader( DRAWPASS_DEBUG_WIREFRAME, AssetLibGpuProgram::Handle( "Debug" ) );
-		mat.AddShader( DRAWPASS_DEBUG_3D, AssetLibGpuProgram::Handle( "DebugSolid" ) );
+		mat.AddShader( DRAWPASS_DEBUG_WIREFRAME, AssetLib<GpuProgram>::Handle( "Debug" ) );
+		mat.AddShader( DRAWPASS_DEBUG_3D, AssetLib<GpuProgram>::Handle( "DebugSolid" ) );
 
 		if( isPbr  )
 		{
 			mat.usage = materialUsage_t::MATERIAL_USAGE_GGX;
 
-			mat.AddTexture( GGX_COLOR_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 0 ].name.c_str() ) );
-			mat.AddTexture( GGX_NORMAL_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 1 ].name.c_str() ) );
-			mat.AddTexture( GGX_SPEC_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 2 ].name.c_str() ) );
-			mat.AddTexture( GGX_METALLIC_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 3 ].name.c_str() ) );
+			mat.AddTexture( GGX_COLOR_MAP_SLOT, assets.GetLib<Image>()->RetrieveHdl( supportedTextures[ 0 ].name.c_str() ) );
+			mat.AddTexture( GGX_NORMAL_MAP_SLOT, assets.GetLib<Image>()->RetrieveHdl( supportedTextures[ 1 ].name.c_str() ) );
+			mat.AddTexture( GGX_SPEC_MAP_SLOT, assets.GetLib<Image>()->RetrieveHdl( supportedTextures[ 2 ].name.c_str() ) );
+			mat.AddTexture( GGX_METALLIC_MAP_SLOT, assets.GetLib<Image>()->RetrieveHdl( supportedTextures[ 3 ].name.c_str() ) );
 		}
 		else
 		{
@@ -284,9 +286,9 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 			// mat.usage = materialUsage_t::MATERIAL_USAGE_BLINN_PHONG;
 			mat.usage = materialUsage_t::MATERIAL_USAGE_GGX;
 
-			mat.AddTexture( GGX_COLOR_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 0 ].name.c_str() ) );
-			mat.AddTexture( GGX_NORMAL_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 1 ].name.c_str() ) );
-			mat.AddTexture( GGX_SPEC_MAP_SLOT, assets.textureLib.RetrieveHdl( supportedTextures[ 2 ].name.c_str() ) );
+			mat.AddTexture( GGX_COLOR_MAP_SLOT, assets.GetLib<Image>()->RetrieveHdl( supportedTextures[ 0 ].name.c_str() ) );
+			mat.AddTexture( GGX_NORMAL_MAP_SLOT, assets.GetLib<Image>()->RetrieveHdl( supportedTextures[ 1 ].name.c_str() ) );
+			mat.AddTexture( GGX_SPEC_MAP_SLOT, assets.GetLib<Image>()->RetrieveHdl( supportedTextures[ 2 ].name.c_str() ) );
 		}
 
 		mat.Kd( rgb32_t( material.diffuse[ 0 ], material.diffuse[ 1 ], material.diffuse[ 2 ] ) );
@@ -299,7 +301,7 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 		mat.Tr( 1.0f - material.dissolve );
 		mat.Illum( static_cast<float>( material.illum ) );
 
-		assets.materialLib.Add( material.name.c_str(), mat );
+		assets.GetLib<Material>()->Add( material.name.c_str(), mat );
 	}
 
 	uint32_t vertexCnt = 0;
@@ -458,7 +460,7 @@ bool LoadRawModel( AssetManager& assets, const std::string& fileName, const std:
 		model.surfs[ model.surfCount ].materialHdl = INVALID_HDL;
 		if ( ( materials.size() > 0 ) && ( shape.mesh.material_ids.size() > 0 ) ) {
 			const int shapeMaterial = shape.mesh.material_ids[ 0 ];
-			const hdl_t materialHdl = AssetLibMaterials::Handle( materials[ shapeMaterial ].name.c_str() );
+			const hdl_t materialHdl = AssetLib<Material>::Handle( materials[ shapeMaterial ].name.c_str() );
 			if ( materialHdl.IsValid() ) {
 				model.surfs[ model.surfCount ].materialHdl = materialHdl;
 			}

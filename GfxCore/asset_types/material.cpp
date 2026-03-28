@@ -26,6 +26,7 @@
 #include <Syscore/systemUtils.h>
 #include "../io/serializeClasses.h"
 #include "../scene/assetManager.h"
+#include "texture.h"
 
 bool Material::AddTexture( const uint32_t slot, const hdl_t hdl )
 {
@@ -116,7 +117,7 @@ bool BakedMaterialLoader::Load( Asset<Material>& materialAsset )
 		for ( uint32_t imageIx = 0; imageIx < imgCount; ++imageIx )
 		{
 			const hdl_t imgHandle = material.GetTexture( imageIx );
-			m_assets->textureLib.AddDeferred( imgHandle, pImgLoader_t( new BakedImageLoader( ".\\baked\\textures\\", "img.bin" ) ) );
+			m_assets->GetLib<Image>()->AddDeferred( imgHandle, pImgLoader_t( new BakedImageLoader( ".\\baked\\textures\\", "img.bin" ) ) );
 		}
 		return true;
 	}

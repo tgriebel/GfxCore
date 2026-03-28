@@ -39,7 +39,7 @@ bool ModelLoader::Load( Asset<Model>& modelAsset )
 	{
 		const uint32_t surfCount = static_cast<uint32_t>( model.surfs.size() );
 		for ( uint32_t surfIx = 0; surfIx < surfCount; ++surfIx ) {
-			assets->materialLib.AddDeferred( model.surfs[ surfIx ].materialHdl, pMatLoader_t( new BakedMaterialLoader( assets, ".\\materials\\", "mtl.bin" ) ) );
+			assets->GetLib<Material>()->AddDeferred( model.surfs[ surfIx ].materialHdl, pMatLoader_t( new BakedMaterialLoader( assets, ".\\materials\\", "mtl.bin" ) ) );
 		}
 		return true;
 	}

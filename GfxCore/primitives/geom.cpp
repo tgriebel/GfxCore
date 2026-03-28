@@ -210,7 +210,7 @@ void CreateRayTraceModel( AssetManager& assets, Entity* ent, RtModel* outInstanc
 	vec4f centroid = vec4f( 0.0f, 0.0f, 0.0f, 0.0f );
 	outInstance->transform = ent->GetMatrix();
 
-	Model& model = assets.modelLib.Find( ent->modelHdl )->Get();
+	Model& model = assets.GetLib<Model>()->Find( ent->modelHdl )->Get();
 	for( uint32_t surfId = 0; surfId < model.surfCount; ++surfId )
 	{
 		Surface& surf = model.surfs[ surfId ];
