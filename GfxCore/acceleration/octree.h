@@ -46,7 +46,7 @@ class Octree
 {
 public:
 
-	static const uint32_t MaxHeight = 1000;
+	static const uint32_t MaxHeight = 16;
 
 	Octree()
 	{
@@ -64,6 +64,7 @@ public:
 		aabb.Expand( _max );
 	}
 
+	// FIXME: Objects larger than the root AABB silently fail to insert (returns false).
 	bool Insert( const AABB& bounds, const T& item, uint32_t depth = 0 )
 	{
 		if( aabb.Inside( bounds ) && ( depth < MaxHeight ) )
@@ -96,6 +97,9 @@ public:
 	}
 
 	// TODO: move out of tree
+	// FIXME: Returns all items in intersected nodes without filtering by actual item bounds.
+	// FIXME: Children are not sorted by ray distance — no front-to-back traversal or early exit.
+	// FIXME: HasChild() bitset is available but not used to skip empty children.
 	bool Intersect( const Ray& ray, std::vector<T>& hitItems ) const
 	{
 		float tNear;
@@ -141,6 +145,7 @@ public:
 		return ( children.size() > 0 );
 	}
 
+	// FIXME: Always creates all 8 children, even if most will be empty. Consider lazy child creation.
 	void Split()
 	{
 		// Can only 0 or 8 children currently
@@ -186,17 +191,18 @@ private:
 		const vec3f nodeMax = nodeMin + halfDist;
 		
 		children.push_back( Octree( nodeMin, nodeMax ) );
-		children.back().parent = this;
+		children.back().parent = this; // FIXME: If children vector reallocates, earlier children's parent pointers become dangling. Safe here because reserve(8) is called before AddChild loop, but fragile.
 
 		bitSet |= ( 1 << region );
 	}
 
 	AABB				aabb;
-	Octree<T>*			parent;
+	Octree<T>*			parent; // FIXME: Raw pointer — consider using indices instead of pointers to avoid dangling references.
 	uint32_t			height;
 	uint8_t				bitSet;
 
 	// TODO: make private
+	// FIXME: Poor cache locality — each node owns separate heap vectors. Consider a pooled/arena allocator.
 public:
 	std::vector<T>				items;
 	std::vector< Octree<T> >	children;
