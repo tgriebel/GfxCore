@@ -132,12 +132,24 @@ static const shaderPerm_t* FindPerm( const std::string& perm )
 }
 
 
-static std::string GetCompileString( const std::string& srcPath, const std::string& binPath, const std::string& macros )
+static std::string GetCompileString( const std::string& srcPath, const std::string& binPath, const std::string& perms )
 {
-	std::string cmd = "C:\\VulkanSDK\\1.3.261.0\\Bin\\glslangValidator.exe -l -V " + srcPath + " -o " + binPath + " -g";
-	if( macros != "" ) {
-		cmd += " --define-macro " + macros;
+	// Extract just the filename from srcPath (e.g. "resolve.ps.hlsl")
+	std::string filename = srcPath;
+	const size_t lastSlash = srcPath.find_last_of( "\\/" );
+	if( lastSlash != std::string::npos ) {
+		filename = srcPath.substr( lastSlash + 1 );
 	}
+
+	std::string cmd = "python vkRenderer\\scripts\\shader_compiler.py"; // FIXME: move this since not available to GfxCore standalone
+
+	// Perms are comma-delimited (e.g. -p msaa,skycube)
+	if( !perms.empty() ) {
+		cmd += " -p " + perms;
+	}
+
+	cmd += " " + filename;
+
 	return cmd;
 }
 
@@ -211,13 +223,13 @@ private:
 	{
 		if ( FileExists( binPath ) == false || forceRebuild )
 		{
-			std::string macros = "";
+			std::string perm = "";
 			const shaderPerm_t* shaderPerm = FindPerm( permId );
 			if ( shaderPerm != nullptr ) {
-				macros = shaderPerm->macro;
+				perm = shaderPerm->tag;
 			}
 
-			std::string compileCommand = GetCompileString( path, binPath, macros );
+			std::string compileCommand = GetCompileString( path, binPath, perm );
 			system( compileCommand.c_str() );
 		}
 	}
