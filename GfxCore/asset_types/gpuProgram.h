@@ -75,46 +75,54 @@ enum class shaderFlags_t : uint32_t
 DEFINE_ENUM_OPERATORS( shaderFlags_t, uint32_t )
 
 
+enum class shaderPermId_t : int32_t
+{
+	NONE				= 0,
+	MSAA				= ( 1 << 0 ),
+	SKY_CUBE_SAMPLER	= ( 1 << 1 ),
+	MRT					= ( 1 << 2 ),
+	COUNT				= 3
+};
+DEFINE_ENUM_OPERATORS( shaderPermId_t, uint32_t )
+
+
+// Permutations are used for variations on a single shaders
+// Flags are used to manage code. The same flag might be set for all permutations of a shader
+// Right now just 1 flag is supported, but should change
 struct shaderPerm_t
 {
 	shaderFlags_t	flags;
+	shaderPermId_t	id;
 	std::string		macro;
 	std::string		tag;
 };
 
 
-enum class shaderPermId_t : int32_t
-{
-	NONE				= -1,
-	MSAA				= 0,
-	SKY_CUBE_SAMPLER	= 1,
-	MRT					= 2,
-	COUNT
-};
-DEFINE_ENUM_OPERATORS( shaderPermId_t, uint32_t )
+#define SHADER_PERM(FLAG, PERM, TAG) { shaderFlags_t::FLAG, shaderPermId_t::PERM, #FLAG, TAG }
 
-#define SHADER_PERM(FLAG, TAG) { shaderFlags_t::FLAG, #FLAG, TAG }
-
-static const shaderPerm_t ShaderPerms[] = {	SHADER_PERM( USE_MSAA,			"msaa" ),
-											SHADER_PERM( USE_MRT,			"mrt" ),
-											SHADER_PERM( USE_CUBE_SAMPLER,	"skycube" )};
+static const shaderPerm_t ShaderPerms[] = {	SHADER_PERM( USE_MSAA,			MSAA,				"msaa" ),
+											SHADER_PERM( USE_MRT,			MRT,				"mrt" ),
+											SHADER_PERM( USE_CUBE_SAMPLER,	SKY_CUBE_SAMPLER,	"skycube" )};
 
 static shaderPermId_t GetPermId( const std::string& perm )
 {
 	for( uint32_t i = 0; i < shaderPermId_t::COUNT; ++i )
 	{
 		if( perm == ShaderPerms[ i ].tag ) {
-			return shaderPermId_t( i );
+			return ShaderPerms[ i ].id;
 		}
 	}
 	return shaderPermId_t::NONE;
 }
 
 
-static const shaderPerm_t* FindPerm( const shaderPermId_t perm )
+static const shaderPerm_t* FindPerm( const shaderPermId_t permId )
 {
-	if ( perm != shaderPermId_t::NONE && perm < shaderPermId_t::COUNT ) {
-		return &ShaderPerms[ static_cast<int32_t>( perm ) ];
+	for ( uint32_t i = 0; i < shaderPermId_t::COUNT; ++i )
+	{
+		if ( permId == ShaderPerms[ i ].id ) {
+			return &ShaderPerms[ i ];
+		}
 	}
 	return nullptr;
 }
@@ -132,47 +140,54 @@ static const shaderPerm_t* FindPerm( const std::string& perm )
 }
 
 
-static std::string GetCompileString( const std::string& srcPath, const std::string& binPath, const std::string& perms )
-{
-	// Extract just the filename from srcPath (e.g. "resolve.ps.hlsl")
-	std::string filename = srcPath;
-	const size_t lastSlash = srcPath.find_last_of( "\\/" );
-	if( lastSlash != std::string::npos ) {
-		filename = srcPath.substr( lastSlash + 1 );
-	}
-
-	std::string cmd = "python vkRenderer\\scripts\\shader_compiler.py"; // FIXME: move this since not available to GfxCore standalone
-
-	// Perms are comma-delimited (e.g. -p msaa,skycube)
-	if( !perms.empty() ) {
-		cmd += " -p " + perms;
-	}
-
-	cmd += " " + filename;
-
-	return cmd;
-}
-
-
 class GpuProgram
 {
 public:
 	static const uint32_t MaxShaders = 2;
 	static const uint32_t MaxBindSets = 5;
+	static const uint32_t MaxPermutations = ( 1 << static_cast<uint32_t>( shaderPermId_t::COUNT ) );
 
 	pipelineType_t			type;
-	shaderSource_t			shaders[ MaxShaders ];
+	uint64_t				bindHash;		// Only one bindset is specified in the shader right now
+	uint32_t				shaderCount;	// Number of shaders within the pipeline (e.g. 2 for VS/PS or 1 for CS)
+	uint32_t				bindsetCount;	// Bindset for inputs
+	uint32_t				permCount;		// Number of unique permutation combinations
+	shaderFlags_t			flags;
+	shaderPermId_t			permSet;		// Superset of all available permutations. Subsets can be selected
+	shaderSource_t			shaders[ MaxPermutations ][ MaxShaders ];
 #ifdef USE_VULKAN
-	VkShaderModule			vk_shaders[ MaxShaders ];
+	VkShaderModule			vk_shaders[ MaxPermutations ][ MaxShaders ];
 #endif
 	const ShaderBindSet*	bindsets[ MaxBindSets ];
-	uint64_t				bindHash; // Only one bindset is specified in the shader right now
-	uint32_t				shaderCount;
-	uint32_t				bindsetCount;
-	shaderFlags_t			flags;
-	shaderPermId_t			perm;
 
 	friend class LoadHandler<GpuProgram>;
+
+	GpuProgram()
+	{
+		type = pipelineType_t::UNSPECIFIED;
+
+		shaderCount = 0;
+		bindHash = 0;
+		permCount = 0;
+		flags = shaderFlags_t::NONE;
+		permSet = shaderPermId_t::NONE;
+
+		for ( uint32_t bindIndex = 0; bindIndex < MaxBindSets; ++bindIndex )
+		{
+			bindsets[ bindIndex ] = nullptr;
+		}
+
+		for ( uint32_t permIndex = 0; permIndex < GpuProgram::MaxPermutations; ++permIndex )
+		{
+			for ( uint32_t shaderIndex = 0; shaderIndex < GpuProgram::MaxShaders; ++shaderIndex )
+			{
+				shaders[ permIndex ][ shaderIndex ] = {};
+#ifdef USE_VULKAN
+				vk_shaders[ permIndex ][ shaderIndex ] = VK_NULL_HANDLE;
+#endif
+			}
+		}
+	}
 
 	void Serialize( Serializer* s )
 	{
@@ -182,175 +197,41 @@ public:
 
 class GpuProgramLoader : public LoadHandler<GpuProgram>
 {
-public:
-	static constexpr uint32_t MaxPermutations = 6;
-
 private:
 	std::string		srcPath;
 	std::string		binPath;
+	std::string		compilerPath;
 	std::string		vsFileName;
 	std::string		psFileName;
 	std::string		csFileName;
 	uint64_t		bindHash;
+	uint32_t		permIdCount;
 	shaderFlags_t	flags;
-	shaderPermId_t	perm;
+	shaderPermId_t	permList[ GpuProgram::MaxPermutations ];
 
-	static std::string GetBinName( const std::string& fileName, const shaderPermId_t permId )
-	{
-		std::string name;
-		std::string ext;
-		SplitFileName( fileName, name, ext );
-
-		if( ext == "vert" ) {
-			name += "VS";
-		} else if ( ext == "frag" ) {
-			name += "PS";
-		} else if ( ext == "comp" ) {
-			name += "CS";
-		}
-
-		const shaderPerm_t* perm = FindPerm( permId );
-		if( perm != nullptr ) {
-			name += "_" + perm->tag;
-		}
-		name += ".spv";
-
-		return name;
-	}
-
-
-	static void CheckCompileShader( const std::string& path, const std::string& binPath, const shaderPermId_t permId, const bool forceRebuild = false )
-	{
-		if ( FileExists( binPath ) == false || forceRebuild )
-		{
-			std::string perm = "";
-			const shaderPerm_t* shaderPerm = FindPerm( permId );
-			if ( shaderPerm != nullptr ) {
-				perm = shaderPerm->tag;
-			}
-
-			std::string compileCommand = GetCompileString( path, binPath, perm );
-			system( compileCommand.c_str() );
-		}
-	}
-
-
-	bool LoadRasterProgram( GpuProgram& program )
-	{
-		program.type = pipelineType_t::RASTER;
-		program.shaderCount = 2;
-		program.bindsetCount = 0;
-
-		const std::string vsBinName = GetBinName( vsFileName, perm );
-		const std::string psBinName = GetBinName( psFileName, perm );
-
-		CheckCompileShader( srcPath + vsFileName, binPath + vsBinName, perm, HasFlags( LOAD_HANDLER_FLAGS_REBAKE ) );
-		CheckCompileShader( srcPath + psFileName, binPath + psBinName, perm, HasFlags( LOAD_HANDLER_FLAGS_REBAKE ) );
-
-		program.shaders[ 0 ].name = vsFileName;
-		program.shaders[ 0 ].binName = vsBinName;
-		program.shaders[ 0 ].src = ReadTextFile( srcPath + vsFileName );
-		program.shaders[ 0 ].blob = ReadBinaryFile( binPath + vsBinName );
-		program.shaders[ 0 ].type = shaderType_t::VERTEX;
-
-		program.shaders[ 1 ].name = psFileName;
-		program.shaders[ 1 ].binName = psBinName;
-		program.shaders[ 1 ].src = ReadTextFile( srcPath + psFileName );
-		program.shaders[ 1 ].blob = ReadBinaryFile( binPath + psBinName );
-		program.shaders[ 1 ].type = shaderType_t::PIXEL;
-		
-#ifdef USE_VULKAN
-		program.vk_shaders[ 0 ] = VK_NULL_HANDLE;
-		program.vk_shaders[ 1 ] = VK_NULL_HANDLE;
-#endif
-
-		return true;
-	}
-
-
-	bool LoadComputeProgram( GpuProgram& program )
-	{
-		program.type = pipelineType_t::COMPUTE;
-		program.shaderCount = 1;
-		program.bindsetCount = 0;
-
-		const std::string csBinName = GetBinName( csFileName, perm );
-
-		CheckCompileShader( srcPath + csFileName, binPath + csBinName, perm, HasFlags( LOAD_HANDLER_FLAGS_REBAKE ) );
-
-		program.shaders[ 0 ].name = csFileName;
-		program.shaders[ 0 ].binName = csBinName;
-		program.shaders[ 0 ].src = ReadTextFile( srcPath + csFileName );
-		program.shaders[ 0 ].blob = ReadBinaryFile( binPath + csBinName );
-		program.shaders[ 0 ].type = shaderType_t::COMPUTE;	
-
-#ifdef USE_VULKAN
-		program.vk_shaders[ 0 ] = VK_NULL_HANDLE;
-		program.vk_shaders[ 1 ] = VK_NULL_HANDLE;
-#endif
-
-		return true;
-	}
-
-
-	bool Load( Asset<GpuProgram>& programAsset )
-	{
-		GpuProgram& program = programAsset.Get();
-
-		program.bindHash = bindHash;
-		program.flags = flags;
-
-		if( ( !vsFileName.empty() ) && ( !psFileName.empty() ) )
-		{
-			return LoadRasterProgram( program );
-		}
-		else if( !csFileName.empty() )
-		{
-			return LoadComputeProgram( program );
-		}
-		return false;
-	}
+	static std::string	GetBinName( const std::string& fileName, const shaderPermId_t permSet );
+	std::string			GetCompileString( const std::string& srcPath, const std::string& binPath, const std::string& perms );
+	void				CheckCompileShader( const std::string& path, const std::string& binPath, const shaderPermId_t permSet, const bool forceRebuild = false );
+	bool				LoadRasterProgram( GpuProgram& program );
+	bool				LoadComputeProgram( GpuProgram& program );
+	bool				Load( Asset<GpuProgram>& programAsset );
 
 public:
-	GpuProgramLoader() {}
-
-	void SetSourcePath( const std::string& path )
+	GpuProgramLoader()
 	{
-		srcPath = path;
-	}
-
-	void SetBinPath( const std::string& path )
-	{
-		binPath = path;
-	}
-
-	void SetBindSet( const std::string& setName )
-	{
-		bindHash = Hash( setName );
-	}
-
-	void AddPerms( const std::string& permName )
-	{
-		perm = GetPermId( permName );
-	}
-
-	void SetFlags( const shaderFlags_t shaderFlags )
-	{
-		flags = shaderFlags;
-	}
-
-	void AddFilePaths( const std::string& vertexFileName, const std::string& pixelFileName, const std::string& computeFileName )
-	{
-		if( !vertexFileName.empty() ) {
-			vsFileName = vertexFileName + ".vert";
-		}
-		if ( !pixelFileName.empty() ) {
-			psFileName = pixelFileName + ".frag";
-		}
-		if( !computeFileName.empty() ) {
-			csFileName = computeFileName + ".comp";
+		permIdCount = 1;
+		for ( uint32_t i = 0; i < permIdCount; ++i ) {
+			permList[ i ] = shaderPermId_t::NONE;
 		}
 	}
+
+	void SetSourcePath( const std::string& path );
+	void SetBinPath( const std::string& path );
+	void SetBindSet( const std::string& setName );
+	void AddPerm( const std::string& permName );
+	void SetFlags( const shaderFlags_t shaderFlags );
+	void SetCompilerPath( const std::string& path );
+	void AddFilePaths( const std::string& vertexFileName, const std::string& pixelFileName, const std::string& computeFileName );
 };
 
 using pShaderLoader_t = Asset<GpuProgram>::loadHandlerPtr_t;

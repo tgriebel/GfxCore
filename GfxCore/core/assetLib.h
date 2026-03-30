@@ -136,7 +136,7 @@ static inline void ThreadLoad( AssetInterface* asset, const bool rebake = false 
 template< class AssetType >
 void AssetLib< AssetType >::LoadAll( const bool rebake )
 {
-	static bool useThreading = true;
+	static bool useThreading = false;
 
 	std::vector< std::thread > threadPool;
 	threadPool.reserve( pendingLoad.size() );
