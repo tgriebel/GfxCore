@@ -146,6 +146,7 @@ private:
 
 	hdl_t					textures[ MaxMaterialTextures ];
 	hdl_t					shaders[ MaxMaterialShaders ];
+	uint32_t				shaderPerms[ MaxMaterialShaders ];	// Per-pass permutation bitmask (maps to shaderPermId_t)
 
 public:
 	Material() :
@@ -158,6 +159,7 @@ public:
 		}
 		for ( int i = 0; i < MaxMaterialShaders; ++i ) {
 			shaders[ i ] = INVALID_HDL;
+			shaderPerms[ i ] = 0;
 		}
 		uploadId = -1;
 		usage = MATERIAL_USAGE_UNKNOWN;
@@ -288,8 +290,9 @@ public:
 	bool		AddTexture( const uint32_t slot, const hdl_t hdl );
 	hdl_t		GetTexture( const uint32_t slot ) const;
 	uint32_t	TextureCount() const;
-	bool		AddShader( const drawPass_t pass, const hdl_t hdl );
+	bool		AddShader( const drawPass_t pass, const hdl_t hdl, const uint32_t perms = 0 );
 	hdl_t		GetShader( const drawPass_t pass ) const;
+	uint32_t	GetShaderPerms( const drawPass_t pass ) const;
 	uint32_t	ShaderCount() const;
 
 	void Serialize( Serializer* serializer );

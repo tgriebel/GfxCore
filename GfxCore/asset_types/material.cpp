@@ -64,7 +64,7 @@ uint32_t Material::TextureCount() const
 }
 
 
-bool Material::AddShader( const drawPass_t pass, const hdl_t hdl )
+bool Material::AddShader( const drawPass_t pass, const hdl_t hdl, const uint32_t perms )
 {
 	const uint32_t slot = uint32_t( pass );
 	if ( slot >= MaxMaterialShaders ) {
@@ -76,6 +76,7 @@ bool Material::AddShader( const drawPass_t pass, const hdl_t hdl )
 	assert( pass < 16 ); // Bitset overrun
 
 	shaders[ slot ] = hdl;
+	shaderPerms[ slot ] = perms;
 	shaderBitSet |= ( 1 << slot );
 	return true;
 }
@@ -88,6 +89,16 @@ hdl_t Material::GetShader( const drawPass_t pass ) const
 		return INVALID_HDL;
 	}
 	return shaders[ slot ];
+}
+
+
+uint32_t Material::GetShaderPerms( const drawPass_t pass ) const
+{
+	const uint32_t slot = uint32_t( pass );
+	if ( slot >= MaxMaterialShaders ) {
+		return 0;
+	}
+	return shaderPerms[ slot ];
 }
 
 
