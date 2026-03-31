@@ -161,21 +161,27 @@ bool GpuProgramLoader::LoadRasterProgram( GpuProgram& program )
 		CheckCompileShader( srcPath + vsFileName, binPath + vsBinName, permPowerSet[ permSetIndex ], HasFlags( LOAD_HANDLER_FLAGS_REBAKE ) );
 		CheckCompileShader( srcPath + psFileName, binPath + psBinName, permPowerSet[ permSetIndex ], HasFlags( LOAD_HANDLER_FLAGS_REBAKE ) );
 
-		shaderSource_t& vs = program.shaders[ permSetIndex ][ 0 ];
+		shaderSource_t& vs = program.shaders[ 0 ];
+		shaderBin_t& vsBin = program.shaderBins[ permSetIndex ][ 0 ];
 
 		vs.name = vsFileName;
-		vs.binName = vsBinName;
 		vs.src = ReadTextFile( srcPath + vsFileName );
-		vs.blob = ReadBinaryFile( binPath + vsBinName );
 		vs.type = shaderType_t::VERTEX;
 
-		shaderSource_t& ps = program.shaders[ permSetIndex ][ 1 ];
+		vsBin.binName = vsBinName;
+		vsBin.blob = ReadBinaryFile( binPath + vsBinName );
+		vsBin.type = shaderType_t::VERTEX;
+
+		shaderSource_t& ps = program.shaders[ 1 ];
+		shaderBin_t& psBin = program.shaderBins[ permSetIndex ][ 1 ];
 
 		ps.name = psFileName;
-		ps.binName = psBinName;
 		ps.src = ReadTextFile( srcPath + psFileName );
-		ps.blob = ReadBinaryFile( binPath + psBinName );
 		ps.type = shaderType_t::PIXEL;
+
+		psBin.binName = psBinName;
+		psBin.blob = ReadBinaryFile( binPath + psBinName );
+		psBin.type = shaderType_t::PIXEL;
 	}
 
 	return true;
@@ -190,20 +196,21 @@ bool GpuProgramLoader::LoadComputeProgram( GpuProgram& program )
 	program.permCount = permIdCount;
 	program.permSet = shaderPermId_t::NONE;
 
-	for ( uint32_t permIndex = 0; permIndex < 1; ++permIndex )
-	{
-		const std::string csBinName = GetBinName( csFileName, shaderPermId_t::NONE );
+	const std::string csBinName = GetBinName( csFileName, shaderPermId_t::NONE );
 
-		CheckCompileShader( srcPath + csFileName, binPath + csBinName, shaderPermId_t::NONE, HasFlags( LOAD_HANDLER_FLAGS_REBAKE ) );
+	CheckCompileShader( srcPath + csFileName, binPath + csBinName, shaderPermId_t::NONE, HasFlags( LOAD_HANDLER_FLAGS_REBAKE ) );
 
-		shaderSource_t& cs = program.shaders[ permIndex ][ 0 ];
+	shaderSource_t& cs = program.shaders[ 0 ];
+	shaderBin_t& csBin = program.shaderBins[ 0 ][ 0 ];
 
-		cs.name = csFileName;
-		cs.binName = csBinName;
-		cs.src = ReadTextFile( srcPath + csFileName );
-		cs.blob = ReadBinaryFile( binPath + csBinName );
-		cs.type = shaderType_t::COMPUTE;
-	}
+	cs.name = csFileName;
+	cs.src = ReadTextFile( srcPath + csFileName );
+	cs.type = shaderType_t::COMPUTE;
+
+	csBin.binName = csBinName;
+	csBin.blob = ReadBinaryFile( binPath + csBinName );
+	csBin.type = shaderType_t::COMPUTE;
+
 	return true;
 }
 

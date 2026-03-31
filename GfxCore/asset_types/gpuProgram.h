@@ -53,16 +53,6 @@ enum class pipelineType_t : uint32_t
 };
 
 
-struct shaderSource_t
-{
-	std::string			name;
-	std::string			binName;
-	std::vector<char>	src;
-	std::vector<char>	blob;
-	shaderType_t		type;
-};
-
-
 enum class shaderFlags_t : uint32_t
 {
 	NONE					= 0,
@@ -103,6 +93,24 @@ struct shaderPerm_t
 static const shaderPerm_t ShaderPerms[] = {	SHADER_PERM( USE_MSAA,			MSAA,				"msaa" ),
 											SHADER_PERM( USE_MRT,			MRT,				"mrt" ),
 											SHADER_PERM( USE_CUBE_SAMPLER,	SKY_CUBE_SAMPLER,	"skycube" )};
+
+
+struct shaderSource_t
+{
+	std::string			name;
+	std::vector<char>	src;
+	shaderType_t		type;
+};
+
+
+struct shaderBin_t
+{
+	std::string			binName;
+	std::vector<char>	blob;
+	shaderType_t		type;
+
+};
+
 
 static shaderPermId_t GetPermId( const std::string& perm )
 {
@@ -154,7 +162,8 @@ public:
 	uint32_t				permCount;		// Number of unique permutation combinations
 	shaderFlags_t			flags;
 	shaderPermId_t			permSet;		// Superset of all available permutations. Subsets can be selected
-	shaderSource_t			shaders[ MaxPermutations ][ MaxShaders ];
+	shaderSource_t			shaders[ MaxShaders ];
+	shaderBin_t				shaderBins[ MaxPermutations ][ MaxShaders ];
 #ifdef USE_VULKAN
 	VkShaderModule			vk_shaders[ MaxPermutations ][ MaxShaders ];
 #endif
@@ -181,7 +190,8 @@ public:
 		{
 			for ( uint32_t shaderIndex = 0; shaderIndex < GpuProgram::MaxShaders; ++shaderIndex )
 			{
-				shaders[ permIndex ][ shaderIndex ] = {};
+				shaders[ shaderIndex ] = {};
+				shaderBins[ permIndex ][ shaderIndex ] = {};
 #ifdef USE_VULKAN
 				vk_shaders[ permIndex ][ shaderIndex ] = VK_NULL_HANDLE;
 #endif
