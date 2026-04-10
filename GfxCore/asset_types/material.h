@@ -124,6 +124,13 @@ struct materialParms_t
 	float		Ni;
 	float		d;
 	float		illum;
+	//float		roughness;
+	//float		metalness;
+	//float		sheen;
+	//float		clearcoatThickness;
+	//float		clearcoatRoughness;
+	//float		anisotropy;
+	//float		anisotropyRotation;
 };
 
 class Material

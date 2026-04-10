@@ -105,6 +105,8 @@ void SerializeStruct( Serializer* s, materialParms_t& p )
 	s->Next( p.Ni );
 	s->Next( p.d );
 	s->Next( p.illum );
+//	s->Next( p.roughness ); 
+//	s->Next( p.metalness ); 
 }
 
 
