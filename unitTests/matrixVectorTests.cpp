@@ -440,7 +440,7 @@ public:
 		return false;
 	}
 
-	inline const T operator[]( const size_t i ) const
+	inline const T operator[]( const uint32_t i ) const
 	{
 		if( IsZeroPage( i ) ) {
 			return static_cast<T>( 0.0 );
@@ -468,7 +468,7 @@ public:
 		return kernelVector[ kernelElementIndex ];
 	}
 
-	inline SparseVectorElement<T> operator[]( const size_t i )
+	inline SparseVectorElement<T> operator[]( const uint32_t i )
 	{
 		if ( IsZeroPage( i ) ) {
 			return SparseVectorElement<T>( *this, i );
@@ -530,7 +530,7 @@ T Dot( const Vector<D, T, SparseStorage>& u, const Vector<D, T, S>& v )
 	T dot( 0.0 );
 	while( n )
 	{
-		kernel_t rhs = *Cast<D, kernel_t::Size, kernel_t::ValueType>( v, n->index );
+		kernel_t rhs = *Cast<D, kernel_t::Size, typename kernel_t::ValueType>( reinterpret_cast<const Vector<D, T, PodStorage>&>( v ), n->index );
 		Dot( n->kernel, rhs );
  		n = n->next;
 	}

@@ -41,19 +41,19 @@ class Matrix
 public:
 	Matrix<N, M, T, StorageType> Transpose( void ) const
 	{
-		return ::Transpose<M, N, T, StorageType>( *this );
+		return ::Transpose( *this );
 	}
 
 	Vector<N, T, StorageType>& operator[]( const size_t rowIndex )
 	{
-		static_assert( 0, "Abstract Template" );
-		return Vector<N, T, StorageType>();
+		static_assert( sizeof(T) == 0, "Abstract Template" );
+		throw;
 	}
 
 	const Vector<N, T, StorageType>& operator[]( const size_t rowIndex ) const
 	{
-		static_assert( 0, "Abstract Template" );
-		return Vector<N, T, StorageType>();
+		static_assert( sizeof(T) == 0, "Abstract Template" );
+		throw;
 	}
 };
 
@@ -111,7 +111,7 @@ public:
 
 	inline TransposeType Transpose( void ) const
 	{
-		return ::Transpose<M, N, T, PodStorage>( *this );
+		return ::Transpose( *this );
 	}
 
 	inline RowType& operator[]( const size_t rowIndex )
@@ -166,7 +166,7 @@ public:
 
 	inline TransposeType Transpose( void ) const
 	{
-		return ::Transpose<M, N, T, PodStorage>( *this );
+		return ::Transpose( *this );
 	}
 
 	inline RowType& operator[]( const size_t rowIndex )

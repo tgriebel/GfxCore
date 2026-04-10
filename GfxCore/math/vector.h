@@ -718,7 +718,7 @@ template<size_t D, typename T, typename S>
 std::ostream& operator<<( std::ostream& stream, const Vector<D, T, S>& v )
 {
 	stream << "[";
-	for ( size_t i = 0; i < D; ++i ) {
+	for ( uint32_t i = 0; i < D; ++i ) {
 		stream << v[ i ] << ( ( i + 1 < D ) ? ", " : "" );
 	}
 	stream << " ]";
