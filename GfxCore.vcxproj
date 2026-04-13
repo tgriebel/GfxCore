@@ -242,11 +242,7 @@
     <ClInclude Include="external\tiny_obj_loader.h" />
     <ClInclude Include="GfxCore\acceleration\aabb.h" />
     <ClInclude Include="GfxCore\acceleration\octree.h" />
-    <ClInclude Include="GfxCore\core\asset.h" />
-    <ClInclude Include="GfxCore\core\assetHandle.h" />
-    <ClInclude Include="GfxCore\core\assetLib.h" />
     <ClInclude Include="GfxCore\core\common.h" />
-    <ClInclude Include="GfxCore\core\handle.h" />
     <ClInclude Include="GfxCore\core\rasterLib.h" />
     <ClInclude Include="GfxCore\core\util.h" />
     <ClInclude Include="GfxCore\image\bitmap.h" />

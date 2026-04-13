@@ -24,7 +24,7 @@
 #pragma once
 
 #include <utility>
-#include "../core/handle.h"
+#include <SysCore/handle.h>
 #include "../math/vector.h"
 #include "../math/matrix.h"
 #include "../image/color.h"
@@ -33,7 +33,6 @@
 #include "../primitives/ray.h"
 #include "../acceleration/octree.h"
 #include "../core/common.h"
-#include "../core/handle.h"
 #include "../core/util.h"
 
 class Entity;

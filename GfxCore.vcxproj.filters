@@ -69,19 +69,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GfxCore\core\asset.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="GfxCore\core\assetHandle.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="GfxCore\core\assetLib.h">
-      <Filter>Core</Filter>
-    </ClInclude>
     <ClInclude Include="GfxCore\core\common.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="GfxCore\core\handle.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="GfxCore\core\rasterLib.h">

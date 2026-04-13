@@ -28,7 +28,6 @@
 #include <chrono>
 #include <mutex>
 #include "gfxcore/core/common.h"
-#include "gfxcore/core/assetLib.h"
 
 void RunMatrixTests();
 void RunVectorTests();
