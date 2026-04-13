@@ -35,7 +35,6 @@
 #include "../core/common.h"
 #include "../core/handle.h"
 #include "../core/util.h"
-#include "../asset_types/material.h"
 
 class Entity;
 class RtModel;
@@ -247,7 +246,7 @@ inline vec3f PointToBarycentric( const vec3f& pt, const vec3f& v0, const vec3f& 
 /*
 ===================================
 RayToTriangleIntersection
-- Möller–Trumbore ray-triangle intersection algorithm
+- MÃ¶llerâ€“Trumbore ray-triangle intersection algorithm
 ===================================
 */
 inline bool RayToTriangleIntersection( const Ray& r, const Triangle& tri, bool& outBackface, float& outT )
@@ -295,6 +294,7 @@ inline bool RayToTriangleIntersection( const Ray& r, const Triangle& tri, bool& 
 	}
 }
 
+// Deprecated due to moving assets out of GfxCore
 void CreateRayTraceModel( ResourceManager& rm, const uint32_t modelIx, const mat4x4f& modelMatrix, const bool smoothNormals, const Color& tint, RtModel* outInstance, const matHdl_t materialId = -1 );
 void CreateRayTraceModel( AssetManager& assets, Entity* ent, RtModel* outInstance, const hdl_t overrideMaterial = INVALID_HDL );
 uint32_t CreatePlaneModel( ResourceManager& rm, const vec2f& size, const vec2i& cellCnt, const matHdl_t materialId = -1 );

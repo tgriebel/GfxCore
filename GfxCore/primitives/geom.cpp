@@ -31,11 +31,6 @@
 #include "../image/bitmap.h"
 #include "../image/image.h"
 #include "../core/util.h"
-#include "../scene/entity.h"
-#include "../scene/assetManager.h"
-#include "../scene/resourceManager.h"
-#include "../asset_types/model.h"
-#include "../asset_types/texture.h"
 
 
 struct mdlHeader_t
@@ -55,7 +50,7 @@ struct mdlHeader_t
 	uint32_t	numImages;
 };
 
-
+/*
 void CreateRayTraceModel( ResourceManager& rm, const uint32_t modelIx, const mat4x4f& modelMatrix, const bool smoothNormals, const Color& tint, RtModel* outInstance, const matHdl_t materialId )
 {
 	const ModelSource* model = rm.GetModel( modelIx );
@@ -335,3 +330,4 @@ uint32_t CreatePlaneModel( ResourceManager& rm, const vec2f& size, const vec2i& 
 
 	return modelIx;
 }
+*/

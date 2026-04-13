@@ -26,9 +26,6 @@
     <Filter Include="IO">
       <UniqueIdentifier>{2100f28e-faf5-44f2-a722-f46d022156bc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Asset Types">
-      <UniqueIdentifier>{16ce3163-cb91-45a6-936e-6ea6b2a06912}</UniqueIdentifier>
-    </Filter>
     <Filter Include="External">
       <UniqueIdentifier>{cf387978-e3e5-45d3-bfb3-5c119db3b54c}</UniqueIdentifier>
     </Filter>
@@ -43,20 +40,11 @@
     <ClCompile Include="GfxCore.cpp">
       <Filter>Test Driver</Filter>
     </ClCompile>
-    <ClCompile Include="GfxCore\asset_types\gpuProgram.cpp">
-      <Filter>Asset Types</Filter>
-    </ClCompile>
-    <ClCompile Include="GfxCore\asset_types\model.cpp">
-      <Filter>Asset Types</Filter>
-    </ClCompile>
     <ClCompile Include="GfxCore\image\bitmap.cpp">
       <Filter>Image</Filter>
     </ClCompile>
     <ClCompile Include="GfxCore\image\color.cpp">
       <Filter>Image</Filter>
-    </ClCompile>
-    <ClCompile Include="GfxCore\io\io.cpp">
-      <Filter>IO</Filter>
     </ClCompile>
     <ClCompile Include="GfxCore\io\meshIO.cpp">
       <Filter>IO</Filter>
@@ -66,24 +54,6 @@
     </ClCompile>
     <ClCompile Include="GfxCore\primitives\geom.cpp">
       <Filter>Primitives</Filter>
-    </ClCompile>
-    <ClCompile Include="GfxCore\scene\entity.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="GfxCore\scene\scene.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="GfxCore\scene\camera.cpp">
-      <Filter>Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="GfxCore\asset_types\material.cpp">
-      <Filter>Asset Types</Filter>
-    </ClCompile>
-    <ClCompile Include="GfxCore\asset_types\texture.cpp">
-      <Filter>Asset Types</Filter>
-    </ClCompile>
-    <ClCompile Include="GfxCore\scene\assetBaker.cpp">
-      <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="external\MikkTSpace\mikktspace.c">
       <Filter>External\MikkTSpace</Filter>
@@ -99,18 +69,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GfxCore\asset_types\gpuProgram.h">
-      <Filter>Asset Types</Filter>
-    </ClInclude>
-    <ClInclude Include="GfxCore\asset_types\material.h">
-      <Filter>Asset Types</Filter>
-    </ClInclude>
-    <ClInclude Include="GfxCore\asset_types\model.h">
-      <Filter>Asset Types</Filter>
-    </ClInclude>
-    <ClInclude Include="GfxCore\asset_types\texture.h">
-      <Filter>Asset Types</Filter>
-    </ClInclude>
     <ClInclude Include="GfxCore\core\asset.h">
       <Filter>Core</Filter>
     </ClInclude>
@@ -141,9 +99,6 @@
     <ClInclude Include="GfxCore\image\image.h">
       <Filter>Image</Filter>
     </ClInclude>
-    <ClInclude Include="GfxCore\io\io.h">
-      <Filter>IO</Filter>
-    </ClInclude>
     <ClInclude Include="GfxCore\io\meshIO.h">
       <Filter>IO</Filter>
     </ClInclude>
@@ -162,19 +117,7 @@
     <ClInclude Include="GfxCore\primitives\ray.h">
       <Filter>Primitives</Filter>
     </ClInclude>
-    <ClInclude Include="GfxCore\scene\assetManager.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="GfxCore\scene\camera.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="GfxCore\scene\entity.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
     <ClInclude Include="GfxCore\scene\resourceManager.h">
-      <Filter>Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="GfxCore\scene\scene.h">
       <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="GfxCore\acceleration\aabb.h">
@@ -185,9 +128,6 @@
     </ClInclude>
     <ClInclude Include="GfxCore\io\serializeClasses.h">
       <Filter>IO</Filter>
-    </ClInclude>
-    <ClInclude Include="GfxCore\scene\assetBaker.h">
-      <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="external\stb_image.h">
       <Filter>External</Filter>

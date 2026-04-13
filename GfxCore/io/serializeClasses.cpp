@@ -26,23 +26,9 @@
 #include "../primitives/geom.h"
 #include "../image/color.h"
 #include "../image/image.h"
-#include "../asset_types/model.h"
-#include "../asset_types/gpuProgram.h"
 #include <syscore/serializer.h>
 
 #define SERIALIZE_IMPLEMENTATIONS
-
-static bool g_supportBaked = true;
-
-void ToggleBakedLoading( const bool enabled )
-{
-	g_supportBaked = enabled;
-}
-
-bool AreBakedAssetsEnabled()
-{
-	return g_supportBaked;
-}
 
 #ifdef SERIALIZE_IMPLEMENTATIONS
 
@@ -89,24 +75,6 @@ void SerializeStruct( Serializer* s, rgbTuple_t<float>& rgb )
 	s->Next( rgb.r );
 	s->Next( rgb.g );
 	s->Next( rgb.b );
-}
-
-
-void SerializeStruct( Serializer* s, materialParms_t& p )
-{
-	static_assert( sizeof( materialParms_t ) == 80, "Serialization out-of-date" );
-	SerializeStruct( s, p.Ka );
-	SerializeStruct( s, p.Ke );
-	SerializeStruct( s, p.Kd );
-	SerializeStruct( s, p.Ks );
-	SerializeStruct( s, p.Tf );
-	s->Next( p.Tr );
-	s->Next( p.Ns );
-	s->Next( p.Ni );
-	s->Next( p.d );
-	s->Next( p.illum );
-//	s->Next( p.roughness ); 
-//	s->Next( p.metalness ); 
 }
 
 
@@ -172,81 +140,6 @@ void ImageBufferInterface::Serialize( Serializer* s )
 	{
 		assert( buffer != nullptr );
 		SerializeArray( s, buffer, bpp * length );
-	}
-}
-
-
-void Material::Serialize( Serializer* s )
-{
-	uint32_t version = Version;
-	s->Next( version );
-	if ( version != Version ) {
-		throw std::runtime_error( "Wrong version number." );
-	}
-	SerializeStruct( s, usage );
-	SerializeStruct( s, p );
-	s->Next( textureBitSet );
-	s->Next( shaderBitSet );
-	SerializeArray( s, textures, MaxMaterialTextures );
-	SerializeArray( s, shaders, MaxMaterialShaders );
-}
-
-
-void Surface::Serialize( Serializer* s )
-{
-	uint32_t vertexCount = 0;
-	if ( s->GetMode() == serializeMode_t::LOAD )
-	{
-		s->Next( vertexCount );
-		vertices.resize( vertexCount );
-	}
-	else if ( s->GetMode() == serializeMode_t::STORE )
-	{
-		vertexCount = static_cast<uint32_t>( vertices.size() );
-		s->Next( vertexCount );
-	}
-
-	for ( uint32_t i = 0; i < vertexCount; ++i ) {
-		SerializeStruct( s, vertices[ i ] );
-	}
-
-	uint32_t indexCount = 0;
-	if ( s->GetMode() == serializeMode_t::LOAD )
-	{
-		s->Next( indexCount );
-		indices.resize( indexCount );
-	}
-	else if ( s->GetMode() == serializeMode_t::STORE )
-	{
-		indexCount = static_cast<uint32_t>( indices.size() );
-		s->Next( indexCount );
-	}
-
-	for ( uint32_t i = 0; i < indexCount; ++i ) {
-		s->Next( indices[ i ] );
-	}
-	uint64_t hash = materialHdl.Get();
-	s->Next( hash );
-	materialHdl = hdl_t( hash );
-}
-
-
-void Model::Serialize( Serializer* s )
-{
-	uint32_t version = Version;
-	s->Next( version );
-	if ( version != Version ) {
-		throw std::runtime_error( "Wrong version number." );
-	}
-	bounds.Serialize( s );
-
-	s->Next( surfCount );
-	if ( s->GetMode() == serializeMode_t::LOAD ) {
-		surfs.resize( surfCount );
-	}
-
-	for ( uint32_t i = 0; i < surfCount; ++i ) {
-		surfs[ i ].Serialize( s );
 	}
 }
 #endif

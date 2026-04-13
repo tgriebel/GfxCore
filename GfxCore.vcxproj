@@ -227,22 +227,13 @@
   <ItemGroup>
     <ClCompile Include="external\MikkTSpace\mikktspace.c" />
     <ClCompile Include="GfxCore.cpp" />
-    <ClCompile Include="GfxCore\asset_types\gpuProgram.cpp" />
-    <ClCompile Include="GfxCore\asset_types\material.cpp" />
-    <ClCompile Include="GfxCore\asset_types\model.cpp" />
-    <ClCompile Include="GfxCore\asset_types\texture.cpp" />
     <ClCompile Include="GfxCore\core\util.cpp" />
     <ClCompile Include="GfxCore\image\bitmap.cpp" />
     <ClCompile Include="GfxCore\image\color.cpp" />
     <ClCompile Include="GfxCore\image\image.cpp" />
-    <ClCompile Include="GfxCore\io\io.cpp" />
     <ClCompile Include="GfxCore\io\meshIO.cpp" />
     <ClCompile Include="GfxCore\io\serializeClasses.cpp" />
     <ClCompile Include="GfxCore\primitives\geom.cpp" />
-    <ClCompile Include="GfxCore\scene\assetBaker.cpp" />
-    <ClCompile Include="GfxCore\scene\camera.cpp" />
-    <ClCompile Include="GfxCore\scene\entity.cpp" />
-    <ClCompile Include="GfxCore\scene\scene.cpp" />
     <ClCompile Include="unitTests\matrixVectorTests.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -251,10 +242,6 @@
     <ClInclude Include="external\tiny_obj_loader.h" />
     <ClInclude Include="GfxCore\acceleration\aabb.h" />
     <ClInclude Include="GfxCore\acceleration\octree.h" />
-    <ClInclude Include="GfxCore\asset_types\gpuProgram.h" />
-    <ClInclude Include="GfxCore\asset_types\material.h" />
-    <ClInclude Include="GfxCore\asset_types\model.h" />
-    <ClInclude Include="GfxCore\asset_types\texture.h" />
     <ClInclude Include="GfxCore\core\asset.h" />
     <ClInclude Include="GfxCore\core\assetHandle.h" />
     <ClInclude Include="GfxCore\core\assetLib.h" />
@@ -265,7 +252,6 @@
     <ClInclude Include="GfxCore\image\bitmap.h" />
     <ClInclude Include="GfxCore\image\color.h" />
     <ClInclude Include="GfxCore\image\image.h" />
-    <ClInclude Include="GfxCore\io\io.h" />
     <ClInclude Include="GfxCore\io\meshIO.h" />
     <ClInclude Include="GfxCore\io\serializeClasses.h" />
     <ClInclude Include="GfxCore\math\matrix.h" />
@@ -276,12 +262,7 @@
     <ClInclude Include="GfxCore\math\vector.h" />
     <ClInclude Include="GfxCore\primitives\geom.h" />
     <ClInclude Include="GfxCore\primitives\ray.h" />
-    <ClInclude Include="GfxCore\scene\assetBaker.h" />
-    <ClInclude Include="GfxCore\scene\assetManager.h" />
-    <ClInclude Include="GfxCore\scene\camera.h" />
-    <ClInclude Include="GfxCore\scene\entity.h" />
     <ClInclude Include="GfxCore\scene\resourceManager.h" />
-    <ClInclude Include="GfxCore\scene\scene.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SysCore\SysCore.vcxproj">
