@@ -1,4 +1,3 @@
-
 #include "../gfxcore/math/matrix.h"
 #include "../gfxcore/math/matrixSolvers.h"
 #include "../gfxcore/core/util.h"
