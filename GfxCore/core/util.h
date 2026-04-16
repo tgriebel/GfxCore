@@ -42,10 +42,20 @@ inline uint16_t PackFloat32( const float unpacked )
 	full.f = unpacked;
 
 	half.fp.sign = full.fp.sign;
-	if ( full.fp.exp > 0x70 ) {
-		half.fp.exp = ( full.fp.exp - 0x70 ); // Implicitly clamps to INF
-	} else {
-		half.fp.exp = 0; // Flush denormals
+	if( full.fp.exp == 0xFF )
+	{
+		half.fp.exp = 0;
+		half.fp.mantissa = 0;
+		half.fp.sign = 0; // Clamp NaN/INF to zero
+	}
+	else if ( full.fp.exp > 0x70 )
+	{
+		half.fp.exp = Min( full.fp.exp - 0x70, 0x1Fu );
+		half.fp.mantissa = full.fp.mantissa >> 13;
+	}
+	else
+	{
+		half.u = 0;
 	}
 	half.fp.mantissa = full.fp.mantissa >> 13; // Don't round up
 	
@@ -60,11 +70,13 @@ inline float UnpackFloat32( const uint16_t packed )
 	packFp16_t half;
 
 	half.u = packed;
-
 	full.u = 0;
 
-	if ( full.fp.exp > 0x0F ) {
-		full.fp.exp = 0xFF; // INF
+	if( half.fp.exp == 0x1F )
+	{
+		full.fp.exp = 0xFF; // INF/NAN
+		full.fp.mantissa = uint32_t( half.fp.mantissa ) << 13;
+		full.fp.sign = half.fp.sign;
 	}
 	else if ( full.fp.exp > 0 )
 	{
