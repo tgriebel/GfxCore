@@ -264,6 +264,132 @@ public:
 	}
 
 
+	struct torusInfo_t
+	{
+		vec3f		origin;
+		vec4f		color;
+		float		innerRadius;
+		float		outerRadius;
+		uint32_t	ringDivisions;		// segments around the hole (azimuth)
+		uint32_t	crossDivisions;		// segments around the tube (cross-section)
+		winding_t	winding;
+
+		torusInfo_t()
+		{
+			origin			= vec3f( 0.0f, 0.0f, 0.0f );
+			color			= vec4f( 1.0f, 1.0f, 1.0f, 1.0f );
+			innerRadius		= 0.5f;
+			outerRadius		= 1.0f;
+			ringDivisions	= 32;
+			crossDivisions	= 16;
+			winding			= WINDING_COUNTER_CLOCKWISE;
+		}
+	};
+
+	// "UV torus" 
+	void AddTorusSurf( const torusInfo_t& info )
+	{
+		static constexpr float Pi = 3.14159265358979f;
+
+		const float R = 0.5f * ( info.outerRadius + info.innerRadius );
+		const float r = 0.5f * ( info.outerRadius - info.innerRadius );
+
+		const uint32_t ringCount  = info.ringDivisions  + 1;
+		const uint32_t crossCount = info.crossDivisions + 1;
+
+		const size_t firstIndex = vb.size();
+		size_t indicesCnt = ib.size();
+
+		vb.resize( firstIndex + ringCount * crossCount );
+		ib.resize( indicesCnt + 6 * info.ringDivisions * info.crossDivisions );
+
+		// Vertices
+		{
+			size_t vbIx = firstIndex;
+
+			for ( uint32_t j = 0; j < ringCount; ++j )
+			{
+				const float phi    = 2.0f * Pi * ( j / static_cast<float>( info.ringDivisions ) );
+				const float cosPhi = std::cos( phi );
+				const float sinPhi = std::sin( phi );
+
+				const vec3f radial = vec3f( cosPhi, sinPhi, 0.0f );
+
+				for ( uint32_t i = 0; i < crossCount; ++i )
+				{
+					const float theta    = 2.0f * Pi * ( i / static_cast<float>( info.crossDivisions ) );
+					const float cosTheta = std::cos( theta );
+					const float sinTheta = std::sin( theta );
+
+					vertex_t& vert = vb[ vbIx ];
+					vert.color  = info.color;
+
+					vert.normal = vec3f( cosTheta * cosPhi, cosTheta * sinPhi, sinTheta );
+					vert.pos    = info.origin + R * radial + r * vert.normal;
+
+					++vbIx;
+				}
+			}
+		}
+
+		// Indices
+		{
+			for ( uint32_t j = 0; j < ringCount; ++j )
+			{
+				const float phi    = 2.0f * Pi * ( j / static_cast<float>( info.ringDivisions ) );
+				const float cosPhi = std::cos( phi );
+				const float sinPhi = std::sin( phi );
+
+				for ( uint32_t i = 0; i < crossCount; ++i )
+				{
+					const float theta    = 2.0f * Pi * ( i / static_cast<float>( info.crossDivisions ) );
+					const float cosTheta = std::cos( theta );
+					const float sinTheta = std::sin( theta );
+
+					vertex_t& vert = vb[ firstIndex + j * crossCount + i ];
+
+					vert.tangent   = vec3f( -sinPhi,              cosPhi,             0.0f     );
+					vert.bitangent = vec3f( -sinTheta * cosPhi,  -sinTheta * sinPhi,  cosTheta );
+					vert.texCoord  = vec2f(
+						j / static_cast<float>( info.ringDivisions  ),
+						i / static_cast<float>( info.crossDivisions )
+					);
+
+					if ( j >= info.ringDivisions || i >= info.crossDivisions ) {
+						continue;
+					}
+
+					const uint32_t vIx0 = static_cast<uint32_t>( firstIndex + ( j + 0 ) * crossCount + ( i + 0 ) );
+					const uint32_t vIx1 = static_cast<uint32_t>( firstIndex + ( j + 0 ) * crossCount + ( i + 1 ) );
+					const uint32_t vIx2 = static_cast<uint32_t>( firstIndex + ( j + 1 ) * crossCount + ( i + 0 ) );
+					const uint32_t vIx3 = static_cast<uint32_t>( firstIndex + ( j + 1 ) * crossCount + ( i + 1 ) );
+
+					if ( info.winding == WINDING_COUNTER_CLOCKWISE )
+					{
+						ib[ indicesCnt++ ] = vIx0;
+						ib[ indicesCnt++ ] = vIx2;
+						ib[ indicesCnt++ ] = vIx1;
+
+						ib[ indicesCnt++ ] = vIx1;
+						ib[ indicesCnt++ ] = vIx2;
+						ib[ indicesCnt++ ] = vIx3;
+					}
+					else
+					{
+						ib[ indicesCnt++ ] = vIx0;
+						ib[ indicesCnt++ ] = vIx1;
+						ib[ indicesCnt++ ] = vIx2;
+
+						ib[ indicesCnt++ ] = vIx2;
+						ib[ indicesCnt++ ] = vIx1;
+						ib[ indicesCnt++ ] = vIx3;
+					}
+				}
+			}
+		}
+	}
+
+
 	void AddBoxSurf( const vec3f origin, const float size )
 	{
 		struct boxFaceFrame_t
