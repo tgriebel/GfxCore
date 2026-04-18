@@ -234,7 +234,12 @@ public:
 				const uint32_t vIx2 = static_cast<uint32_t>( firstIndex + ( j + 1 ) * sectorCount + ( i + 0 ) );
 				const uint32_t vIx3 = static_cast<uint32_t>( firstIndex + ( j + 1 ) * sectorCount + ( i + 1 ) );
 
-				if ( info.winding == WINDING_CLOCKWISE )
+				// NOTE: the sphere grid axes are T_phi (longitude) and T_theta
+				// (latitude, increasing toward south pole). T_phi x T_theta = -N,
+				// so the grid is left-handed w.r.t. the outward normal. The index
+				// cases below are therefore swapped relative to AddPlaneSurf so
+				// that WINDING_COUNTER_CLOCKWISE consistently means outward-facing.
+				if ( info.winding == WINDING_COUNTER_CLOCKWISE )
 				{
 					ib[ indicesCnt++ ] = vIx0;
 					ib[ indicesCnt++ ] = vIx2;
