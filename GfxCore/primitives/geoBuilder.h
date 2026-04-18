@@ -2,6 +2,7 @@
 
 #include "../core/common.h"
 
+#include <cmath>
 #include <vector>
 
 // template<typename Vec>
@@ -132,10 +133,10 @@ public:
 			{
 				// Generate two triangles per quad
 				uint32_t vIx[ 4 ];
-				vIx[ 0 ] = static_cast<uint32_t>( firstIndex + ( i + 0 ) + ( j + 0 ) * sizeInVertices.second );
-				vIx[ 1 ] = static_cast<uint32_t>( firstIndex + ( i + 1 ) + ( j + 0 ) * sizeInVertices.second );
-				vIx[ 2 ] = static_cast<uint32_t>( firstIndex + ( i + 0 ) + ( j + 1 ) * sizeInVertices.second );
-				vIx[ 3 ] = static_cast<uint32_t>( firstIndex + ( i + 1 ) + ( j + 1 ) * sizeInVertices.second );
+				vIx[ 0 ] = static_cast<uint32_t>( firstIndex + ( i + 0 ) + ( j + 0 ) * sizeInVertices.first );
+				vIx[ 1 ] = static_cast<uint32_t>( firstIndex + ( i + 1 ) + ( j + 0 ) * sizeInVertices.first );
+				vIx[ 2 ] = static_cast<uint32_t>( firstIndex + ( i + 0 ) + ( j + 1 ) * sizeInVertices.first );
+				vIx[ 3 ] = static_cast<uint32_t>( firstIndex + ( i + 1 ) + ( j + 1 ) * sizeInVertices.first );
 
 				if( info.winding == WINDING_CLOCKWISE )
 				{
@@ -161,67 +162,134 @@ public:
 		}
 	}
 
-	void AddBoxSurf( const vec3f origin, const float size )
+	struct sphereInfo_t
 	{
-		const size_t verticesCnt = 8;
-		const size_t triPerSide = 2;
-		const size_t sideCnt = 6;
+		vec3f		origin;
+		vec4f		color;
+		float		radius;
+		uint32_t	latitudeDivisions;		// rings pole-to-pole
+		uint32_t	longitudeDivisions;		// sectors around the equator
+		winding_t	winding;
 
-		size_t vbIx = vb.size();
-		vb.resize( vb.size() + verticesCnt );
-		ib.resize( ib.size() + 3 * triPerSide * sideCnt );
-
-		vec3f positions[ verticesCnt ] =
-		{ vec3f( 0.0f,	0.0f,	0.0f ),
-			vec3f( size,	0.0f,	0.0f ),
-			vec3f( 0.0f,	size,	0.0f ),
-			vec3f( size,	size,	0.0f ),
-			vec3f( 0.0f,	0.0f,	size ),
-			vec3f( size,	0.0f,	size ),
-			vec3f( 0.0f,	size,	size ),
-			vec3f( size,	size,	size ),
-		};
-
-		for ( size_t i = 0; i < verticesCnt; ++i )
+		sphereInfo_t()
 		{
-			vertex_t& vert = vb[ vbIx ];
-			vert.pos = positions[ i ];
-			vert.pos -= origin;
-			vert.color = vec4f( 1.0f, 1.0f, 1.0f, 1.0f );
-			vert.tangent = { 1.0f, 0.0f, 0.0f };
-			vert.bitangent = { 0.0f, 1.0f, 0.0f };
-			vert.texCoord = { 0.0f, 0.0f };
+			origin				= vec3f( 0.0f, 0.0f, 0.0f );
+			color				= vec4f( 1.0f, 1.0f, 1.0f, 1.0f );
+			radius				= 1.0f;
+			latitudeDivisions	= 16;
+			longitudeDivisions	= 32;
+			winding				= WINDING_COUNTER_CLOCKWISE;
+		}
+	};
 
-			++vbIx;
+	// "UV Sphere" Generation Algorithm
+	void AddSphereSurf( const sphereInfo_t& info )
+	{
+		const uint32_t ringCount	= info.latitudeDivisions  + 1;
+		const uint32_t sectorCount	= info.longitudeDivisions + 1;
+
+		const size_t firstIndex = vb.size();
+		size_t indicesCnt = ib.size();
+
+		vb.resize( firstIndex + ringCount   * sectorCount );
+		ib.resize( indicesCnt + 6 * info.latitudeDivisions * info.longitudeDivisions );
+
+		size_t vbIx = firstIndex;
+
+		for ( uint32_t j = 0; j < ringCount; ++j )
+		{
+			const float theta    = PI * ( j / static_cast<float>( info.latitudeDivisions ) );
+			const float sinTheta = std::sin( theta );
+			const float cosTheta = std::cos( theta );
+
+			for ( uint32_t i = 0; i < sectorCount; ++i )
+			{
+				const float phi    = 2.0f * PI * ( i / static_cast<float>( info.longitudeDivisions ) );
+				const float sinPhi = std::sin( phi );
+				const float cosPhi = std::cos( phi );
+
+				vertex_t& vert = vb[ vbIx ];
+
+				vert.normal   = vec3f( sinTheta * cosPhi, sinTheta * sinPhi, cosTheta );
+				vert.pos      = info.origin + info.radius * vert.normal;
+				vert.color    = info.color;
+				vert.tangent   = vec3f( -sinPhi, cosPhi, 0.0f );
+				vert.bitangent = vec3f( cosTheta * cosPhi, cosTheta * sinPhi, -sinTheta );
+
+				vert.texCoord  = vec2f(
+					i / static_cast<float>( info.longitudeDivisions ),
+					j / static_cast<float>( info.latitudeDivisions )
+				);
+
+				++vbIx;
+			}
 		}
 
-		// TODO: need to offset by starting index
-		uint32_t sideIndices[ sideCnt ][ 4 ] =
-		{ { 2, 0, 1, 3 },
-			{ 6, 4, 5, 7 },
-			{ 0, 4, 5, 1 },
-			{ 1, 5, 7, 3 },
-			{ 3, 7, 6, 2 },
-			{ 2, 6, 4, 0 },
-		};
-
-		uint32_t indicesCnt = 0;
-		for ( size_t i = 0; i < sideCnt; ++i )
+		for ( uint32_t j = 0; j < info.latitudeDivisions; ++j )
 		{
-			uint32_t vIx[ 4 ];
-			vIx[ 0 ] = static_cast<uint32_t>( sideIndices[ i ][ 0 ] );
-			vIx[ 1 ] = static_cast<uint32_t>( sideIndices[ i ][ 1 ] );
-			vIx[ 2 ] = static_cast<uint32_t>( sideIndices[ i ][ 2 ] );
-			vIx[ 3 ] = static_cast<uint32_t>( sideIndices[ i ][ 3 ] );
+			for ( uint32_t i = 0; i < info.longitudeDivisions; ++i )
+			{
+				const uint32_t vIx0 = static_cast<uint32_t>( firstIndex + ( j + 0 ) * sectorCount + ( i + 0 ) );
+				const uint32_t vIx1 = static_cast<uint32_t>( firstIndex + ( j + 0 ) * sectorCount + ( i + 1 ) );
+				const uint32_t vIx2 = static_cast<uint32_t>( firstIndex + ( j + 1 ) * sectorCount + ( i + 0 ) );
+				const uint32_t vIx3 = static_cast<uint32_t>( firstIndex + ( j + 1 ) * sectorCount + ( i + 1 ) );
 
-			ib[ indicesCnt++ ] = vIx[ 0 ];
-			ib[ indicesCnt++ ] = vIx[ 2 ];
-			ib[ indicesCnt++ ] = vIx[ 1 ];
+				if ( info.winding == WINDING_CLOCKWISE )
+				{
+					ib[ indicesCnt++ ] = vIx0;
+					ib[ indicesCnt++ ] = vIx2;
+					ib[ indicesCnt++ ] = vIx1;
 
-			ib[ indicesCnt++ ] = vIx[ 2 ];
-			ib[ indicesCnt++ ] = vIx[ 0 ];
-			ib[ indicesCnt++ ] = vIx[ 3 ];
+					ib[ indicesCnt++ ] = vIx1;
+					ib[ indicesCnt++ ] = vIx2;
+					ib[ indicesCnt++ ] = vIx3;
+				}
+				else
+				{
+					ib[ indicesCnt++ ] = vIx0;
+					ib[ indicesCnt++ ] = vIx1;
+					ib[ indicesCnt++ ] = vIx2;
+
+					ib[ indicesCnt++ ] = vIx2;
+					ib[ indicesCnt++ ] = vIx1;
+					ib[ indicesCnt++ ] = vIx3;
+				}
+			}
 		}
 	}
 
+
+	void AddBoxSurf( const vec3f origin, const float size )
+	{
+		struct boxFaceFrame_t
+		{
+			vec3f	normal;
+			vec3f	side;
+			vec3f	up;
+		};
+
+		const boxFaceFrame_t faces[ 6 ] =
+		{
+			{ vec3f( 1.0f,  0.0f,  0.0f ), vec3f( 0.0f, 1.0f, 0.0f ), vec3f( 0.0f, 0.0f, 1.0f ) }, // +X
+			{ vec3f( -1.0f,  0.0f,  0.0f ), vec3f( 0.0f, 0.0f, 1.0f ), vec3f( 0.0f, 1.0f, 0.0f ) }, // -X
+			{ vec3f( 0.0f,  1.0f,  0.0f ), vec3f( 0.0f, 0.0f, 1.0f ), vec3f( 1.0f, 0.0f, 0.0f ) }, // +Y
+			{ vec3f( 0.0f, -1.0f,  0.0f ), vec3f( 1.0f, 0.0f, 0.0f ), vec3f( 0.0f, 0.0f, 1.0f ) }, // -Y
+			{ vec3f( 0.0f,  0.0f,  1.0f ), vec3f( 1.0f, 0.0f, 0.0f ), vec3f( 0.0f, 1.0f, 0.0f ) }, // +Z
+			{ vec3f( 0.0f,  0.0f, -1.0f ), vec3f( 0.0f, 1.0f, 0.0f ), vec3f( 1.0f, 0.0f, 0.0f ) }, // -Z
+		};
+
+		const float halfSize = 0.5f * size;
+
+		for( size_t i = 0; i < 6; ++i )
+		{
+			planeInfo_t info;
+			info.origin = origin + halfSize * faces[ i ].normal;
+			info.normal = faces[ i ].normal;
+			info.side = faces[ i ].side;
+			info.up = faces[ i ].up;
+			info.gridSize = vec2f( size, size );
+
+			AddPlaneSurf( info );
+		}
+	}
 };
