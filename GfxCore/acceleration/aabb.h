@@ -6,15 +6,52 @@
 #include "../math/matrix.h"
 #include "../primitives/ray.h"
 
+
 class AABB
 {
 private:
 	static const uint32_t Version = 1;
+
 public:
 	vec3f min;
 	vec3f max;
 
 	AABB()
+	{
+		Clear();
+	}
+
+
+	AABB( const AABB& aabb )
+	{
+		min = aabb.min;
+		max = aabb.max;
+	}
+
+
+	AABB& operator=( const AABB& aabb )
+	{
+		min = aabb.min;
+		max = aabb.max;
+		return *this;
+	}
+
+
+	AABB( const vec3f& point )
+	{
+		min = point;
+		max = point;
+	}
+
+
+	AABB( const vec3f& _min, const vec3f& _max ) : AABB()
+	{
+		Expand( _min );
+		Expand( _max );
+	}
+
+
+	void Clear()
 	{
 		min[ 0 ] = FLT_MAX;
 		min[ 1 ] = FLT_MAX;
@@ -25,29 +62,6 @@ public:
 		max[ 2 ] = -FLT_MAX;
 	}
 
-	AABB( const AABB& aabb )
-	{
-		min = aabb.min;
-		max = aabb.max;
-	}
-
-	AABB& operator=( const AABB& aabb ) {
-		min = aabb.min;
-		max = aabb.max;
-		return *this;
-	}
-
-	AABB( const vec3f& point )
-	{
-		min = point;
-		max = point;
-	}
-
-	AABB( const vec3f& _min, const vec3f& _max ) : AABB()
-	{
-		Expand( _min );
-		Expand( _max );
-	}
 
 	// Adapts Christer Ericson's Kay-Kajiya slab based interection test from Real Time Collision Detection
 	bool Intersect( const Ray& r, float& tMin, float& tMax ) const
@@ -94,6 +108,7 @@ public:
 		return true;
 	}
 
+
 	bool Inside( const vec3f& pt )
 	{
 		bool isInside = true;
@@ -103,10 +118,12 @@ public:
 		return isInside;
 	}
 
+
 	bool Inside( const AABB& aabb )
 	{
 		return ( Inside( aabb.min ) && Inside( aabb.max ) );
 	}
+
 
 	void Expand( const vec3f& pt )
 	{
@@ -119,23 +136,30 @@ public:
 		max[ 2 ] = std::max( pt[ 2 ], max[ 2 ] );
 	}
 
+
 	const vec3f& GetMin() const
 	{
 		return min;
 	}
+
 
 	const vec3f& GetMax() const
 	{
 		return max;
 	}
 
-	vec3f GetSize() const {
+
+	vec3f GetSize() const
+	{
 		return vec3f( abs( max[ 0 ] - min[ 0 ] ), abs( max[ 1 ] - min[ 1 ] ), abs( max[ 2 ] - min[ 2 ] ) );
 	}
 
-	vec3f GetCenter() const {
+
+	vec3f GetCenter() const
+	{
 		return 0.5f * GetSize() + GetMin();
 	}
+
 
 	void Serialize( Serializer* serializer );
 };
