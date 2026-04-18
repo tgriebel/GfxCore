@@ -67,8 +67,40 @@ public:
 
 	GeoBuilder()
 	{
-	
+
 	}
+
+private:
+	// Appends a single flat-shaded triangle. p0/p1/p2 are in outward CCW order;
+	// pass winding to swap p1/p2 internally so WINDING_CLOCKWISE inverts the face.
+	// vtxCursor and ibIdx are updated in-place.
+	void EmitFlatTri( const vec3f& p0, const vec3f& p1, const vec3f& p2,
+	                  const vec2f& uv0, const vec2f& uv1, const vec2f& uv2,
+	                  const vec4f& color, const winding_t winding,
+	                  uint32_t& vtxCursor, size_t& ibIdx )
+	{
+		const bool   sw = ( winding == WINDING_CLOCKWISE );
+		const vec3f  a  = p0,  b  = sw ? p2 : p1,  c  = sw ? p1 : p2;
+		const vec2f  ta = uv0, tb = sw ? uv2 : uv1, tc = sw ? uv1 : uv2;
+
+		const vec3f N  = Cross( b - a, c - a ).Normalize();
+		const vec3f T  = ( b - a ).Normalize();
+		const vec3f Bt = Cross( T, N );
+
+		vertex_t& v0 = vb[ vtxCursor ];
+		v0.pos = a; v0.color = color; v0.normal = N; v0.tangent = T; v0.bitangent = Bt; v0.texCoord = ta;
+		ib[ ibIdx++ ] = vtxCursor++;
+
+		vertex_t& v1 = vb[ vtxCursor ];
+		v1.pos = b; v1.color = color; v1.normal = N; v1.tangent = T; v1.bitangent = Bt; v1.texCoord = tb;
+		ib[ ibIdx++ ] = vtxCursor++;
+
+		vertex_t& v2 = vb[ vtxCursor ];
+		v2.pos = c; v2.color = color; v2.normal = N; v2.tangent = T; v2.bitangent = Bt; v2.texCoord = tc;
+		ib[ ibIdx++ ] = vtxCursor++;
+	}
+
+public:
 
 	// -----------------------------------------------------------------------
 	// Plane
@@ -552,13 +584,21 @@ public:
 
 				if ( info.winding == WINDING_COUNTER_CLOCKWISE )
 				{
-					ib[ ibIdx++ ] = vIx0; ib[ ibIdx++ ] = vIx2; ib[ ibIdx++ ] = vIx1;
-					ib[ ibIdx++ ] = vIx1; ib[ ibIdx++ ] = vIx2; ib[ ibIdx++ ] = vIx3;
+					ib[ ibIdx++ ] = vIx0;
+					ib[ ibIdx++ ] = vIx2;
+					ib[ ibIdx++ ] = vIx1;
+					ib[ ibIdx++ ] = vIx1;
+					ib[ ibIdx++ ] = vIx2;
+					ib[ ibIdx++ ] = vIx3;
 				}
 				else
 				{
-					ib[ ibIdx++ ] = vIx0; ib[ ibIdx++ ] = vIx1; ib[ ibIdx++ ] = vIx2;
-					ib[ ibIdx++ ] = vIx2; ib[ ibIdx++ ] = vIx1; ib[ ibIdx++ ] = vIx3;
+					ib[ ibIdx++ ] = vIx0;
+					ib[ ibIdx++ ] = vIx1;
+					ib[ ibIdx++ ] = vIx2;
+					ib[ ibIdx++ ] = vIx2;
+					ib[ ibIdx++ ] = vIx1;
+					ib[ ibIdx++ ] = vIx3;
 				}
 			}
 		}
@@ -603,30 +643,6 @@ public:
 
 		uint32_t vtxCursor = static_cast<uint32_t>( firstVtx );
 
-		auto emitTri = [&]( const vec3f& p0, const vec3f& p1, const vec3f& p2,
-		                    const vec2f& uv0, const vec2f& uv1, const vec2f& uv2 )
-		{
-			const bool   sw = ( info.winding == WINDING_CLOCKWISE );
-			const vec3f  a  = p0,        b  = sw ? p2 : p1,  c  = sw ? p1 : p2;
-			const vec2f  ta = uv0,       tb = sw ? uv2 : uv1, tc = sw ? uv1 : uv2;
-
-			const vec3f N  = Cross( b - a, c - a ).Normalize();
-			const vec3f T  = ( b - a ).Normalize();
-			const vec3f Bt = Cross( T, N );		// T x Bt = -N, matches sphere convention
-
-			vertex_t& v0 = vb[ vtxCursor ];
-			v0.pos = a; v0.color = info.color; v0.normal = N; v0.tangent = T; v0.bitangent = Bt; v0.texCoord = ta;
-			ib[ ibIdx++ ] = vtxCursor++;
-
-			vertex_t& v1 = vb[ vtxCursor ];
-			v1.pos = b; v1.color = info.color; v1.normal = N; v1.tangent = T; v1.bitangent = Bt; v1.texCoord = tb;
-			ib[ ibIdx++ ] = vtxCursor++;
-
-			vertex_t& v2 = vb[ vtxCursor ];
-			v2.pos = c; v2.color = info.color; v2.normal = N; v2.tangent = T; v2.bitangent = Bt; v2.texCoord = tc;
-			ib[ ibIdx++ ] = vtxCursor++;
-		};
-
 		const vec3f apex = info.origin + vec3f( 0.0f, 0.0f, info.height );
 
 		// Side faces
@@ -638,11 +654,11 @@ public:
 			const vec3f A = info.origin + vec3f( info.baseRadius * std::cos( phi0 ), info.baseRadius * std::sin( phi0 ), 0.0f );
 			const vec3f B = info.origin + vec3f( info.baseRadius * std::cos( phi1 ), info.baseRadius * std::sin( phi1 ), 0.0f );
 
-			emitTri( A, B, apex,
-			         vec2f( 0.0f, 0.0f ), vec2f( 1.0f, 0.0f ), vec2f( 0.5f, 1.0f ) );
+			EmitFlatTri( A, B, apex,
+			             vec2f( 0.0f, 0.0f ), vec2f( 1.0f, 0.0f ), vec2f( 0.5f, 1.0f ),
+			             info.color, info.winding, vtxCursor, ibIdx );
 		}
 
-		// Base fan: center → B_i → A_i gives N = -Z (outward downward)
 		const vec3f baseCenter = info.origin;
 		for ( uint32_t i = 0; i < info.sides; ++i )
 		{
@@ -656,7 +672,8 @@ public:
 			const vec2f uvA      = vec2f( 0.5f + 0.5f * std::cos( phi0 ), 0.5f + 0.5f * std::sin( phi0 ) );
 			const vec2f uvB      = vec2f( 0.5f + 0.5f * std::cos( phi1 ), 0.5f + 0.5f * std::sin( phi1 ) );
 
-			emitTri( baseCenter, B, A, uvCenter, uvB, uvA );
+			EmitFlatTri( baseCenter, B, A, uvCenter, uvB, uvA,
+			             info.color, info.winding, vtxCursor, ibIdx );
 		}
 	}
 
@@ -700,30 +717,6 @@ public:
 
 		uint32_t vtxCursor = static_cast<uint32_t>( firstVtx );
 
-		auto emitTri = [&]( const vec3f& p0, const vec3f& p1, const vec3f& p2,
-		                    const vec2f& uv0, const vec2f& uv1, const vec2f& uv2 )
-		{
-			const bool   sw = ( info.winding == WINDING_CLOCKWISE );
-			const vec3f  a  = p0,        b  = sw ? p2 : p1,  c  = sw ? p1 : p2;
-			const vec2f  ta = uv0,       tb = sw ? uv2 : uv1, tc = sw ? uv1 : uv2;
-
-			const vec3f N  = Cross( b - a, c - a ).Normalize();
-			const vec3f T  = ( b - a ).Normalize();
-			const vec3f Bt = Cross( T, N );
-
-			vertex_t& v0 = vb[ vtxCursor ];
-			v0.pos = a; v0.color = info.color; v0.normal = N; v0.tangent = T; v0.bitangent = Bt; v0.texCoord = ta;
-			ib[ ibIdx++ ] = vtxCursor++;
-
-			vertex_t& v1 = vb[ vtxCursor ];
-			v1.pos = b; v1.color = info.color; v1.normal = N; v1.tangent = T; v1.bitangent = Bt; v1.texCoord = tb;
-			ib[ ibIdx++ ] = vtxCursor++;
-
-			vertex_t& v2 = vb[ vtxCursor ];
-			v2.pos = c; v2.color = info.color; v2.normal = N; v2.tangent = T; v2.bitangent = Bt; v2.texCoord = tc;
-			ib[ ibIdx++ ] = vtxCursor++;
-		};
-
 		const vec3f apexTop = info.origin + vec3f( 0.0f, 0.0f,  info.topHeight );
 		const vec3f apexBot = info.origin + vec3f( 0.0f, 0.0f, -info.bottomHeight );
 
@@ -735,8 +728,11 @@ public:
 			const vec3f A = info.origin + vec3f( info.radius * std::cos( phi0 ), info.radius * std::sin( phi0 ), 0.0f );
 			const vec3f B = info.origin + vec3f( info.radius * std::cos( phi1 ), info.radius * std::sin( phi1 ), 0.0f );
 
-			emitTri( A, B, apexTop, vec2f( 0.0f, 0.0f ), vec2f( 1.0f, 0.0f ), vec2f( 0.5f, 1.0f ) );
-			emitTri( B, A, apexBot, vec2f( 0.0f, 0.0f ), vec2f( 1.0f, 0.0f ), vec2f( 0.5f, 1.0f ) );
+			EmitFlatTri( A, B, apexTop, vec2f( 0.0f, 0.0f ), vec2f( 1.0f, 0.0f ), vec2f( 0.5f, 1.0f ),
+			             info.color, info.winding, vtxCursor, ibIdx );
+
+			EmitFlatTri( B, A, apexBot, vec2f( 0.0f, 0.0f ), vec2f( 1.0f, 0.0f ), vec2f( 0.5f, 1.0f ),
+			             info.color, info.winding, vtxCursor, ibIdx );
 		}
 	}
 };
