@@ -154,7 +154,7 @@ struct surface_t
 class ModelSource
 {
 public:
-	static const uint32_t MaxMaterials = 3;
+	static const uint32_t MaxSourceMaterials = 3;
 
 	std::string				name;
 	std::vector<surface_t>	surfs;
