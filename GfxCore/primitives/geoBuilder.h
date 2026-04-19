@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../core/common.h"
+#include "../math/vector.h"
 
 #include <cmath>
 #include <vector>
@@ -172,7 +173,7 @@ public:
 	std::vector<vertex_t>	vb;
 	std::vector<uint32_t>	ib;
 
-	GeoBuilder();
+	GeoBuilder() {}
 
 	void AddPlaneSurf( const planeInfo_t& info );
 	void AddSphereSurf( const sphereInfo_t& info );

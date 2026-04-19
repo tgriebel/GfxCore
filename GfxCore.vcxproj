@@ -258,6 +258,7 @@
     <ClInclude Include="GfxCore\math\sparseMatrix.h" />
     <ClInclude Include="GfxCore\math\sparseVector.h" />
     <ClInclude Include="GfxCore\math\vector.h" />
+    <ClInclude Include="GfxCore\primitives\geoBuilder.h" />
     <ClInclude Include="GfxCore\primitives\geom.h" />
     <ClInclude Include="GfxCore\primitives\ray.h" />
     <ClInclude Include="GfxCore\scene\resourceManager.h" />

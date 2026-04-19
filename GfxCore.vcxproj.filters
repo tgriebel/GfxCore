@@ -67,6 +67,9 @@
     <ClCompile Include="GfxCore\core\util.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="GfxCore\primitives\geoBuilder.cpp">
+      <Filter>Primitives</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GfxCore\core\common.h">
@@ -134,6 +137,9 @@
     </ClInclude>
     <ClInclude Include="GfxCore\math\matrixSolvers.h">
       <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="GfxCore\primitives\geoBuilder.h">
+      <Filter>Primitives</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
