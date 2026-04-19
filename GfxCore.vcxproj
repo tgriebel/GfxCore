@@ -235,6 +235,7 @@
     <ClCompile Include="GfxCore\io\meshIO.cpp" />
     <ClCompile Include="GfxCore\io\serializeClasses.cpp" />
     <ClCompile Include="GfxCore\primitives\geom.cpp" />
+    <ClCompile Include="GfxCore\primitives\geoBuilder.cpp" />
     <ClCompile Include="unitTests\matrixVectorTests.cpp" />
   </ItemGroup>
   <ItemGroup>
