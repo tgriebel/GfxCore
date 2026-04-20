@@ -188,7 +188,8 @@ public:
 	}
 
 	// Child classes don't manage any data so not virtual
-	~ImageBufferInterface() {
+	~ImageBufferInterface()
+	{
 		Destroy();
 	}
 
@@ -228,11 +229,16 @@ public:
 		byteCount = 0;
 		name = "";
 
-		if ( buffer == nullptr ) {
+		if ( buffer != nullptr )
+		{
 			delete[] buffer;
+			buffer = nullptr;
 		}
-		if ( slices == nullptr ) {
+
+		if ( slices != nullptr )
+		{
 			delete[] slices;
+			slices = nullptr;
 		}
 	}
 
@@ -392,11 +398,6 @@ public:
 
 	ImageBuffer( const ImageBuffer& _image ) : ImageBufferInterface( reinterpret_cast<const ImageBufferInterface*>( &_image ) )
 	{
-	}
-
-	~ImageBuffer()
-	{
-		Destroy();
 	}
 
 	inline imageRawBuffer_t<T> GetRawBuffer( const uint32_t layer, const uint32_t mipLevel ) const
