@@ -179,6 +179,7 @@ using Matrix3 = MatrixP<3, 3, T>;
 template<typename T>
 using Matrix4 = MatrixP<4, 4, T>;
 
+// Conveniance. Square plain-old-data matrices
 using mat2x2f = MatrixP<2, 2, float>;
 using mat2x2d = MatrixP<2, 2, double>;
 using mat3x3f = MatrixP<3, 3, float>;
@@ -186,6 +187,13 @@ using mat3x3d = MatrixP<3, 3, double>;
 using mat4x4f = MatrixP<4, 4, float>;
 using mat4x4d = MatrixP<4, 4, double>;
 
+// Conveniance. Non-square plain-old-data matrices
+using mat2x3f = MatrixP<2, 3, float>;
+using mat2x3d = MatrixP<2, 3, double>;
+using mat2x4f = MatrixP<2, 4, float>;
+using mat2x4d = MatrixP<2, 4, double>;
+using mat3x4f = MatrixP<3, 4, float>;
+using mat3x4d = MatrixP<3, 4, double>;
 
 template<typename T, typename S>
 T Det( const Matrix<2, 2, T, S>& A );
@@ -422,14 +430,40 @@ T Det( const MatrixP<4, 4, T>& A )
 
 template< typename T>
 [[nodiscard]]
+MatrixP<3, 3, T> CofactorMatrix( const MatrixP<3, 3, T>& A )
+{
+	// 00 01 02
+	// 10 11 12
+	// 20 21 22
+
+	T minor00[] = { A[ 1 ][ 1 ], A[ 1 ][ 2 ],  A[ 2 ][ 1 ], A[ 2 ][ 2 ] };
+	T minor01[] = { A[ 1 ][ 0 ], A[ 1 ][ 2 ],  A[ 2 ][ 0 ], A[ 2 ][ 2 ] };
+	T minor02[] = { A[ 1 ][ 0 ], A[ 1 ][ 1 ],  A[ 2 ][ 0 ], A[ 2 ][ 1 ] };
+
+	T minor10[] = { A[ 0 ][ 1 ], A[ 0 ][ 2 ],  A[ 2 ][ 1 ], A[ 2 ][ 2 ] };
+	T minor11[] = { A[ 0 ][ 0 ], A[ 0 ][ 2 ],  A[ 2 ][ 0 ], A[ 2 ][ 2 ] };
+	T minor12[] = { A[ 0 ][ 0 ], A[ 0 ][ 1 ],  A[ 2 ][ 0 ], A[ 2 ][ 1 ] };
+
+	T minor20[] = { A[ 0 ][ 1 ], A[ 0 ][ 2 ],  A[ 1 ][ 1 ], A[ 1 ][ 2 ] };
+	T minor21[] = { A[ 0 ][ 0 ], A[ 0 ][ 2 ],  A[ 1 ][ 0 ], A[ 1 ][ 2 ] };
+	T minor22[] = { A[ 0 ][ 0 ], A[ 0 ][ 1 ],  A[ 1 ][ 0 ], A[ 1 ][ 1 ] };
+
+	T values[] = {	 Det( MatrixP< 2, 2, T >( minor00 ) ), -Det( MatrixP< 2, 2, T >( minor01 ) ),  Det( MatrixP< 2, 2, T >( minor02 ) ),
+					-Det( MatrixP< 2, 2, T >( minor10 ) ),  Det( MatrixP< 2, 2, T >( minor11 ) ), -Det( MatrixP< 2, 2, T >( minor12 ) ),
+					 Det( MatrixP< 2, 2, T >( minor20 ) ), -Det( MatrixP< 2, 2, T >( minor21 ) ),  Det( MatrixP< 2, 2, T >( minor22 ) ) };
+
+	return MatrixP<3, 3, T>( values );
+}
+
+
+template< typename T>
+[[nodiscard]]
 MatrixP<4, 4, T> CofactorMatrix( const MatrixP<4, 4, T>& A )
 {
 	// 00 01 02 03
 	// 10 11 12 13
 	// 20 21 22 23
 	// 30 31 32 33
-
-	//TODO: use cramer's rule combine with determinant
 
 	T minor00[] = { A[ 1 ][ 1 ], A[ 1 ][ 2 ], A[ 1 ][ 3 ],  A[ 2 ][ 1 ], A[ 2 ][ 2 ], A[ 2 ][ 3 ],  A[ 3 ][ 1 ], A[ 3 ][ 2 ], A[ 3 ][ 3 ] };
 	T minor01[] = { A[ 1 ][ 0 ], A[ 1 ][ 2 ], A[ 1 ][ 3 ],  A[ 2 ][ 0 ], A[ 2 ][ 2 ], A[ 2 ][ 3 ],  A[ 3 ][ 0 ], A[ 3 ][ 2 ], A[ 3 ][ 3 ] };
@@ -472,9 +506,9 @@ Matrix<3, 3, T, S> Invert( const Matrix<3, 3, T, S>& A, bool& invertible )
 		return Matrix<3, 3, T, S>();
 	}
 	invertible = true;
-	assert( false ); // TODO: transpose of cofactor matrix not transpose of matrix
-	return A.Transpose() * ( 1. / det_val );
+	return ( CofactorMatrix( A ).Transpose() ) * ( static_cast<T>( 1.0 ) / det_val );
 }
+
 
 template< typename T, typename S>
 [[nodiscard]]

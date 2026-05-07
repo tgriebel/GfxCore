@@ -31,7 +31,8 @@ void SerializeStruct( Serializer* s, vertex_t& v )
 	v.normal.Serialize( s );
 	v.tangent.Serialize( s );
 	v.bitangent.Serialize( s );
-	v.uv.Serialize( s );
+	v.uv0.Serialize( s );
+	v.uv1.Serialize( s );
 	v.color.Serialize( s );
 }
 

@@ -32,8 +32,8 @@ struct vertex_t
 	vec3f	normal;
 	vec3f	tangent;
 	vec3f	bitangent;
-	vec2f	uv;
-	vec2f	uv2;
+	vec2f	uv0;
+	vec2f	uv1;
 	Color	color;
 };
 
@@ -44,8 +44,8 @@ inline bool operator==( const vertex_t& vertex0, const vertex_t& vertex1 )
 			&& 	( vertex0.normal == vertex1.normal )
 			&& 	( vertex0.tangent == vertex1.tangent )
 			&& 	( vertex0.bitangent == vertex1.bitangent )
-			&&	( vertex0.uv == vertex1.uv )
-			&&	( vertex0.uv2 == vertex1.uv2 )
+			&&	( vertex0.uv0 == vertex1.uv0 )
+			&&	( vertex0.uv1 == vertex1.uv1 )
 			&&	( vertex0.color == vertex1.color ) );
 }
 
