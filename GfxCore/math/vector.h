@@ -643,6 +643,30 @@ T Dot( const Vector<D, T, S>& u, const Vector<D, T, S>& v )
 
 
 template <size_t D, typename T, typename S>
+T Min( const Vector<D, T, S>& v )
+{
+	T m = std::numeric_limits<T>::max();
+
+	for( size_t i = 0; i < D; ++i ) {
+		m = std::min( m, v[ i ] );
+	}
+	return m;
+}
+
+
+template <size_t D, typename T, typename S>
+T Max( const Vector<D, T, S>& v )
+{
+	T m = std::numeric_limits<T>::lowest();
+
+	for( size_t i = 0; i < D; ++i ) {
+		m = std::max( m, v[ i ] );
+	}
+	return m;
+}
+
+
+template <size_t D, typename T, typename S>
 Vector<D, T, S> operator*( T s, const Vector<D, T, S>& u )
 {
 	return Multiply( s, u );
