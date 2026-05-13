@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <!-- Vector<2, T, PodStorage> — no aliases, but pretty-print for consistency. -->
+  <Type Name="Vector&lt;2,*,PodStorage&gt;">
+    <DisplayString>{{ {x}, {y} }}</DisplayString>
+    <Expand>
+      <Item Name="x">x</Item>
+      <Item Name="y">y</Item>
+    </Expand>
+  </Type>
+
+  <!-- Vector<3, T, PodStorage> — hide _alias* and compound swizzles. -->
+  <Type Name="Vector&lt;3,*,PodStorage&gt;">
+    <DisplayString>{{ {x}, {y}, {z} }}</DisplayString>
+    <Expand>
+      <Item Name="x">x</Item>
+      <Item Name="y">y</Item>
+      <Item Name="z">z</Item>
+    </Expand>
+  </Type>
+
+  <!-- Vector<4, T, PodStorage> — hide _alias* and compound swizzles. -->
+  <Type Name="Vector&lt;4,*,PodStorage&gt;">
+    <DisplayString>{{ {x}, {y}, {z}, {w} }}</DisplayString>
+    <Expand>
+      <Item Name="x">x</Item>
+      <Item Name="y">y</Item>
+      <Item Name="z">z</Item>
+      <Item Name="w">w</Item>
+    </Expand>
+  </Type>
+
+</AutoVisualizer>
