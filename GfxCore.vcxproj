@@ -255,6 +255,7 @@
     <ClInclude Include="GfxCore\math\matrix.h" />
     <ClInclude Include="GfxCore\math\matrixSolvers.h" />
     <ClInclude Include="GfxCore\math\quaternion.h" />
+    <ClInclude Include="GfxCore\math\samplerGen.h" />
     <ClInclude Include="GfxCore\math\sparseMatrix.h" />
     <ClInclude Include="GfxCore\math\sparseVector.h" />
     <ClInclude Include="GfxCore\math\vector.h" />

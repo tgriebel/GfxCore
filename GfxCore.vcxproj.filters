@@ -141,5 +141,8 @@
     <ClInclude Include="GfxCore\primitives\geoBuilder.h">
       <Filter>Primitives</Filter>
     </ClInclude>
+    <ClInclude Include="GfxCore\math\samplerGen.h">
+      <Filter>Math</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
