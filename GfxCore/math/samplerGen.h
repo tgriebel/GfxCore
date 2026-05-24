@@ -15,8 +15,9 @@ protected:
 		return m_min + t * ( m_max - m_min );
 	}
 
-	float m_min = 0.0f;
-	float m_max = 1.0f;
+	float m_min   = 0.0f;
+	float m_max   = 1.0f;
+	float m_range = 1.0f;
 
 public:
 
@@ -33,8 +34,9 @@ public:
 
     void AddRange( const float min, const float max )
     {
-        m_min = min;
-        m_max = max;
+        m_min   = min;
+        m_max   = max;
+        m_range = ( max - min );
     }
 };
 
@@ -99,6 +101,84 @@ public:
     vec3f Sample3D() override
     {
         return PointOnSphere( m_dist( m_rng ), m_dist( m_rng ), m_radius );
+    }
+};
+
+
+// Shirley concentric disk mapping
+// https://victorpoughon.fr/non-random-uniform-disk-sampling/
+// Warping: https://www.slideshare.net/slideshow/graphics-gems-from-cryengine-3-siggraph-2013/25052583#33
+class ShirleyConcentricSamplerGen : public SamplerGenerator
+{
+private:
+
+	static float NgonBoundaryRadius( const float theta, const int N )
+	{
+		const float piOverN = PI / static_cast< float >( N );
+		const float twoPiOverN = 2.0f * piOverN;
+		const float t = theta - twoPiOverN * std::floor( theta / twoPiOverN ) - piOverN;
+		return std::cos( piOverN ) / std::cos( t );
+	}
+
+	float Sample() override { return 0.0f; }
+	vec3f Sample3D() override { return vec3f( 0.0f, 0.0f, 0.0f ); }
+
+	int32_t	m_sides;
+	float	m_angle;
+	int32_t	m_index = 0;
+
+public:
+
+    ShirleyConcentricSamplerGen( const int sides = 0, const float angle = 0.0f )
+        : m_sides( sides )
+        , m_angle( angle )
+    {}
+
+    void SetBlades( const int sides ) { m_sides = sides; }
+    void SetApertureAngle( const float angle ) { m_angle = angle; }
+
+    [[nodiscard]]
+    vec2f Sample2D() override
+    {
+        const int gridN = Max( static_cast<int>( m_range ), 1 );
+
+        const int i = m_index % gridN;
+        const int j = m_index / gridN;
+        m_index = ( m_index + 1 ) % ( gridN * gridN );
+
+        const float step = ( gridN > 1 ) ? 1.0f / static_cast<float>( gridN - 1 ) : 0.0f;
+        const float a = 2.0f * ( i * step ) - 1.0f;
+        const float b = 2.0f * ( j * step ) - 1.0f;
+
+        float r = 0.0f;
+        float phi = 0.0f;
+
+        if ( a != 0.0f || b != 0.0f )
+        {
+            if ( std::abs( a ) > std::abs( b ) )
+            {
+                r   = a;
+                phi = ( PI / 4.0f ) * ( b / a );
+            }
+            else
+            {
+                r   = b;
+                phi = ( PI / 2.0f ) - ( PI / 4.0f ) * ( a / b );
+            }
+        }
+
+        float x = r * std::cos( phi );
+        float y = r * std::sin( phi );
+
+        if ( m_sides >= 3 )
+        {
+            const float theta = std::atan2( y, x ) + m_angle;
+            r = std::sqrt( x * x + y * y ) * NgonBoundaryRadius( theta, m_sides );
+            x = r * std::cos( theta );
+            y = r * std::sin( theta );
+        }
+
+        return vec2f( x, y );
     }
 };
 
