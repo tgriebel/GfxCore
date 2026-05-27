@@ -107,6 +107,7 @@ public:
 
 // Shirley concentric disk mapping
 // https://victorpoughon.fr/non-random-uniform-disk-sampling/
+// https://www.adriancourreges.com/blog/2018/12/02/ue4-optimized-post-effects/
 // Warping: https://www.slideshare.net/slideshow/graphics-gems-from-cryengine-3-siggraph-2013/25052583#33
 class ShirleyConcentricSamplerGen : public SamplerGenerator
 {
