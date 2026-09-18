@@ -1,5 +1,4 @@
 *.lastbuildstate
-*.lastbuildstate
 *.tlog
 *.db
 *.db-wal
@@ -9,8 +8,16 @@
 *.recipe
 *.log
 *.obj
-*.obj
-*.obj
+*.lib
+*.pdb
+*.exe
+*.dll
+*.ilk
+*.idb
+*.iobj
+*.ipdb
+
 Test (Debug)/
 Release/
 Debug/
+Debug Driver/

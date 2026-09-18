@@ -1,2 +1,0 @@
-C:\Users\thoma\source\repos\GfxCore\Release\GfxCore.lib
-C:\Users\thoma\source\repos\VulkanRenderer-main\Vulkan-Renderer\external\GfxCore\Release\GfxCore.lib
