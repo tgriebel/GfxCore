@@ -10,14 +10,16 @@ class SamplerGenerator
 {
 protected:
 
-	float ScaleFloat( const float t ) const
+	// Generalized to support multiple dimensions
+	// Axis: X:0, Y:1, Z:2
+	float ScaleFloat( const float t, const int axis = 0 ) const
 	{
-		return m_min + t * ( m_max - m_min );
+		return m_min[ axis ] + t * m_range[ axis ];
 	}
 
-	float m_min   = 0.0f;
-	float m_max   = 1.0f;
-	float m_range = 1.0f;
+	vec3f m_min   = vec3f( 0.0f );
+	vec3f m_max   = vec3f( 1.0f );
+	vec3f m_range = vec3f( 1.0f );
 
 public:
 
@@ -32,10 +34,23 @@ public:
     [[nodiscard]]
     virtual vec3f Sample3D() = 0;
 
-    void AddRange( const float min, const float max )
+    // Same range per axis
+    virtual void AddRange( const float min, const float max )
     {
-        m_min   = min;
-        m_max   = max;
+        AddRange( vec3f( min, min, min ), vec3f( max, max, max ) );
+    }
+
+	// Same range per axis
+	virtual void AddRange( const vec2f& min, const vec2f& max )
+	{
+		AddRange( vec3f( min, 0.0f ), vec3f( max, 0.0f) );
+	}
+
+    // Unique range per axis
+    virtual void AddRange( const vec3f& min, const vec3f& max )
+    {
+        m_min = min;
+        m_max = max;
         m_range = ( max - min );
     }
 };
@@ -54,19 +69,19 @@ public:
     [[nodiscard]]
     float Sample() override
     {
-        return ScaleFloat( m_dist( m_rng ) );
+        return ScaleFloat( m_dist( m_rng ), 0 );
     }
 
     [[nodiscard]]
     vec2f Sample2D() override
     {
-        return vec2f( ScaleFloat( m_dist( m_rng ) ), ScaleFloat( m_dist( m_rng ) ) );
+        return vec2f( ScaleFloat( m_dist( m_rng ), 0 ), ScaleFloat( m_dist( m_rng ), 1 ) );
     }
 
     [[nodiscard]]
     vec3f Sample3D() override
     {
-        return vec3f( ScaleFloat( m_dist( m_rng ) ), ScaleFloat( m_dist( m_rng ) ), ScaleFloat( m_dist( m_rng ) ) );
+        return vec3f( ScaleFloat( m_dist( m_rng ), 0 ), ScaleFloat( m_dist( m_rng ), 1 ), ScaleFloat( m_dist( m_rng ), 2 ) );
     }
 };
 
@@ -141,7 +156,7 @@ public:
     [[nodiscard]]
     vec2f Sample2D() override
     {
-        const int gridN = Max( static_cast<int>( m_range ), 1 );
+        const int gridN = Max( static_cast<int>( m_range.x ), 1 );
 
         const int i = m_index % gridN;
         const int j = m_index / gridN;
@@ -154,16 +169,16 @@ public:
         float r = 0.0f;
         float phi = 0.0f;
 
-        if ( a != 0.0f || b != 0.0f )
+        if ( ( a != 0.0f ) || ( b != 0.0f ) )
         {
             if ( std::abs( a ) > std::abs( b ) )
             {
-                r   = a;
+                r = a;
                 phi = ( PI / 4.0f ) * ( b / a );
             }
             else
             {
-                r   = b;
+                r = b;
                 phi = ( PI / 2.0f ) - ( PI / 4.0f ) * ( a / b );
             }
         }
@@ -195,7 +210,8 @@ private:
 		float result = 0.0f;
 		float f = 1.0f;
 		int32_t i = index;
-		while( i > 0 ) {
+		while( i > 0 )
+		{
 			f /= static_cast< float >( base );
 			result += f * static_cast< float >( i % base );
 			i /= base;
@@ -211,14 +227,14 @@ public:
     float Sample() override
     {
 		// Use prime number as base
-        return ScaleFloat( Halton( m_index++, 2 ) );
+        return ScaleFloat( Halton( m_index++, 2 ), 0 );
     }
 
     [[nodiscard]]
     vec2f Sample2D() override
     {
 		// Use first two prime numbers as base
-        const vec2f result( ScaleFloat( Halton( m_index, 2 ) ), ScaleFloat( Halton( m_index, 3 ) ) );
+        const vec2f result( ScaleFloat( Halton( m_index, 2 ), 0 ), ScaleFloat( Halton( m_index, 3 ), 1 ) );
         ++m_index;
         return result;
     }
@@ -227,7 +243,7 @@ public:
     vec3f Sample3D() override
     {
 		// Use first three prime numbers as base
-        const vec3f result( ScaleFloat( Halton( m_index, 2 ) ), ScaleFloat( Halton( m_index, 3 ) ), ScaleFloat( Halton( m_index, 5 ) ) );
+        const vec3f result( ScaleFloat( Halton( m_index, 2 ), 0 ), ScaleFloat( Halton( m_index, 3 ), 1 ), ScaleFloat( Halton( m_index, 5 ), 2 ) );
         ++m_index;
         return result;
     }
